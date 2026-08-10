@@ -15,11 +15,11 @@ tags:
 
 ## Detail
 
-Sending un-redacted PII to external cloud LLM providers breaches data privacy regulations (GDPR, HIPAA, SOC 2).
+Sending un-redacted PII to an external cloud LLM provider is a regulated data transfer, not automatically a violation: under GDPR it needs a lawful basis plus a Data Processing Agreement, and under HIPAA it needs a Business Associate Agreement with the provider. Redaction is the control you apply when you cannot rely on those agreements, when the provider is outside your compliance boundary, or when you want to shrink blast radius on principle. (SOC 2 is an audit framework rather than a privacy law, but auditors will ask how egress is controlled.)
 
 ### The Redaction-Rehydration Pipeline
 
-```
+```text
 [User Input with PII] ──► [Local PII Engine (Presidio)] ──► Replace with Placeholders
                                                                     │
                                                                     ▼

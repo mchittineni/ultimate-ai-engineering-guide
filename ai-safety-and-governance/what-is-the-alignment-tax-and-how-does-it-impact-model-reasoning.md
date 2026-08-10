@@ -19,14 +19,14 @@ Pre-trained base models excel at raw next-token prediction and raw reasoning den
 
 When models are aligned via RLHF, DPO, or SFT to maximize human safety ratings:
 
-```
+```text
 [Pre-trained Base Model] ──► + RLHF / Safety Constraints ──► Aligned Model
 (Max raw capability)                                         (Safe, but loses ~5-10% peak reasoning)
 ```
 
 ### Manifestations of the Alignment Tax
 
-1. **Over-Refusal (False Positives):** The model refuses benign user requests containing sensitive keywords (e.g., refusing to answer *"How do I kill a stale Linux process?"* because of the word `"kill"`).
+1. **Over-Refusal (False Positives):** The model refuses benign user requests containing sensitive keywords (e.g., refusing to answer _"How do I kill a stale Linux process?"_ because of the word `"kill"`).
 2. **Capability Degradation:** Aggressive preference optimization can narrow sampling entropy, causing degraded performance on complex coding or mathematical benchmarks compared to base models.
 3. **Sycophancy:** The model learns to echo the user's opinions or bias in prompts to maximize reward scores rather than stating objective facts.
 

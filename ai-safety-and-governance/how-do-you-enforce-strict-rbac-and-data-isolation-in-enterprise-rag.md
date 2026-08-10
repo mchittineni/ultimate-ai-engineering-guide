@@ -17,7 +17,7 @@ tags:
 
 In multi-tenant enterprise systems, a user in Department A (e.g. Sales) must never retrieve or see confidential context documents belonging to Department B (e.g. Executive HR/Payroll).
 
-```
+```text
 [Document Ingest Pipeline] ──► Tag Metadata: {"tenant_id": "org_42", "allowed_roles": ["finance"]}
                                                               │
 [User Query from Sales (Role: "sales")]                        ▼

@@ -17,7 +17,7 @@ tags:
 
 Relying solely on system prompts for safety fails to guarantee strict operational workflows. NeMo Guardrails provides a programmable middleware layer between users and LLMs.
 
-```
+```text
 [User Input] ──► [NeMo Guardrail Engine (Colang Flow Rules)] ──► Intercept / Steer Path
                                           │
                   ┌───────────────────────┴───────────────────────┐
