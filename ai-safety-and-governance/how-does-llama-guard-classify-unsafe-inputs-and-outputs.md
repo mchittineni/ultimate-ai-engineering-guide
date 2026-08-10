@@ -21,15 +21,15 @@ Relying on generic system prompts for safety moderation is unreliable. Llama Gua
 
 Llama Guard classifies text against the 13 MLCommons hazard categories (Llama Guard 3 adds a 14th). Memorize the codes — interviewers who use these models will know them:
 
-| Code | Category | Code | Category |
-| --- | --- | --- | --- |
-| **S1** | Violent Crimes | **S8** | Intellectual Property |
-| **S2** | Non-Violent Crimes | **S9** | Indiscriminate Weapons (CBRNE) |
-| **S3** | Sex-Related Crimes | **S10** | Hate |
-| **S4** | Child Sexual Exploitation | **S11** | Suicide & Self-Harm |
-| **S5** | Defamation | **S12** | Sexual Content |
-| **S6** | Specialized Advice | **S13** | Elections |
-| **S7** | Privacy | **S14** | Code Interpreter Abuse (Llama Guard 3) |
+| Code   | Category                  | Code    | Category                               |
+| ------ | ------------------------- | ------- | -------------------------------------- |
+| **S1** | Violent Crimes            | **S8**  | Intellectual Property                  |
+| **S2** | Non-Violent Crimes        | **S9**  | Indiscriminate Weapons (CBRNE)         |
+| **S3** | Sex-Related Crimes        | **S10** | Hate                                   |
+| **S4** | Child Sexual Exploitation | **S11** | Suicide & Self-Harm                    |
+| **S5** | Defamation                | **S12** | Sexual Content                         |
+| **S6** | Specialized Advice        | **S13** | Elections                              |
+| **S7** | Privacy                   | **S14** | Code Interpreter Abuse (Llama Guard 3) |
 
 ### Guardrail Workflow
 
