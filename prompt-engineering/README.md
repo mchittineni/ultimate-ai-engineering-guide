@@ -11,13 +11,22 @@ tags:
 
 Zero/few-shot, Chain-of-Thought (CoT), Tree-of-Thoughts, ReAct, system prompts, structured JSON outputs, and injection defense.
 
-**1 questions** · 🟢 Beginner: 0 · 🟡 Intermediate: 1 · 🔴 Advanced: 0
+**10 questions** · 🟢 Beginner: 5 · 🟡 Intermediate: 3 · 🔴 Advanced: 2
 
 ## Questions
 
-| #   | Question                                                                                                         | Difficulty      |
-| --- | ---------------------------------------------------------------------------------------------------------------- | --------------- |
-| 3   | [How does ReAct (Reasoning and Acting) prompting work?](./how-does-react-reasoning-and-acting-prompting-work.md) | 🟡 Intermediate |
+| # | Question | Difficulty |
+| --- | --- | --- |
+| 3 | [How does ReAct (Reasoning and Acting) prompting work?](./how-does-react-reasoning-and-acting-prompting-work.md) | 🟡 Intermediate |
+| 15 | [What is the difference between zero-shot and few-shot prompting?](./what-is-the-difference-between-zero-shot-and-few-shot-prompting.md) | 🟢 Beginner |
+| 16 | [How does Chain-of-Thought (CoT) prompting improve LLM reasoning?](./how-does-chain-of-thought-cot-prompting-improve-llm-reasoning.md) | 🟢 Beginner |
+| 17 | [How do you enforce structured JSON outputs from an LLM?](./how-do-you-enforce-structured-json-outputs-from-an-llm.md) | 🟡 Intermediate |
+| 18 | [How does Tree-of-Thoughts (ToT) prompting differ from Chain-of-Thought?](./how-does-tree-of-thoughts-tot-prompting-differ-from-chain-of-thought.md) | 🔴 Advanced |
+| 56 | [What is a system prompt and how does it steer model behavior?](./what-is-a-system-prompt-and-how-does-it-steer-model-behavior.md) | 🟢 Beginner |
+| 57 | [What is prompt leaking and how do you prevent it?](./what-is-prompt-leaking-and-how-do-you-prevent-it.md) | 🟢 Beginner |
+| 58 | [How do role prompting and persona framing affect LLM outputs?](./how-do-role-prompting-and-persona-framing-affect-llm-outputs.md) | 🟢 Beginner |
+| 59 | [How do you design few-shot examples to prevent label bias?](./how-do-you-design-few-shot-examples-to-prevent-label-bias.md) | 🟡 Intermediate |
+| 60 | [How does Skeleton-of-Thought (SoT) speed up generation via parallel decoding?](./how-does-skeleton-of-thought-sot-speed-up-generation-via-parallel-decoding.md) | 🔴 Advanced |
 
 ## What interviewers probe here
 
