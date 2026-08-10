@@ -24,7 +24,7 @@ ReAct bridges reasoning and execution by structuring prompt generation into disc
 3. **Observation:** The external system runs the tool and appends the result back into the conversation context as an `Observation`.
 4. **Repeat:** The model reads the new observation and generates the next `Thought`, continuing until it reaches a final `Thought` and outputs `Finish[answer]`.
 
-```text
+````text
 User Query
     │
     ▼
@@ -97,3 +97,4 @@ Final Answer: The age of the current President of France multiplied by 2 is 92.
 ---
 
 [⬅ Back to Prompt Engineering](./README.md) · [All topics](../README.md)
+````
