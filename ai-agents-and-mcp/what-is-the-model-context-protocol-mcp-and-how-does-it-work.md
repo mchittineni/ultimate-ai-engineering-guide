@@ -19,7 +19,7 @@ Before MCP, connecting AI applications or coding assistants to external systems 
 
 MCP replaces $M \times N$ custom integrations with a clean client-server interface:
 
-```
+```text
 ┌────────────────────────────────┐
 │           MCP Client           │
 │   (e.g., Claude Desktop, IDE)  │
@@ -30,7 +30,7 @@ MCP replaces $M \times N$ custom integrations with a clean client-server interfa
 │           MCP Server           │
 │ (Postgres, GitHub, Slack, etc) │
 └────────────────────────────────┘
-```
+```text
 
 ### Core MCP Primitives
 
@@ -72,7 +72,7 @@ def get_database_schema() -> str:
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
-```
+```text
 
 ## Interview tips
 
