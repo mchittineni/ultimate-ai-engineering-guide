@@ -37,13 +37,13 @@ Without structured tracing, diagnosing why a specific user request took 5 second
   - Financial cost ($ USD estimated from token pricing).
   - Error states and exception stack traces.
 
-````text
+```text
 Trace: User Query ("Summarize Q3 earnings") [Total: 2,125ms | $0.0042]
  ├── Span: embedding_generation [45ms]
  ├── Span: vector_db_retrieve [30ms | 10 docs]
  ├── Span: rerank_documents [50ms | Top 3 retained]
  └── Span: llm_completion [2,000ms | 450 prompt_tokens | 300 completion_tokens]
-```text
+```
 
 ## Example
 
@@ -88,7 +88,7 @@ def run_rag_pipeline(user_query: str):
         return response.choices[0].message.content
 
 run_rag_pipeline("What was the Q3 revenue growth?")
-```text
+```
 
 ## Interview tips
 
@@ -98,4 +98,3 @@ run_rag_pipeline("What was the Q3 revenue growth?")
 ---
 
 [⬅ Back to LLMOps and Production AI](./README.md) · [All topics](../README.md)
-````

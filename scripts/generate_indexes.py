@@ -192,6 +192,20 @@ def main() -> int:
     root = read_text_safe(root_path)
     updated = replace_block(root, "TOC", render_root_toc(topics))
     updated = replace_block(updated, "STATS", render_stats(topics))
+
+    # Update top subheader and badges
+    questions = all_questions(topics)
+    counts = difficulty_counts(questions)
+    updated_lines = updated.splitlines()
+    for i, line in enumerate(updated_lines[:15]):
+        if "questions across" in line and "answered to the depth" in line:
+            updated_lines[i] = f"**{len(questions)} questions across {len(topics)} topics - answered to the depth an interviewer actually expects.**"
+        elif "img.shields.io/badge/questions-" in line:
+            updated_lines[i] = f"![Questions](https://img.shields.io/badge/questions-{len(questions)}-blue)"
+        elif "img.shields.io/badge/difficulty-" in line:
+            updated_lines[i] = f"![Difficulty](https://img.shields.io/badge/difficulty-🟢%20{counts['Beginner']}%20·%20🟡%20{counts['Intermediate']}%20·%20🔴%20{counts['Advanced']}-lightgrey)"
+    updated = "\n".join(updated_lines) + "\n"
+
     if normalize_markdown(updated) != normalize_markdown(root):
         drifted.append("README.md")
         if not args.check:

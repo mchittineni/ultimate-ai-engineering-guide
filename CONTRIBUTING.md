@@ -20,13 +20,13 @@ Every question and answer in this repository follows a strict quality standard:
 
 Before submitting a Pull Request, run the validation tools locally:
 
-````bash
+```bash
 # 1. Validate frontmatter, links, question IDs, and structure
 python3 scripts/validate_content.py
 
 # 2. Automatically regenerate topic indexes and main README stats
 python3 scripts/generate_indexes.py
-```text
+```
 
 ## 📝 Frontmatter Format
 
@@ -41,7 +41,7 @@ tags:
   - llm-fundamentals
   - interview-questions
 ---
-```text
+```
 
 ## 🚀 Creating a New Question
 
@@ -50,4 +50,3 @@ tags:
 3. Pick the next available unique `id`.
 4. Run `python3 scripts/generate_indexes.py` to add your question to the indexes.
 5. Run `python3 scripts/validate_content.py` to ensure everything passes cleanly.
-````

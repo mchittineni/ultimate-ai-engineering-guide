@@ -20,11 +20,11 @@ In production LLM serving, user-perceived responsiveness depends on two core SLA
 1. **TTFT (Time to First Token):** The time elapsed between sending a user request and receiving the very first streamed token. It includes prompt tokenization, routing, KV cache allocation, and running the compute-bound prefill forward pass over all prompt tokens.
 2. **TPOT (Time Per Output Token):** The average time spent generating each subsequent token during the decoding phase. It measures how fast text streams across the user's screen (inverse of Tokens Per Second per user).
 
-````text
+```text
 User Clicks Send ───► [Prefill Phase] ───► First Token Received ───► [Decoding Phase] ───► Generation Complete
                        │                   │                          │
                        └───── TTFT ────────┘                          └─── TPOT ──────────┘
-```text
+```
 
 ### Architectural Trade-offs & Optimizations
 
@@ -72,14 +72,13 @@ if len(token_timestamps) > 1:
     output_tokens = len(token_timestamps)
     tpot = (total_decoding_time / (output_tokens - 1)) * 1000
     print(f"TPOT: {tpot:.2f} ms/token ({1000/tpot:.2f} tokens/sec)")
-```text
+```
 
 ## Interview tips
 
-- Always explain why prefill is compute-bound ($O(N)$ operations processed in parallel for $N$ prompt tokens) whereas decoding is memory-bandwidth bound (sequential single-token steps loading full model weights each step).
+- Always explain why prefill is compute-bound: all $N$ prompt tokens go through in one pass, so each weight load from HBM is amortized across $N$ tokens ($O(N)$ FLOPs in the linear layers, $O(N^2)$ in attention) — high arithmetic intensity, tensor cores saturated. Decoding is memory-bandwidth bound because each sequential step reloads the full weight set to produce a single token.
 - Mention Chunked Prefills (Sarathi/vLLM) as the solution to prevent long prompt prefills from starving ongoing decode streams (eliminating tail latency spikes).
 
 ---
 
 [⬅ Back to AI System Design](./README.md) · [All topics](../README.md)
-````

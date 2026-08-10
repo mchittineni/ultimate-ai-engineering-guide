@@ -37,7 +37,7 @@ QLoRA enhances LoRA memory efficiency with three breakthroughs:
 2. **Double Quantization (DQ):** Quantizes the quantization constants themselves, saving an additional 0.37 bits per parameter.
 3. **Paged Optimizers:** Uses CUDA Unified Memory to automatically page optimizer state spikes to CPU RAM during long sequence gradient steps.
 
-````text
+```text
 Full Precision Fine-Tuning    LoRA (FP16 Base)              QLoRA (NF4 4-bit Base)
 ┌──────────────────────┐    ┌──────────────────────┐    ┌──────────────────────┐
 │  Trainable Base      │    │  Frozen FP16 Base    │    │  Frozen 4-bit NF4    │
@@ -46,7 +46,7 @@ Full Precision Fine-Tuning    LoRA (FP16 Base)              QLoRA (NF4 4-bit Bas
 │  + FP32 Optimizer    │    │    Rank Adapters     │    │    LoRA Adapters     │
 └──────────────────────┘    └──────────────────────┘    └──────────────────────┘
      VRAM: ~1,200 GB             VRAM: ~160 GB               VRAM: ~48 GB
-```text
+```
 
 ## Example
 
@@ -86,7 +86,7 @@ peft_config = LoraConfig(
 model = get_peft_model(model, peft_config)
 model.print_trainable_parameters()
 # Outputs: trainable params: 13,631,488 || all params: 8,043,892,736 || trainable%: 0.169%
-```text
+```
 
 ## Interview tips
 
@@ -96,4 +96,3 @@ model.print_trainable_parameters()
 ---
 
 [⬅ Back to Fine-Tuning and Adaptation](./README.md) · [All topics](../README.md)
-````

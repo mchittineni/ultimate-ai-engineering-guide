@@ -17,7 +17,7 @@ tags:
 
 Evaluating Retrieval-Augmented Generation (RAG) systems without ground-truth human annotations requires breaking down performance into distinct sub-metrics. Ragas (Retrieval Augmented Generation Assessment) isolates the Retriever component from the Generator (LLM) component using LLM-as-a-Judge prompting.
 
-````text
+```text
                   ┌──────────────────────┐
                   │      User Query      │
                   └──────────┬───────────┘
@@ -37,7 +37,7 @@ Evaluating Retrieval-Augmented Generation (RAG) systems without ground-truth hum
                              │
                              ▼
                      Generated Answer  ──► [Faithfulness & Answer Relevance]
-```text
+```
 
 ### The Core Ragas Metrics
 
@@ -72,7 +72,10 @@ Running automated Ragas evaluations in Python:
 
 ```python
 from ragas import evaluate
-from ragas.metrics import faithfulness, answer_relevance, context_recall
+
+# The metric is `answer_relevancy`, not `answer_relevance` -- the prose name
+# and the importable symbol differ, and `answer_relevance` is an ImportError.
+from ragas.metrics import answer_relevancy, context_recall, faithfulness
 from datasets import Dataset
 
 # Sample evaluation batch
@@ -89,21 +92,23 @@ results = evaluate(
     dataset=dataset,
     metrics=[
         faithfulness,
-        answer_relevance,
-        context_recall
-    ]
+        answer_relevancy,
+        context_recall,
+    ],
 )
 
 print(results)
-# Output: {'faithfulness': 1.0000, 'answer_relevance': 0.9652, 'context_recall': 1.0000}
-```text
+# Scores are LLM-judged, so expect run-to-run variation rather than fixed values:
+# {'faithfulness': 1.0000, 'answer_relevancy': 0.96.., 'context_recall': 1.0000}
+```
+
+Pin your Ragas version in the eval suite. The metric objects were renamed and restructured across releases (0.2 introduced `EvaluationDataset` and classes such as `ResponseRelevancy`), so an unpinned upgrade breaks the harness that is supposed to be your stable baseline.
 
 ## Interview tips
 
-- Highlight the "RAG Triad": Faithfulness, Answer Relevance, and Context Relevance.
+- Highlight the "RAG Triad" (the TruLens framing): Context Relevance, Groundedness, and Answer Relevance — where Groundedness is what Ragas calls Faithfulness.
 - Explain how to fix failures based on metric signals: low Faithfulness means prompt tuning or system prompt guardrails needed; low Context Recall means embedding model, chunk size, or top-k retrieval strategy needs tuning.
 
 ---
 
 [⬅ Back to Evaluation and Testing](./README.md) · [All topics](../README.md)
-````

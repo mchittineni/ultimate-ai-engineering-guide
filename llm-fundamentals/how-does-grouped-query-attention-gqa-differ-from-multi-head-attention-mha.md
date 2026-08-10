@@ -23,16 +23,22 @@ Three main attention variants address this:
 
 1. **Multi-Head Attention (MHA):** $N_{KV} = N_{Q}$. Maximum quality and expressiveness, but largest KV cache memory footprint.
 2. **Multi-Query Attention (MQA):** $N_{KV} = 1$. All query heads share a single Key head and Value head. Minimum memory usage, but can degrade model reasoning quality.
-3. **Grouped-Query Attention (GQA):** $1 < N_{KV} < N_{Q}$. Query heads are divided into $G$ groups, and all query heads within a group share one Key and Value head.
+3. **Grouped-Query Attention (GQA):** $1 < N_{KV} < N_{Q}$. Query heads are divided into $N_{KV}$ groups, and all query heads within a group share one Key and Value head. Each group therefore holds $G = N_{Q} / N_{KV}$ query heads.
 
-| Metric / Variant         | Multi-Head Attention (MHA)     | Grouped-Query Attention (GQA)                 | Multi-Query Attention (MQA)                    |
-| ------------------------ | ------------------------------ | --------------------------------------------- | ---------------------------------------------- |
-| **KV Heads ($N_{KV}$)**  | Equal to Query Heads ($N_{Q}$) | $N_{Q} / G$ (e.g., 8 KV heads for 32 Q heads) | 1 KV Head                                      |
-| **KV Cache Size**        | $100\%$ (Baseline)             | Reduced by factor of $G$ (e.g., $25\%$)       | Reduced by factor of $N_{Q}$ (e.g., $3.125\%$) |
-| **Inference Throughput** | Lower (Memory bound)           | Significantly Higher                          | Highest                                        |
-| **Model Quality**        | Highest                        | Near MHA performance                          | Slight degradation on complex tasks            |
+| Metric / Variant         | Multi-Head Attention (MHA)     | Grouped-Query Attention (GQA)                  | Multi-Query Attention (MQA)          |
+| ------------------------ | ------------------------------ | ---------------------------------------------- | ------------------------------------ |
+| **KV Heads ($N_{KV}$)**  | Equal to Query Heads ($N_{Q}$) | Between 1 and $N_{Q}$ (e.g., 8 for 32 Q heads) | 1 KV Head                            |
+| **KV Cache Size**        | $100\%$ (Baseline)             | $N_{KV} / N_{Q}$ (e.g., $8/32 = 25\%$)         | $1 / N_{Q}$ (e.g., $1/32 = 3.125\%$) |
+| **Inference Throughput** | Lower (Memory bound)           | Significantly Higher                           | Highest                              |
+| **Model Quality**        | Highest                        | Near MHA performance                           | Slight degradation on complex tasks  |
 
-Llama 3 (8B, 70B), Mistral, and modern open foundation models adopt GQA with an 8:1 query-to-KV head ratio to maximize batch size and decoding speed on enterprise GPUs.
+Watch the ratio direction in interviews — it is model-specific, not a universal 8:1:
+
+| Model       | Query Heads | KV Heads | $N_{Q}:N_{KV}$ | KV Cache vs MHA |
+| ----------- | ----------- | -------- | -------------- | --------------- |
+| Llama 3 8B  | 32          | 8        | 4:1            | 25%             |
+| Llama 3 70B | 64          | 8        | 8:1            | 12.5%           |
+| Mistral 7B  | 32          | 8        | 4:1            | 25%             |
 
 ## Example
 
