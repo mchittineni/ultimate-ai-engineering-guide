@@ -17,18 +17,18 @@ tags:
 
 LLM inference execution splits cleanly into two distinct operational phases:
 
-```
+```text
 [Input Prompt Tokens (N)] ──► Prefill Phase (Parallel, Compute-Bound) ──► Generates Token 1 (TTFT)
                                                                                   │
 [Generated Tokens (1..M)] ◄── Decode Phase (Sequential, Memory-Bound) ◄──────────┘ (TPOT)
 ```
 
-| Dimension | Prefill Phase (Prompt Processing) | Decoding Phase (Token Generation) |
-| --- | --- | --- |
-| **Execution Style** | Parallel (All input tokens $N$ processed in 1 pass) | Sequential (1 token generated per iteration step) |
-| **Primary Metric** | Time-to-First-Token (TTFT) | Time-Per-Output-Token (TPOT) |
-| **Hardware Bottleneck** | Compute-bound (FLOPs / Tensor Core execution) | Memory-bandwidth bound (HBM weight transfer) |
-| **KV Cache Impact** | Populates initial KV cache vectors for prompt | Appends 1 new K and V vector per step |
+| Dimension               | Prefill Phase (Prompt Processing)                   | Decoding Phase (Token Generation)                 |
+| ----------------------- | --------------------------------------------------- | ------------------------------------------------- |
+| **Execution Style**     | Parallel (All input tokens $N$ processed in 1 pass) | Sequential (1 token generated per iteration step) |
+| **Primary Metric**      | Time-to-First-Token (TTFT)                          | Time-Per-Output-Token (TPOT)                      |
+| **Hardware Bottleneck** | Compute-bound (FLOPs / Tensor Core execution)       | Memory-bandwidth bound (HBM weight transfer)      |
+| **KV Cache Impact**     | Populates initial KV cache vectors for prompt       | Appends 1 new K and V vector per step             |
 
 ## Example
 
@@ -38,10 +38,10 @@ Python conceptual profile breakdown:
 def profile_llm_execution(prompt_len: int, gen_len: int):
     # Prefill: Matrix multiplication over prompt_len tokens (High GPU FLOPs)
     prefill_flops = 2 * prompt_len * (70e9) # 70B parameter estimate
-    
+
     # Decode: Memory fetch of 70B weights for gen_len iterations
     decode_memory_transfers = gen_len * (140e9) # 140GB FP16 parameters per token
-    
+
     return prefill_flops, decode_memory_transfers
 
 flops, mem = profile_llm_execution(prompt_len=2048, gen_len=100)

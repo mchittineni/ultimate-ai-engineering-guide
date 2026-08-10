@@ -15,11 +15,11 @@ tags:
 
 ## Detail
 
-Traditional exact-string HTTP caching (e.g. Redis key-value) fails for LLM applications because users phrase the same query in multiple ways (e.g. *"How do I reset my password?"* vs *"Steps to reset password"*).
+Traditional exact-string HTTP caching (e.g. Redis key-value) fails for LLM applications because users phrase the same query in multiple ways (e.g. _"How do I reset my password?"_ vs _"Steps to reset password"_).
 
 ### Semantic Cache Architecture
 
-```
+```text
 [User Query] ──► [Embedder] ──► Vector Similarity Search (Redis / Milvus)
                                          │
                  ┌───────────────────────┴───────────────────────┐
@@ -31,7 +31,7 @@ Traditional exact-string HTTP caching (e.g. Redis key-value) fails for LLM appli
 ### Benefits & Risks
 
 - **Latency Reduction:** Drops latency from $\sim 1500\text{ ms}$ to $< 10\text{ ms}$.
-- **Cost Reduction:** Reduces API provider billing by $30\% - 60\%$ in high-traffic enterprise applications.
+- **Cost Reduction:** Savings equal your cache hit rate, so quote the hit rate rather than a headline percentage. Workloads with highly repetitive queries (FAQ and support deflection) commonly land in the 30-60% range; long-tail or highly personalized traffic saves far less. Measure it — do not assert it.
 - **Cache Staleness Risk:** If underlying knowledge changes, stale cached responses can be served unless cache invalidation TTLs are configured.
 
 ## Example

@@ -21,10 +21,10 @@ Autoregressive decoding generates text token-by-token. Generating a 500-token re
 
 1. **Client Request:** Sends HTTP POST/GET request with header `Accept: text/event-stream`.
 2. **Server Response:** Responds with HTTP header `Content-Type: text/event-stream` and `Transfer-Encoding: chunked`.
-3. **Stream Chunks:** Server pushes event data blocks prefixed with `data: ` as each token is sampled.
+3. **Stream Chunks:** Server pushes event data blocks prefixed with `data:` as each token is sampled.
 4. **Stream End:** Server sends `data: [DONE]` and closes the HTTP connection.
 
-```
+```text
 Client                             Server / vLLM Engine
   │ ────── POST /v1/chat ─────────► (Start Autoregressive Generation)
   │ ◄───── HTTP 200 text/event-stream ───│

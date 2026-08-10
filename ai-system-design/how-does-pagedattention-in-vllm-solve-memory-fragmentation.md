@@ -25,7 +25,7 @@ In traditional inference servers (e.g. HuggingFace Transformers), KV memory must
 
 ### The PagedAttention Solution
 
-```
+```text
 Logical KV Cache (Tokens 0..15) ──► Block Table Lookup ──► Physical GPU Memory Blocks
    Block 0 (Tokens 0-3)    ─────────────► Physical Block 12
    Block 1 (Tokens 4-7)    ─────────────► Physical Block 3
@@ -51,7 +51,7 @@ class PagedKVCacheManager:
         num_blocks_needed = (seq_len + self.block_size - 1) // self.block_size
         if req_id not in self.block_tables:
             self.block_tables[req_id] = []
-        
+
         while len(self.block_tables[req_id]) < num_blocks_needed:
             block = self.free_blocks.pop(0)
             self.block_tables[req_id].append(block)

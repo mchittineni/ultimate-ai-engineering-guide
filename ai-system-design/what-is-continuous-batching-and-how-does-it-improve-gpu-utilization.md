@@ -9,7 +9,7 @@ tags:
   - interview-questions
 ---
 
-# What is continuous batching and how does it improve GPU utilization?"
+# What is continuous batching and how does it improve GPU utilization?
 
 **Short answer:** Continuous batching (iteration-level batching) dynamically inserts new incoming requests and evicts completed sequences at every decoding iteration step, eliminating GPU idle time caused by static batching where all sequences wait for the longest sequence to finish.
 
@@ -17,7 +17,7 @@ tags:
 
 In traditional static batching, requests in a batch are processed together. If Request 1 generates 10 tokens and Request 2 generates 500 tokens, the GPU slots for Request 1 sit completely idle for 490 iterations.
 
-```
+```text
 Static Batching:
 Request 1 (10 tokens):  [Generates 10 tokens] ──► [IDLE GPU WAITING................]
 Request 2 (500 tokens): [Generates 500 tokens...................................]
@@ -29,8 +29,10 @@ Iteration N+1: Batch contains active tokens [Req 2 Step 11, Req 3 Step 1]
 
 ### Key Performance Benefits
 
-- **Near-100% GPU Compute Utilization:** The GPU tensor cores perform matrix multiplications on a full batch of active tokens at every step.
-- **Throughput Multiplier:** Increases inference serving throughput by $10x - 20x$ compared to static batching.
+- **No Idle Batch Slots:** Every iteration runs on a full batch of active sequences, so no slot sits waiting for the longest sequence to finish. This is the win — occupancy, not raw compute utilization.
+- **Throughput Multiplier:** Increases inference serving throughput by roughly $10x - 20x$ over naive static batching.
+
+Be precise about what improves. Decoding is memory-bandwidth bound, so tensor-core utilization stays low even with a full batch — see [What is GPU VRAM bandwidth and why is decoding memory-bound?](./what-is-gpu-vram-bandwidth-and-why-is-decoding-memory-bound.md). What continuous batching buys is amortizing each weight load from HBM across more sequences: the same 140 GB read serves 32 tokens instead of 1, raising arithmetic intensity and therefore throughput. Claiming "near-100% GPU compute utilization" contradicts the memory-bound analysis and invites a correction.
 
 ## Example
 

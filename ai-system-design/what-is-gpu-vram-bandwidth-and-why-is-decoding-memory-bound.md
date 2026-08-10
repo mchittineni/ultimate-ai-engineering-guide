@@ -22,23 +22,26 @@ $$\text{Arithmetic Intensity} = \frac{\text{Total Floating-Point Operations (FLO
 ### Why Decoding Has Low Arithmetic Intensity
 
 Consider generating 1 token on a batch size of 1 using a 70B parameter model in FP16 precision:
+
 - **Memory Transfer:** Transmitting 70B parameters $\times 2\text{ bytes} = 140\text{ GB}$ from GPU HBM to SRAM.
 - **Compute Operations:** ~140 GigaFLOPs of tensor calculations.
 - **Arithmetic Intensity:** $\frac{140 \times 10^9 \text{ FLOPs}}{140 \times 10^9 \text{ Bytes}} = 1 \text{ FLOP/Byte}$.
 
-NVIDIA H100 GPUs provide 2,000 TFLOPs of compute but only 3.35 TB/s of memory bandwidth. At 1 FLOP/Byte intensity, the GPU compute cores spend $>95\%$ of their time waiting for HBM memory transfers to complete.
+An H100 SXM provides roughly 989 TFLOPS of dense BF16/FP16 tensor compute (the widely quoted ~1,979 TFLOPS figure assumes 2:4 structured sparsity) against 3.35 TB/s of HBM3 bandwidth — a machine balance near 295 FLOP/byte. At 1 FLOP/byte of arithmetic intensity, decoding leaves the compute cores idle the overwhelming majority of the time, waiting on HBM.
 
-```
+```text
 Roofline Model:
-Decoding (Batch=1) ──► Low FLOP/Byte ──► Bound by HBM Bandwidth (~3.35 TB/s)
-Prefill (Batch=N)  ──► High FLOP/Byte ──► Bound by Tensor Core FLOPs (~2000 TFLOPs)
+Decoding (Batch=1) ──► Low FLOP/Byte  (~1)   ──► Bound by HBM Bandwidth (~3.35 TB/s)
+Prefill (Batch=N)  ──► High FLOP/Byte (100+) ──► Bound by Tensor Core FLOPs (~989 TFLOPS dense BF16)
 ```
+
+Quote the **dense** number in interviews. Sparsity figures assume a pruned model and do not apply to a standard dense forward pass.
 
 ## Example
 
 Python calculation of theoretical maximum generation speed bound by HBM bandwidth:
 
-```function
+```python
 def theoretical_max_tokens_per_sec(model_params_billions: float, hbm_bandwidth_tb_s: float, precision_bytes: int = 2) -> float:
     vram_per_pass_gb = model_params_billions * precision_bytes
     hbm_bandwidth_gb_s = hbm_bandwidth_tb_s * 1000.0

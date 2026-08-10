@@ -19,7 +19,7 @@ In standard inference engines (e.g. vLLM), prompt prefill and token decoding run
 
 When a 10,000-token prompt arrives, it preempts active token decoding streams, causing severe spike latency in Time-Per-Output-Token (TPOT) for concurrent users.
 
-```
+```text
 Unified Nodes (Interference):
 [Decode Stream] ──► [LONG PREFILL (10K Tokens) PREEMPTS GPU] ──► [TPOT Spike ~500ms]
 
@@ -45,7 +45,7 @@ Python concept illustrating chunked prefill interleaving:
 def interleave_chunked_prefill(prompt_tokens: list[int], active_decode_reqs: list[dict], chunk_size: int = 512):
     # Split 2048 token prompt into 4 x 512 chunks
     chunks = [prompt_tokens[i : i + chunk_size] for i in range(0, len(prompt_tokens), chunk_size)]
-    
+
     execution_steps = []
     for chunk in chunks:
         # Step combines 1 prefill chunk + 1 decode step for all active streams

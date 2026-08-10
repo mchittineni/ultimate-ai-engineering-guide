@@ -19,7 +19,7 @@ Standard autoregressive generation is strictly memory-bandwidth bound: generatin
 
 ### Speculative Decoding Pipeline
 
-```
+```text
 [Draft Model (Drafts K=5 tokens)] ──► [ "The", "quick", "brown", "fox", "jumps" ] (Fast sequential)
                                                      │
 [Target Model (Parallel Pass)]   ──► Verifies all K candidate tokens in 1 forward pass
@@ -43,10 +43,10 @@ Python conceptual representation of Speculative Decoding loop:
 def speculative_decoding_step(draft_model, target_model, context, K=4):
     # Step 1: Draft K tokens rapidly
     draft_tokens = draft_model.generate(context, max_new_tokens=K)
-    
+
     # Step 2: Target model evaluates all K tokens in parallel (1 forward pass)
     target_logits = target_model.forward(context + draft_tokens)
-    
+
     accepted_tokens = []
     for i, token in enumerate(draft_tokens):
         if target_logits[i].argmax() == token: # Simplified acceptance
@@ -55,7 +55,7 @@ def speculative_decoding_step(draft_model, target_model, context, K=4):
             # Resample from target model on first mismatch
             accepted_tokens.append(target_logits[i].argmax())
             break
-            
+
     return accepted_tokens
 ```
 
