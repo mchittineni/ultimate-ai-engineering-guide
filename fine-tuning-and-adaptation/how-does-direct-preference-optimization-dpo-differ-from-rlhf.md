@@ -30,15 +30,16 @@ DPO proves that the optimal policy solution can be expressed directly as a funct
 $$\mathcal{L}_{DPO}(\theta; \pi_{ref}) = -\mathbb{E}_{(x, y_w, y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)} \right) \right]$$
 
 Where:
+
 - $y_w$ is the winning (preferred) response, $y_l$ is the losing (dispreferred) response.
 - $\pi_\theta$ is the policy model being trained; $\pi_{ref}$ is the frozen reference SFT model.
 - $\beta$ is a hyperparameter scaling KL divergence penalty.
 
-| Feature | RLHF (PPO) | DPO |
-| --- | --- | --- |
-| **Reward Model Required** | Yes (Separate model in VRAM) | No |
-| **Training Stability** | Unstable (Sensitive to PPO hyperparameters) | Extremely Stable (Supervised cross-entropy loss) |
-| **GPU Memory Footprint** | Very High (Policy, Reference, Reward, Critic) | Moderate (Policy + Reference) |
+| Feature                   | RLHF (PPO)                                    | DPO                                              |
+| ------------------------- | --------------------------------------------- | ------------------------------------------------ |
+| **Reward Model Required** | Yes (Separate model in VRAM)                  | No                                               |
+| **Training Stability**    | Unstable (Sensitive to PPO hyperparameters)   | Extremely Stable (Supervised cross-entropy loss) |
+| **GPU Memory Footprint**  | Very High (Policy, Reference, Reward, Critic) | Moderate (Policy + Reference)                    |
 
 ## Example
 
@@ -51,7 +52,7 @@ import torch.nn.functional as F
 def dpo_loss(policy_win_logps, policy_lose_logps, ref_win_logps, ref_lose_logps, beta=0.1):
     policy_logratios = policy_win_logps - policy_lose_logps
     ref_logratios = ref_win_logps - ref_lose_logps
-    
+
     logits = policy_logratios - ref_logratios
     losses = -F.logsigmoid(beta * logits)
     return losses.mean()

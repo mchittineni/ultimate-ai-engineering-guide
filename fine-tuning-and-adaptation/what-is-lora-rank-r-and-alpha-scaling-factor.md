@@ -21,7 +21,7 @@ $$\Delta W = B \cdot A$$
 
 Where $W_0 \in \mathbb{R}^{d \times k}$, $B \in \mathbb{R}^{d \times r}$, and $A \in \mathbb{R}^{r \times k}$ with $r \ll \min(d, k)$.
 
-```
+```text
 Original Weight W_0 (d x k)  [FROZEN]
           +
 Adapter Update (d x k)      =  (B [d x r]  *  A [r x k])  *  (alpha / r)
@@ -52,7 +52,7 @@ class LoRALayer(nn.Module):
         self.r = r
         self.alpha = alpha
         self.scaling = alpha / r
-        
+
         # Low-rank matrices
         self.lora_A = nn.Parameter(torch.randn(r, in_dim) * 0.01)
         self.lora_B = nn.Parameter(torch.zeros(out_dim, r))

@@ -15,9 +15,9 @@ tags:
 
 ## Detail
 
-Base foundation models (e.g. Llama-3-8B-Base) are trained on raw web corpora. When prompted with a question like *"How do I bake a cake?"*, a base model may complete the text by continuing with more questions rather than providing an answer.
+Base foundation models (e.g. Llama-3-8B-Base) are trained on raw web corpora. When prompted with a question like _"How do I bake a cake?"_, a base model may complete the text by continuing with more questions rather than providing an answer.
 
-```
+```text
 Base Model:        Prompt: "How to bake a cake?" ──► Completion: "How to bake bread? How to make pasta?"
 SFT Instruct Model: Prompt: "How to bake a cake?" ──► Completion: "Step 1: Preheat oven to 350°F..."
 ```

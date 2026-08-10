@@ -25,7 +25,7 @@ DeepSeek R1 and DeepSeek Math introduced GRPO to streamline reinforcement learni
 2. **Reward Calculation:** Compute reward $r_i$ for each output $o_i$ using rule-based verifiers (e.g., math answer correctness, code test cases pass/fail) or reward models.
 3. **Relative Advantage Estimation:** Normalize rewards across the sampled group:
 
-$$A_i = \frac{r_i - \text{mean}(\{r_1, \dots, r_G\})}{\text{std}(\{r_1, \dots, r_G\}) + \epsilon}$$
+   $$A_i = \frac{r_i - \text{mean}(\{r_1, \dots, r_G\})}{\text{std}(\{r_1, \dots, r_G\}) + \epsilon}$$
 
 4. **Policy Update:** Optimize policy using clipped surrogate objective with KL divergence penalty against reference model:
 

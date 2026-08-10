@@ -17,13 +17,13 @@ tags:
 
 Model adaptation strategies trade off compute cost, dataset requirements, and update latency:
 
-| Dimension | Pre-Training | Fine-Tuning (Full / PEFT) | In-Context Learning (Prompt/RAG) |
-| --- | --- | --- | --- |
-| **Weight Modification** | Updates 100% of parameters | Updates 100% (Full) or <1% (LoRA) | 0% (Weights frozen) |
-| **Compute / GPU Cost** | Millions of USD (Thousands of H100 GPUs) | Hundreds of USD (Single/Few GPUs) | API invocation token cost |
-| **Data Requirement** | Trillions of tokens | Hundreds to thousands of curated pairs | 1 to 20 context documents |
-| **Knowledge Update** | Permanent baseline knowledge | Adaptation of tone, format, domain style | Real-time / Dynamic facts |
-| **Latency Impact** | N/A | None (Same architecture inference) | Higher latency due to prompt token overhead |
+| Dimension               | Pre-Training                             | Fine-Tuning (Full / PEFT)                | In-Context Learning (Prompt/RAG)            |
+| ----------------------- | ---------------------------------------- | ---------------------------------------- | ------------------------------------------- |
+| **Weight Modification** | Updates 100% of parameters               | Updates 100% (Full) or <1% (LoRA)        | 0% (Weights frozen)                         |
+| **Compute / GPU Cost**  | Millions of USD (Thousands of H100 GPUs) | Hundreds of USD (Single/Few GPUs)        | API invocation token cost                   |
+| **Data Requirement**    | Trillions of tokens                      | Hundreds to thousands of curated pairs   | 1 to 20 context documents                   |
+| **Knowledge Update**    | Permanent baseline knowledge             | Adaptation of tone, format, domain style | Real-time / Dynamic facts                   |
+| **Latency Impact**      | N/A                                      | None (Same architecture inference)       | Higher latency due to prompt token overhead |
 
 ## Example
 

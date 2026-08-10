@@ -17,7 +17,7 @@ tags:
 
 Running massive models in production incurs high GPU costs and latency. Distillation compresses teacher capabilities into compact student architectures.
 
-```
+```text
 [Teacher Model (70B / DeepSeek R1)] ──► Generates Synthetic Reasoning Traces (COT)
                                                      │
 [Student Model (8B / Llama 3 8B)]   ◄── SFT Loss ────┘ (Cross-entropy on teacher logits/text)
@@ -27,7 +27,7 @@ Running massive models in production incurs high GPU costs and latency. Distilla
 
 1. **Logit-Based Distillation (Traditional KL-Divergence):** The student model minimizes the KL divergence between its output logit distribution and the soft logits of the teacher model:
 
-$$\mathcal{L}_{distill} = (1 - \alpha) \mathcal{L}_{CE}(y, p_s) + \alpha T^2 D_{KL}\left( \text{softmax}\left(\frac{z_t}{T}\right) \parallel \text{softmax}\left(\frac{z_s}{T}\right) \right)$$
+   $$\mathcal{L}_{distill} = (1 - \alpha) \mathcal{L}_{CE}(y, p_s) + \alpha T^2 D_{KL}\left( \text{softmax}\left(\frac{z_t}{T}\right) \parallel \text{softmax}\left(\frac{z_s}{T}\right) \right)$$
 
 2. **Sequence / Synthetic Data Distillation (Modern LLM Distillation):** The teacher model generates thousands of synthetic Chain-of-Thought reasoning traces. The student model undergoes SFT directly on these teacher-generated reasoning datasets (used in DeepSeek-R1-Distill models).
 
