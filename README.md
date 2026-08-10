@@ -248,7 +248,7 @@ python3 scripts/validate_content.py
 
 # Regenerate topic indexes and README stats
 python3 scripts/generate_indexes.py
-```
+```text
 
 ---
 

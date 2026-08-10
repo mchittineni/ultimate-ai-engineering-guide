@@ -26,7 +26,7 @@ python3 scripts/validate_content.py
 
 # 2. Automatically regenerate topic indexes and main README stats
 python3 scripts/generate_indexes.py
-```
+```text
 
 ## 📝 Frontmatter Format
 
@@ -41,7 +41,7 @@ tags:
   - llm-fundamentals
   - interview-questions
 ---
-```
+```text
 
 ## 🚀 Creating a New Question
 
