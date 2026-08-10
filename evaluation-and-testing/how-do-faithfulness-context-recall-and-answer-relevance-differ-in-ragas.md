@@ -17,7 +17,7 @@ tags:
 
 Evaluating Retrieval-Augmented Generation (RAG) systems without ground-truth human annotations requires breaking down performance into distinct sub-metrics. Ragas (Retrieval Augmented Generation Assessment) isolates the Retriever component from the Generator (LLM) component using LLM-as-a-Judge prompting.
 
-```
+```text
                   ┌──────────────────────┐
                   │      User Query      │
                   └──────────┬───────────┘
@@ -37,7 +37,7 @@ Evaluating Retrieval-Augmented Generation (RAG) systems without ground-truth hum
                              │
                              ▼
                      Generated Answer  ──► [Faithfulness & Answer Relevance]
-```
+```text
 
 ### The Core Ragas Metrics
 
@@ -96,7 +96,7 @@ results = evaluate(
 
 print(results)
 # Output: {'faithfulness': 1.0000, 'answer_relevance': 0.9652, 'context_recall': 1.0000}
-```
+```text
 
 ## Interview tips
 
