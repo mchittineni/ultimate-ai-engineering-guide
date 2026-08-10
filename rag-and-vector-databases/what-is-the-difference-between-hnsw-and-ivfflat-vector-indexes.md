@@ -70,7 +70,7 @@ index_ivf = faiss.IndexIVFFlat(quantizer, dimension, nlist)
 index_ivf.train(data)
 index_ivf.add(data)
 index_ivf.nprobe = 10 # Number of clusters inspected at query time
-```
+```text
 
 ## Interview tips
 
