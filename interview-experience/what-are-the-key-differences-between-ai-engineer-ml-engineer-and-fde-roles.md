@@ -17,7 +17,7 @@ tags:
 
 As the AI ecosystem matured, hiring managers split traditional "Machine Learning" job requisitions into specialized tracks based on operational focus, daily toolchains, and business objectives.
 
-```text
+````text
        ┌─────────────────────────────────────────────────────────────┐
        │                   AI Specialization Spectrum                │
        └─────────────────────────────────────────────────────────────┘
@@ -64,3 +64,4 @@ How each role tackles a customer support automation requirement:
 ---
 
 [⬅ Back to Interview Experience](./README.md) · [All topics](../README.md)
+````
