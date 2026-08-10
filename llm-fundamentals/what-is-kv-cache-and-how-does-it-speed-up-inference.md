@@ -21,7 +21,7 @@ Without KV Caching:
 
 - At step $N$, the model computes $K_1, \dots, K_N$ and $V_1, \dots, V_N$.
 - At step $N+1$, the model would recompute $K_1, \dots, K_{N+1}$ and $V_1, \dots, V_{N+1}$ from scratch.
-- Time complexity per step grows quadratically with sequence length ($O(N^2)$ flops over the generation loop).
+- Cost per step grows with sequence length: re-projecting every prior token is $O(N)$ and re-running attention over them is $O(N^2)$, so generating $N$ tokens costs $O(N^3)$ attention FLOPs across the whole loop.
 
 With KV Caching:
 
@@ -31,11 +31,17 @@ With KV Caching:
 
 ### Memory Impact
 
-While KV caching drastically speeds up generation (reducing latency by up to 10x), it shifts inference from compute-bound to memory-capacity bound. For a model with $L$ layers, $H$ attention heads, head dimension $d_k$, sequence length $S$, batch size $B$, and precision $P$ bytes:
+While KV caching drastically speeds up generation, it shifts inference from compute-bound to memory-capacity bound. For a model with $L$ layers, $N_{KV}$ **key/value** heads, head dimension $d_k$, sequence length $S$, batch size $B$, and precision $P$ bytes:
 
-$$\text{KV Cache Size (Bytes)} = 2 \times B \times S \times L \times H \times d_k \times P$$
+$$\text{KV Cache Size (Bytes)} = 2 \times B \times S \times L \times N_{KV} \times d_k \times P$$
 
-For Llama-3-70B running float16 ($P=2$) with a 4K context window and batch size 1, KV cache alone consumes ~1.3 GB of GPU VRAM per stream.
+The head count in that formula is the number of **KV** heads, not query heads — under MHA they are equal, but under GQA/MQA the cache is far smaller. Getting this wrong is the most common sizing mistake in interviews.
+
+Worked example — Llama-3-70B in float16 ($P=2$), 4K context, batch size 1. It has $L=80$ layers, $N_{KV}=8$ (GQA), and $d_k=128$:
+
+$$2 \times 1 \times 4096 \times 80 \times 8 \times 128 \times 2 = 1.34\text{ GB per stream}$$
+
+Using its 64 **query** heads instead would overestimate this by 8x (~10.7 GB), which is exactly the error the formula above prevents.
 
 ## Example
 

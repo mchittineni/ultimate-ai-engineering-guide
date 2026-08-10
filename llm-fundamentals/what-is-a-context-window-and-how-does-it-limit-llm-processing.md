@@ -17,7 +17,7 @@ tags:
 
 The context window (e.g. 4K, 32K, 128K, or 1M tokens) dictates the maximum operational horizon of a model:
 
-```
+```text
 ┌──────────────────────────────────────────────────────────┐
 │                   TOTAL CONTEXT WINDOW                   │
 ├──────────────────────────────┬───────────────────────────┤
@@ -29,7 +29,7 @@ The context window (e.g. 4K, 32K, 128K, or 1M tokens) dictates the maximum opera
 ### Core Limits Enforced by Context Windows
 
 1. **Quadratic Attention Bottleneck:** Standard self-attention compute scales quadratically $O(N^2)$ with sequence length $N$ during prefill.
-2. **KV Cache VRAM Memory Footprint:** Longer context windows require exponentially larger GPU VRAM reserves to store Key-Value tensors for active user streams.
+2. **KV Cache VRAM Memory Footprint:** KV cache grows **linearly** with sequence length (and linearly with batch size), so a 128K context reserves 32x the VRAM of a 4K context for the same stream. Linear is still brutal when multiplied across concurrent users — but do not call it exponential in an interview.
 3. **Information Retrieval Loss ("Lost in the Middle"):** As context windows scale to 128K+, LLMs struggle to recall details placed in the middle of long prompts compared to the beginning and end.
 
 ## Example
@@ -46,7 +46,14 @@ def check_context_window(prompt_tokens: int, max_output_tokens: int, model_limit
         )
     return True
 
-check_context_window(prompt_tokens=30000, max_output_tokens=4000, model_limit=32768)
+# Fits: 20,000 + 4,000 = 24,000 <= 32,768
+print(check_context_window(prompt_tokens=20000, max_output_tokens=4000))
+
+# Does not fit: 30,000 + 4,000 = 34,000 > 32,768
+try:
+    check_context_window(prompt_tokens=30000, max_output_tokens=4000)
+except ValueError as exc:
+    print(exc)
 ```
 
 ## Interview tips

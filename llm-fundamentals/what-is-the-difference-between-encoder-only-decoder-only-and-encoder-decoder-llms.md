@@ -17,11 +17,11 @@ tags:
 
 Transformer architectures differ primarily in how attention masks are applied across sequence tokens:
 
-| Architecture | Attention Mechanism | Key Use Cases | Representative Models |
-| --- | --- | --- | --- |
-| **Encoder-Only** | Bidirectional (every token attends to every token) | Sentence embeddings, search ranking, classification, Named Entity Recognition (NER) | BERT, RoBERTa, DeBERTa |
-| **Decoder-Only** | Causal / Unidirectional (tokens attend only to past and current tokens) | Open-ended text generation, chat, code generation, reasoning | GPT-4, Llama 3, Mistral, Qwen |
-| **Encoder-Decoder** | Bidirectional in encoder, causal in decoder + cross-attention | Sequence-to-sequence translation, summarization, doc parsing | T5, BART, Whisper |
+| Architecture        | Attention Mechanism                                                     | Key Use Cases                                                                       | Representative Models         |
+| ------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------- |
+| **Encoder-Only**    | Bidirectional (every token attends to every token)                      | Sentence embeddings, search ranking, classification, Named Entity Recognition (NER) | BERT, RoBERTa, DeBERTa        |
+| **Decoder-Only**    | Causal / Unidirectional (tokens attend only to past and current tokens) | Open-ended text generation, chat, code generation, reasoning                        | GPT-4, Llama 3, Mistral, Qwen |
+| **Encoder-Decoder** | Bidirectional in encoder, causal in decoder + cross-attention           | Sequence-to-sequence translation, summarization, doc parsing                        | T5, BART, Whisper             |
 
 ### Why Decoder-Only Predominates Modern Generative AI
 

@@ -27,6 +27,7 @@ $$R_{\Theta, m}^d x_m = \begin{pmatrix} \cos m\theta_1 & -\sin m\theta_1 \\ \sin
 ### RoPE Scaling Techniques for Extended Context
 
 When fine-tuning a model trained on 4K context to handle 128K context:
+
 - **Linear Scaling (Position Interpolation):** Scales positional indices down by factor $s = \frac{N_{new}}{N_{old}}$.
 - **NTK-Aware Scaling:** Adjusts high-frequency and low-frequency components differently to preserve local precision while scaling global sequence context.
 - **YaRN (Yet Another RoPE Extension):** Applies temperature scaling to attention softmax alongside frequency interpolation.
@@ -43,7 +44,7 @@ def apply_rope_2d(x: torch.Tensor, m: int, theta: float = 10000.0) -> torch.Tens
     freq = 1.0 / (theta ** (0 / 2))
     angle = m * freq
     cos, sin = torch.cos(torch.tensor(angle)), torch.sin(torch.tensor(angle))
-    
+
     x1, x2 = x[:, 0], x[:, 1]
     rot_x1 = x1 * cos - x2 * sin
     rot_x2 = x1 * sin + x2 * cos

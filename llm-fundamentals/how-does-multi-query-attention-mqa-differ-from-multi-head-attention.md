@@ -21,11 +21,11 @@ Multi-Query Attention (MQA) drastically compresses KV memory:
 
 $$\text{MHA: } N_{KV} = N_Q \quad \text{vs} \quad \text{MQA: } N_{KV} = 1$$
 
-| Attention Variant | Query Heads ($N_Q$) | Key/Value Heads ($N_{KV}$) | KV Cache Memory Savings | Quality Impact |
-| --- | --- | --- | --- | --- |
-| **Multi-Head Attention (MHA)** | 32 | 32 | Baseline (100%) | Highest expressiveness |
-| **Multi-Query Attention (MQA)** | 32 | 1 | ~96.8% reduction ($1/32$) | Higher risk of reasoning degradation |
-| **Grouped-Query Attention (GQA)** | 32 | 8 | ~75% reduction ($8/32$) | Optimal quality/throughput compromise |
+| Attention Variant                 | Query Heads ($N_Q$) | Key/Value Heads ($N_{KV}$) | KV Cache Memory Savings   | Quality Impact                        |
+| --------------------------------- | ------------------- | -------------------------- | ------------------------- | ------------------------------------- |
+| **Multi-Head Attention (MHA)**    | 32                  | 32                         | Baseline (100%)           | Highest expressiveness                |
+| **Multi-Query Attention (MQA)**   | 32                  | 1                          | ~96.8% reduction ($1/32$) | Higher risk of reasoning degradation  |
+| **Grouped-Query Attention (GQA)** | 32                  | 8                          | ~75% reduction ($8/32$)   | Optimal quality/throughput compromise |
 
 ## Example
 

@@ -28,11 +28,11 @@ $$\text{Score}(Y) = \frac{1}{T^\alpha} \sum_{t=1}^T \log P(y_t | y_{<t}, X)$$
 
 Where $T^\alpha$ normalizes for sequence length to avoid favoring short completions.
 
-| Metric | Greedy Decoding | Beam Search |
-| --- | --- | --- |
-| **Compute / Memory** | Low (Single state pass) | High ($B \times$ forward passes & KV cache streams) |
-| **Primary Use Cases** | Chat, code generation, real-time streaming | Translation, summarization, deterministic sequence parsing |
-| **Streaming Compatibility** | High | Low (Must evaluate full beams before outputting) |
+| Metric                      | Greedy Decoding                            | Beam Search                                                |
+| --------------------------- | ------------------------------------------ | ---------------------------------------------------------- |
+| **Compute / Memory**        | Low (Single state pass)                    | High ($B \times$ forward passes & KV cache streams)        |
+| **Primary Use Cases**       | Chat, code generation, real-time streaming | Translation, summarization, deterministic sequence parsing |
+| **Streaming Compatibility** | High                                       | Low (Must evaluate full beams before outputting)           |
 
 ## Example
 
@@ -45,7 +45,7 @@ next_token = logits.argmax(dim=-1)
 # Beam search step (B=2 candidate sequences)
 top2_probs, top2_indices = torch.topk(torch.softmax(logits, dim=-1), k=2)
 beams = [
-    {"seq": [idx.item()], "score": torch.log(prob).item()} 
+    {"seq": [idx.item()], "score": torch.log(prob).item()}
     for prob, idx in zip(top2_probs[0], top2_indices[0])
 ]
 print("Top 2 initial beams:", beams)

@@ -19,11 +19,11 @@ LLM output generation converts raw unnormalized logit vectors into probability d
 
 $$P(w_i) = \frac{\exp(z_i / T)}{\sum_{j} \exp(z_j / T)}$$
 
-| Parameter | Function | Value Range | Effect of Lower Value | Effect of Higher Value |
-| --- | --- | --- | --- | --- |
-| **Temperature ($T$)** | Divides logits before Softmax | $0.0 - 2.0$ | Deterministic, repetitive, focused ($T \to 0$ equals greedy decoding) | Creative, chaotic, random |
-| **Top-$k$** | Keeps top $k$ highest logit tokens | $1 - N$ | Cuts off low probability tail strictly | Includes broader vocabulary tokens |
-| **Top-$p$ (Nucleus)** | Truncates cumulative probability | $0.0 - 1.0$ | Restricts candidates dynamically based on distribution steepness | Expands candidate set |
+| Parameter             | Function                           | Value Range | Effect of Lower Value                                                 | Effect of Higher Value             |
+| --------------------- | ---------------------------------- | ----------- | --------------------------------------------------------------------- | ---------------------------------- |
+| **Temperature ($T$)** | Divides logits before Softmax      | $0.0 - 2.0$ | Deterministic, repetitive, focused ($T \to 0$ equals greedy decoding) | Creative, chaotic, random          |
+| **Top-$k$**           | Keeps top $k$ highest logit tokens | $1 - N$     | Cuts off low probability tail strictly                                | Includes broader vocabulary tokens |
+| **Top-$p$ (Nucleus)** | Truncates cumulative probability   | $0.0 - 1.0$ | Restricts candidates dynamically based on distribution steepness      | Expands candidate set              |
 
 ## Example
 
