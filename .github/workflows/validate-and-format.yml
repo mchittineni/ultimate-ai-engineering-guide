@@ -1,0 +1,114 @@
+name: Validate and Format Markdown Content
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.13"
+  NODE_VERSION: "24"
+
+jobs:
+  validate:
+    name: Validate content vault
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # Frontmatter schema, filename slugs, unique IDs, heading consistency,
+      # relative link integrity, and whether any generated index has drifted.
+      - name: Validate questions, links, and indexes
+        run: python3 scripts/validate_content.py
+
+      - name: Fail if indexes are stale
+        run: python3 scripts/generate_indexes.py --check
+
+  lint:
+    name: Lint and format Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check formatting with Prettier
+        run: npx --yes prettier@3 --check "**/*.md"
+
+      - name: Lint with markdownlint
+        run: npx --yes markdownlint-cli2 "**/*.md"
+
+  pr-success-comment:
+    if: github.event_name == 'pull_request'
+    needs: [validate, lint]
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Post success comment on PR
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const marker = "<!-- validation-success -->";
+
+            const body = `${marker}
+            ## ✅ All automated checks passed
+
+            The following checks completed successfully:
+
+            - ✅ Content validation
+            - ✅ Index validation
+            - ✅ Markdown formatting
+            - ✅ Markdown linting
+
+            Your contribution is ready for review. 🎉`;
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              }
+            );
+
+            const existing = comments.find(
+              c =>
+                c.user.type === "Bot" &&
+                c.body.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

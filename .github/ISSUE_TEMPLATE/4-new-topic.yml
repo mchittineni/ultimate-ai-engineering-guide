@@ -1,0 +1,67 @@
+name: 📁 Propose a new topic
+description: A subject area the 10 existing topics cannot hold.
+title: "[topic] "
+labels: ["new-topic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A new topic is a bigger change than a new question: it needs a directory, an entry in `scripts/topic_meta.json` with an order and study notes, a generated README, and enough questions to justify existing. Please check first whether the subject fits an existing topic - e.g., a single question about quantization algorithm mechanics belongs in Fine-Tuning & Adaptation.
+
+  - type: input
+    id: name
+    attributes:
+      label: Proposed topic name
+      description: The display title. The directory slug is derived from it.
+      placeholder: Multimodal AI Systems
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: What does it cover, and what does it deliberately not cover?
+      description: The boundary matters more than the name - it is what stops the topic overlapping the neighbouring ones.
+      placeholder: |
+        Covers: Vision-Language Models (VLMs), audio embeddings, cross-modal attention, image/text chunking.
+        Does not cover: standard text LLM architectures (llm-fundamentals) or pure vector search indexing (rag-and-vector-databases).
+    validations:
+      required: true
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: At least five questions it would hold
+      description: A topic with fewer than five real interview questions should be questions inside an existing topic instead.
+      placeholder: |
+        1. How does cross-attention work in Vision-Language Models (VLMs)?
+        2. How do you chunk multimodal documents containing tables and diagrams for RAG?
+        3. What are the latency and memory trade-offs of early vs late fusion in multimodal architectures?
+        4. How do you evaluate image-to-text generation quality in automated CI/CD?
+        5. What are the key architectural differences between CLIP and SigLIP?
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: overlap
+    attributes:
+      label: Which existing topics does it overlap, and why is a split better?
+      description: Name the closest existing topics and explain why the content does not belong there.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: group
+    attributes:
+      label: Which group should it sit in?
+      description: Topics are grouped in the root table of contents. Pick the nearest fit.
+      options:
+        - Foundations & Models
+        - Retrieval & Agentic Systems
+        - Adaptation & System Design
+        - Operations & Quality
+        - Governance & Career Track
+        - Not sure
+    validations:
+      required: false
