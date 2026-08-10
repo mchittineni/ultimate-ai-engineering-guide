@@ -20,7 +20,7 @@ In production LLM serving, user-perceived responsiveness depends on two core SLA
 1. **TTFT (Time to First Token):** The time elapsed between sending a user request and receiving the very first streamed token. It includes prompt tokenization, routing, KV cache allocation, and running the compute-bound prefill forward pass over all prompt tokens.
 2. **TPOT (Time Per Output Token):** The average time spent generating each subsequent token during the decoding phase. It measures how fast text streams across the user's screen (inverse of Tokens Per Second per user).
 
-```text
+````text
 User Clicks Send ───► [Prefill Phase] ───► First Token Received ───► [Decoding Phase] ───► Generation Complete
                        │                   │                          │
                        └───── TTFT ────────┘                          └─── TPOT ──────────┘
@@ -82,3 +82,4 @@ if len(token_timestamps) > 1:
 ---
 
 [⬅ Back to AI System Design](./README.md) · [All topics](../README.md)
+````
