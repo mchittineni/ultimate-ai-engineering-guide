@@ -15,9 +15,9 @@ Observability, prompt tracing, cost management, drift detection, CI/CD pipelines
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 8 | [How do you implement distributed tracing for multi-step LLM pipelines?](./how-do-you-implement-distributed-tracing-for-multi-step-llm-pipelines.md) | 🟡 Intermediate |
+| #   | Question                                                                                                                                             | Difficulty      |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| 8   | [How do you implement distributed tracing for multi-step LLM pipelines?](./how-do-you-implement-distributed-tracing-for-multi-step-llm-pipelines.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 
