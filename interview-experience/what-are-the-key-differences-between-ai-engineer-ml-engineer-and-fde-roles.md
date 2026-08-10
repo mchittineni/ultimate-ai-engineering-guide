@@ -32,12 +32,12 @@ As the AI ecosystem matured, hiring managers split traditional "Machine Learning
 
 ### Role Matrix Comparison
 
-| Role Dimension | AI Engineer | ML Engineer / MLOps | Forward Deployed Engineer (FDE) |
-| --- | --- | --- | --- |
-| **Primary Goal** | Build software applications powered by foundation models. | Train, optimize, and serve custom machine learning models. | Ship AI integrations tailored to specific enterprise customer systems. |
-| **Primary Toolchain** | Python, TypeScript, OpenAI/Anthropic APIs, vLLM, Vector DBs, MCP. | PyTorch, CUDA, Triton, DeepSpeed, Ray, Kubeflow, C++. | Full-Stack Web, Docker, K8s, Cloud (AWS/GCP/Azure), Customer APIs. |
-| **Key Mindset** | "How do I make this system reliable, fast, and grounded for users?" | "How do I lower loss, optimize throughput, and train efficiently?" | "How do I deliver high ROI for this enterprise customer under security constraints?" |
-| **Primary Deliverables** | RAG pipelines, AI Agents, Tool APIs, Prompt evaluations. | Trained model weights, custom loss functions, inference engines. | Deployed client workflows, integration codebases, customer POCs. |
+| Role Dimension           | AI Engineer                                                         | ML Engineer / MLOps                                                | Forward Deployed Engineer (FDE)                                                      |
+| ------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| **Primary Goal**         | Build software applications powered by foundation models.           | Train, optimize, and serve custom machine learning models.         | Ship AI integrations tailored to specific enterprise customer systems.               |
+| **Primary Toolchain**    | Python, TypeScript, OpenAI/Anthropic APIs, vLLM, Vector DBs, MCP.   | PyTorch, CUDA, Triton, DeepSpeed, Ray, Kubeflow, C++.              | Full-Stack Web, Docker, K8s, Cloud (AWS/GCP/Azure), Customer APIs.                   |
+| **Key Mindset**          | "How do I make this system reliable, fast, and grounded for users?" | "How do I lower loss, optimize throughput, and train efficiently?" | "How do I deliver high ROI for this enterprise customer under security constraints?" |
+| **Primary Deliverables** | RAG pipelines, AI Agents, Tool APIs, Prompt evaluations.            | Trained model weights, custom loss functions, inference engines.   | Deployed client workflows, integration codebases, customer POCs.                     |
 
 ### Interview Focus by Role
 

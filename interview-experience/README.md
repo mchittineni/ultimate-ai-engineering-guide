@@ -15,9 +15,9 @@ Role-specific interview blueprints (AI Engineer, FDE, AI Architect), portfolio p
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 11 | [What are the key differences between AI Engineer, ML Engineer, and FDE roles?](./what-are-the-key-differences-between-ai-engineer-ml-engineer-and-fde-roles.md) | 🟡 Intermediate |
+| #   | Question                                                                                                                                                         | Difficulty      |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| 11  | [What are the key differences between AI Engineer, ML Engineer, and FDE roles?](./what-are-the-key-differences-between-ai-engineer-ml-engineer-and-fde-roles.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 
