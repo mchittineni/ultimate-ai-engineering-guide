@@ -18,6 +18,7 @@ tags:
 Full Parameter Fine-Tuning requires updating and storing gradients, optimizer states (AdamW requires 8 bytes per parameter), and activations for all billions of parameters. Fine-tuning Llama-3-70B fully requires over 1.2 TB of VRAM across massive GPU clusters.
 
 ### LoRA (Low-Rank Adaptation)
+
 LoRA freezes the pre-trained model weights $W_0 \in \mathbb{R}^{d \times k}$ and injects trainable rank decomposition matrices:
 
 $$W = W_0 + \Delta W = W_0 + B \cdot A$$
@@ -29,7 +30,9 @@ where $B \in \mathbb{R}^{d \times r}$ and $A \in \mathbb{R}^{r \times k}$, with 
 - **Zero Inference Latency:** At deployment, $B \cdot A$ can be permanently merged back into $W_0$, adding zero latency overhead.
 
 ### QLoRA (Quantized Low-Rank Adaptation)
+
 QLoRA enhances LoRA memory efficiency with three breakthroughs:
+
 1. **4-bit NormalFloat (NF4):** An information-theoretically optimal quantile quantization data type for normally distributed neural network weights.
 2. **Double Quantization (DQ):** Quantizes the quantization constants themselves, saving an additional 0.37 bits per parameter.
 3. **Paged Optimizers:** Uses CUDA Unified Memory to automatically page optimizer state spikes to CPU RAM during long sequence gradient steps.

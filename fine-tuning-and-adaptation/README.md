@@ -15,9 +15,9 @@ PEFT, LoRA, QLoRA, RLHF, DPO, GRPO, quantization (GGUF, AWQ, GPTQ), model distil
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 6 | [What is LoRA and QLoRA for efficient fine-tuning?](./what-is-lora-and-qlora-for-efficient-fine-tuning.md) | 🟡 Intermediate |
+| #   | Question                                                                                                   | Difficulty      |
+| --- | ---------------------------------------------------------------------------------------------------------- | --------------- |
+| 6   | [What is LoRA and QLoRA for efficient fine-tuning?](./what-is-lora-and-qlora-for-efficient-fine-tuning.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 
