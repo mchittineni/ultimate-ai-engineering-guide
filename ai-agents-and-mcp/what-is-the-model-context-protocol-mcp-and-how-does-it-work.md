@@ -33,6 +33,7 @@ MCP replaces $M \times N$ custom integrations with a clean client-server interfa
 ```
 
 ### Core MCP Primitives
+
 MCP defines three primary capabilities exposed by servers to clients:
 
 1. **Resources:** Read-only data items exposed by the server (e.g., database schemas, file contents, log streams) attached to a URI.
@@ -40,7 +41,9 @@ MCP defines three primary capabilities exposed by servers to clients:
 3. **Tools:** Executable functions exposed by the server that the LLM can invoke to perform side-effects (e.g., create a GitHub PR, execute a query, post a message).
 
 ### Transport Layer
+
 MCP operates over two primary transport channels:
+
 - **`stdio`:** Standard Input/Output communication, ideal for local processes (e.g., local CLI tools, desktop tools).
 - **`SSE` (Server-Sent Events) over HTTP:** Used for remote MCP servers running on web servers or cloud endpoints.
 

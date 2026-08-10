@@ -15,9 +15,9 @@ Agentic workflows, Model Context Protocol (MCP), function calling, tool use, mem
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 5 | [What is the Model Context Protocol (MCP) and how does it work?](./what-is-the-model-context-protocol-mcp-and-how-does-it-work.md) | 🟡 Intermediate |
+| #   | Question                                                                                                                           | Difficulty      |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| 5   | [What is the Model Context Protocol (MCP) and how does it work?](./what-is-the-model-context-protocol-mcp-and-how-does-it-work.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 
