@@ -1,0 +1,102 @@
+{
+  "llm-fundamentals": {
+    "order": 1,
+    "group": "Foundations & Models",
+    "description": "Core architectures, Transformer mechanics, self-attention, context windows, tokenization, KV cache, and sampling algorithms.",
+    "study_notes": [
+      "Explain scaled dot-product attention and QKV projection math.",
+      "Trade-offs between autoregressive (decoder-only) vs encoder-decoder models.",
+      "How KV caching eliminates redundant recomputation during inference."
+    ]
+  },
+  "prompt-engineering": {
+    "order": 2,
+    "group": "Foundations & Models",
+    "description": "Zero/few-shot, Chain-of-Thought (CoT), Tree-of-Thoughts, ReAct, system prompts, structured JSON outputs, and injection defense.",
+    "study_notes": [
+      "Designing resilient system prompts and structured output schema enforcement.",
+      "Chain-of-Thought vs Tree-of-Thoughts prompting for complex reasoning.",
+      "Mitigating prompt injection and system prompt exfiltration."
+    ]
+  },
+  "rag-and-vector-databases": {
+    "order": 3,
+    "group": "Retrieval & Agentic Systems",
+    "description": "Embeddings, vector indexing (HNSW, IVFFlat), hybrid search, chunking strategies, re-ranking, and query transformation.",
+    "study_notes": [
+      "Dense vs sparse embeddings and hybrid keyword + semantic search.",
+      "Chunking strategies (semantic, sliding window) and document parsing.",
+      "HNSW vs IVFFlat index tradeoffs for latency, memory, and recall."
+    ]
+  },
+  "ai-agents-and-mcp": {
+    "order": 4,
+    "group": "Retrieval & Agentic Systems",
+    "description": "Agentic workflows, Model Context Protocol (MCP), function calling, tool use, memory persistence, and multi-agent orchestration.",
+    "study_notes": [
+      "Model Context Protocol (MCP) server/client architecture.",
+      "ReAct loop mechanics, tool binding, and error recovery.",
+      "Managing short-term memory, long-term memory, and state transitions."
+    ]
+  },
+  "fine-tuning-and-adaptation": {
+    "order": 5,
+    "group": "Adaptation & System Design",
+    "description": "PEFT, LoRA, QLoRA, RLHF, DPO, GRPO, quantization (GGUF, AWQ, GPTQ), model distillation, and domain adaptation.",
+    "study_notes": [
+      "LoRA rank r and alpha scaling factor tuning.",
+      "Preference optimization: RLHF vs DPO vs GRPO.",
+      "Quantization techniques: INT8/INT4 weight-only vs KV cache quantization."
+    ]
+  },
+  "ai-system-design": {
+    "order": 6,
+    "group": "Adaptation & System Design",
+    "description": "High-throughput inference, TTFT/TPOT, streaming (SSE), semantic caching, GPU resource planning, and serving infrastructure (vLLM, TGI).",
+    "study_notes": [
+      "Optimizing Time to First Token (TTFT) and Time Per Output Token (TPOT).",
+      "PagedAttention, continuous batching, and speculative decoding.",
+      "Designing semantic caching layers to reduce API expenses and latency."
+    ]
+  },
+  "llmops-and-production-ai": {
+    "order": 7,
+    "group": "Operations & Quality",
+    "description": "Observability, prompt tracing, cost management, drift detection, CI/CD pipelines for prompts & evals, and production telemetry.",
+    "study_notes": [
+      "Distributed tracing for multi-step agent and RAG pipelines.",
+      "Cost budgeting, rate limiting, and fallback LLM routing.",
+      "Monitoring model drift, data distribution shift, and latency SLAs."
+    ]
+  },
+  "evaluation-and-testing": {
+    "order": 8,
+    "group": "Operations & Quality",
+    "description": "LLM-as-a-Judge, Ragas metrics (Faithfulness, Relevance), benchmarks (MMLU, HumanEval), unit testing, and red teaming.",
+    "study_notes": [
+      "Evaluating RAG systems with Faithfulness, Context Recall, and Answer Relevance.",
+      "Reducing bias and variance in LLM-as-a-Judge setups.",
+      "Automated prompt regressions and CI/CD evaluation test suites."
+    ]
+  },
+  "ai-safety-and-governance": {
+    "order": 9,
+    "group": "Governance & Career Track",
+    "description": "Data privacy, PII masking, guardrails (NeMo, Llama Guard), alignment tax, copyright, and responsible AI deployment.",
+    "study_notes": [
+      "Implementing input/output guardrails using Llama Guard or NeMo.",
+      "Redacting PII and enforcing data isolation in multi-tenant RAG systems.",
+      "Managing the alignment tax: balancing safety interventions with model capability."
+    ]
+  },
+  "interview-experience": {
+    "order": 10,
+    "group": "Governance & Career Track",
+    "description": "Role-specific interview blueprints (AI Engineer, FDE, AI Architect), portfolio project presentation, and scenario checklists.",
+    "study_notes": [
+      "Understanding role expectations: AI Engineer vs MLOps vs FDE vs AI Architect.",
+      "Structuring project deep-dive presentations to showcase production impact.",
+      "Handling scenario-based AI architecture interviews under constraints."
+    ]
+  }
+}
