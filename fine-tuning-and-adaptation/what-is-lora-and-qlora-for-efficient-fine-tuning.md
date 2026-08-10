@@ -37,7 +37,7 @@ QLoRA enhances LoRA memory efficiency with three breakthroughs:
 2. **Double Quantization (DQ):** Quantizes the quantization constants themselves, saving an additional 0.37 bits per parameter.
 3. **Paged Optimizers:** Uses CUDA Unified Memory to automatically page optimizer state spikes to CPU RAM during long sequence gradient steps.
 
-```text
+````text
 Full Precision Fine-Tuning    LoRA (FP16 Base)              QLoRA (NF4 4-bit Base)
 ┌──────────────────────┐    ┌──────────────────────┐    ┌──────────────────────┐
 │  Trainable Base      │    │  Frozen FP16 Base    │    │  Frozen 4-bit NF4    │
@@ -96,3 +96,4 @@ model.print_trainable_parameters()
 ---
 
 [⬅ Back to Fine-Tuning and Adaptation](./README.md) · [All topics](../README.md)
+````
