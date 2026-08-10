@@ -19,7 +19,7 @@ Autoregressive token decoding is strictly sequential. Generating a 1000-word det
 
 ### The SoT Two-Stage Workflow
 
-```
+```text
 [User Request] ──► Stage 1: Skeleton Generation ──► [Bullet 1, Bullet 2, Bullet 3]
                                                              │
                   ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
@@ -45,17 +45,17 @@ import asyncio
 async def expand_skeleton_point(skeleton: str, point: str) -> str:
     prompt = f"Given outline: {skeleton}\nExpand point '{point}' in detail."
     # Simulate async LLM call
-    await asyncio.sleep(0.5) 
+    await asyncio.sleep(0.5)
     return f"Detailed content for {point}..."
 
 async def skeleton_of_thought_pipeline(user_query: str):
     # Step 1: Get skeleton outline
     skeleton_points = ["Point 1: System Architecture", "Point 2: Security", "Point 3: Evals"]
-    
+
     # Step 2: Parallel execution via asyncio.gather
     tasks = [expand_skeleton_point(str(skeleton_points), pt) for pt in skeleton_points]
     expanded_sections = await asyncio.gather(*tasks)
-    
+
     return "\n\n".join(expanded_sections)
 ```
 

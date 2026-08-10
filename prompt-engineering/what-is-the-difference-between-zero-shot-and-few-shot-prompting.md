@@ -17,12 +17,12 @@ tags:
 
 In-context learning (ICL) enables LLMs to adapt to specific tasks without weight updates.
 
-| Aspect | Zero-Shot Prompting | Few-Shot Prompting |
-| --- | --- | --- |
-| **Examples Provided** | 0 examples | 1 to $N$ examples (typically 3–5) |
-| **Context Window Overhead** | Minimal | Higher (depends on example token count) |
-| **Format Consistency** | Can drift or vary | Highly consistent format adherence |
-| **Best Used For** | Standard knowledge queries & instructions | Complex formatting, edge cases, domain taxonomies |
+| Aspect                      | Zero-Shot Prompting                       | Few-Shot Prompting                                |
+| --------------------------- | ----------------------------------------- | ------------------------------------------------- |
+| **Examples Provided**       | 0 examples                                | 1 to $N$ examples (typically 3–5)                 |
+| **Context Window Overhead** | Minimal                                   | Higher (depends on example token count)           |
+| **Format Consistency**      | Can drift or vary                         | Highly consistent format adherence                |
+| **Best Used For**           | Standard knowledge queries & instructions | Complex formatting, edge cases, domain taxonomies |
 
 ### Key Guidelines for Few-Shot Examples
 

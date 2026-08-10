@@ -17,7 +17,7 @@ tags:
 
 Transformer decoder models generate output auto-regressively token-by-token. If asked to solve a multi-step problem in a single step, the model must compute the final answer in a single forward pass through fixed depth layers.
 
-By prompting the model to produce intermediate text tokens (e.g., *"Let's think step by step"*), the model expands its effective computation time. Each generated intermediate token is re-fed into the context window, allowing subsequent self-attention layers to reference computed intermediate state.
+By prompting the model to produce intermediate text tokens (e.g., _"Let's think step by step"_), the model expands its effective computation time. Each generated intermediate token is re-fed into the context window, allowing subsequent self-attention layers to reference computed intermediate state.
 
 ### Variations of CoT
 

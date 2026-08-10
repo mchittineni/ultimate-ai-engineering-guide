@@ -15,7 +15,7 @@ tags:
 
 ## Detail
 
-Relying solely on system prompts (e.g., *"Respond in valid JSON"*) fails under edge cases due to token hallucination, missing quotes, or unexpected markdown formatting (` ```json `).
+Relying solely on system prompts (e.g., _"Respond in valid JSON"_) fails under edge cases due to token hallucination, missing quotes, or unexpected markdown formatting (` ```json `).
 
 ### Enforcement Approaches
 

@@ -26,9 +26,9 @@ In Chat Markup Language (ChatML) formats, messages are categorized into roles: `
 
 ### How Models Process System Prompts
 
-1. **Positional Priority:** System prompts appear at position 0 in the sequence context window. During self-attention, all subsequent `user` and `assistant` tokens attend back to system tokens.
-2. **Instruction Following:** Fine-tuned instruction models (RLHF/DPO) are trained to give higher attention weight to tokens framed under the `system` role tag.
-3. **Guardrail Enclosure:** System prompts establish output constraints (e.g. *"Never mention competitor products"*, *"Return JSON only"*).
+1. **Positional Priority:** System prompts sit at the start of the sequence, so under causal masking every later `user` and `assistant` token can attend back to them, while they cannot attend forward to anything the user writes.
+2. **Instruction Following:** The priority of the `system` role is a **learned behaviour, not an architectural guarantee**. Instruction tuning and RLHF/DPO train the model on examples where system-level instructions win conflicts with later user turns; the role tags themselves are just special tokens, with no mechanism that mechanically boosts their attention weights. This is exactly why prompt injection works at all.
+3. **Guardrail Enclosure:** System prompts establish output constraints (e.g. _"Never mention competitor products"_, _"Return JSON only"_).
 
 ## Example
 

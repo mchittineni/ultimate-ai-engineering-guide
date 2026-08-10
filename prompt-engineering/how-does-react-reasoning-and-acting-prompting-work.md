@@ -24,7 +24,7 @@ ReAct bridges reasoning and execution by structuring prompt generation into disc
 3. **Observation:** The external system runs the tool and appends the result back into the conversation context as an `Observation`.
 4. **Repeat:** The model reads the new observation and generates the next `Thought`, continuing until it reaches a final `Thought` and outputs `Finish[answer]`.
 
-````text
+```text
 User Query
     │
     ▼
@@ -49,7 +49,7 @@ User Query
     │
     ▼
   Finish
-```text
+```
 
 ### Why ReAct is central to AI Engineering
 
@@ -79,15 +79,15 @@ User Question: What is the age of the current President of France multiplied by 
 
 Thought: First I need to find out who the current President of France is and their age.
 Action: Search[current President of France age]
-Observation: Emmanuel Macron is 46 years old.
+Observation: Emmanuel Macron, born 21 December 1977 (age 48 as of August 2026).
 
-Thought: I found Emmanuel Macron's age (46). Now I need to multiply it by 2.
-Action: Calculator[46 * 2]
-Observation: 92
+Thought: I found Emmanuel Macron's age (48). Now I need to multiply it by 2.
+Action: Calculator[48 * 2]
+Observation: 96
 
 Thought: I have calculated the final result.
-Final Answer: The age of the current President of France multiplied by 2 is 92.
-```text
+Final Answer: The age of the current President of France multiplied by 2 is 96.
+```
 
 ## Interview tips
 
@@ -97,4 +97,3 @@ Final Answer: The age of the current President of France multiplied by 2 is 92.
 ---
 
 [⬅ Back to Prompt Engineering](./README.md) · [All topics](../README.md)
-````

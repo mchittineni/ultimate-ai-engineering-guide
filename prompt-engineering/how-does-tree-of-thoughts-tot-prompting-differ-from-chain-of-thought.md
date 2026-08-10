@@ -24,10 +24,12 @@ For complex decision-making, creative writing, or mathematical puzzles (e.g., Ga
 3. **State Evaluation:** The LLM evaluates each candidate state (e.g., scoring viability as `Sure`, `Maybe`, `Impossible`).
 4. **Search Algorithm:** BFS or DFS navigates the search tree, pruning dead ends and backtracking when a path fails evaluation.
 
-| Strategy | Search Space | Backtracking Capability | Computational Cost |
-| --- | --- | --- | --- |
-| **Chain-of-Thought (CoT)** | Single linear path ($1 \times N$) | None | Low ($O(N)$ tokens) |
-| **Tree-of-Thoughts (ToT)** | Branching tree ($k^b$ candidate paths) | Full backtracking via state evaluation | High ($O(k \cdot b)$ LLM calls) |
+| Strategy                   | Search Space                             | Backtracking Capability                | Computational Cost                      |
+| -------------------------- | ---------------------------------------- | -------------------------------------- | --------------------------------------- |
+| **Chain-of-Thought (CoT)** | Single linear path ($1 \times N$)        | None                                   | Low (1 LLM call, $O(N)$ tokens)         |
+| **Tree-of-Thoughts (ToT)** | Branching tree, $k^d$ paths at depth $d$ | Full backtracking via state evaluation | High ($O(b \cdot k \cdot d)$ LLM calls) |
+
+The unpruned tree grows as $k^d$, but you never expand all of it: keeping a beam of $b$ states per level and generating $k$ candidates from each costs $O(b \cdot k \cdot d)$ generation calls plus the same order of evaluation calls. That bounded beam is what makes ToT affordable — and it is the number to quote when an interviewer asks what ToT costs.
 
 ## Example
 
@@ -36,7 +38,7 @@ Conceptual Python algorithm for BFS Tree-of-Thoughts search:
 ```python
 def tree_of_thoughts_bfs(initial_state, generate_thoughts_fn, evaluate_state_fn, max_depth=3):
     current_states = [initial_state]
-    
+
     for depth in range(max_depth):
         next_candidates = []
         for state in current_states:
@@ -48,11 +50,11 @@ def tree_of_thoughts_bfs(initial_state, generate_thoughts_fn, evaluate_state_fn,
                 score = evaluate_state_fn(new_state)
                 if score > 0.5: # Prune unviable branches
                     next_candidates.append((new_state, score))
-        
+
         # Select top-k viable states for next depth step
         next_candidates.sort(key=lambda x: x[1], reverse=True)
         current_states = [state for state, _ in next_candidates[:2]]
-        
+
     return current_states[0] if current_states else None
 ```
 
