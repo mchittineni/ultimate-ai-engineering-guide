@@ -17,7 +17,7 @@ tags:
 
 Uncapped LLM API usage poses severe financial risks: a single infinite loop in an agent script or a recursive prompt injection attack can generate thousands of dollars in token billing overnight.
 
-```
+```text
 [User App] ──► [Proxy Router (LiteLLM)] ──► Check Monthly Tenant Spend
                                                    │
                    ┌───────────────────────────────┴───────────────────────────────┐
@@ -28,7 +28,7 @@ Uncapped LLM API usage poses severe financial risks: a single infinite loop in a
 ### Cost Governance Controls
 
 1. **Per-Tenant Hard Caps:** Set maximum monthly USD billing limits per API key/tenant.
-2. **Model Tier Routing:** Use expensive reasoning models (o3-mini / GPT-4o) only when necessary; route routine classification and extraction tasks to smaller models (GPT-4o-mini / Llama 3 8B).
+2. **Model Tier Routing:** Reserve frontier reasoning models for tasks that need them; route routine classification and extraction to a small/cheap tier or a self-hosted open model. Quote current per-million-token rates from the provider's pricing page rather than from memory — they move often, and vendor model names churn faster still.
 3. **Max Completion Token Caps:** Always set `max_tokens` parameters on API invocations to prevent run-away generations.
 
 ## Example
@@ -41,11 +41,21 @@ class BudgetTracker:
         self.monthly_budget = monthly_budget_usd
         self.current_spend = 0.0
 
-    def check_and_track(self, prompt_tokens: int, completion_tokens: int, cost_per_1k_prompt=0.0015, cost_per_1k_comp=0.006) -> bool:
-        call_cost = ((prompt_tokens / 1000.0) * cost_per_1k_prompt) + ((completion_tokens / 1000.0) * cost_per_1k_comp)
+    def check_and_track(
+        self,
+        prompt_tokens: int,
+        completion_tokens: int,
+        # Pass live rates from a config file, per model. Hardcoded defaults go
+        # stale fast and silently misreport spend once prices move.
+        cost_per_1m_prompt: float,
+        cost_per_1m_comp: float,
+    ) -> bool:
+        call_cost = ((prompt_tokens / 1_000_000) * cost_per_1m_prompt) + (
+            (completion_tokens / 1_000_000) * cost_per_1m_comp
+        )
         if self.current_spend + call_cost > self.monthly_budget:
             raise RuntimeError(f"Monthly budget limit of ${self.monthly_budget} exceeded. Request blocked.")
-            
+
         self.current_spend += call_cost
         return True
 ```
@@ -53,7 +63,7 @@ class BudgetTracker:
 ## Interview tips
 
 - Discuss setting soft alert thresholds (e.g. email alert when hitting 80% of budget cap).
-- Highlight how semantic caching drops recurring query API costs by 30–50%.
+- Highlight that semantic caching saves you exactly its hit rate, so cite the measured hit rate for your traffic rather than a generic percentage.
 
 ---
 

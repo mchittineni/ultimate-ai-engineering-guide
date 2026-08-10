@@ -17,15 +17,15 @@ tags:
 
 While LLMOps inherits fundamental MLOps practices (CI/CD, monitoring, deployment), foundation models shift operational focus from training to composition and quality evaluation:
 
-| Operational Dimension | Traditional MLOps | LLMOps |
-| --- | --- | --- |
-| **Primary Artifact** | Custom trained model weights (`model.pkl`) | Prompt templates, RAG pipelines, agent graphs |
-| **Data Paradigm** | Feature stores, tabular labeled data | Unstructured text, vector indexes, prompt schemas |
-| **Compute Overhead** | High training compute, low inference compute | High inference compute (VRAM / token costs) |
-| **Evaluation Metrics** | Deterministic metrics (Accuracy, F1, MSE) | Non-deterministic metrics (Faithfulness, LLM-as-a-Judge) |
-| **Feedback Loop** | Ground truth label collection | User thumbs up/down, implicit interaction traces |
+| Operational Dimension  | Traditional MLOps                            | LLMOps                                                   |
+| ---------------------- | -------------------------------------------- | -------------------------------------------------------- |
+| **Primary Artifact**   | Custom trained model weights (`model.pkl`)   | Prompt templates, RAG pipelines, agent graphs            |
+| **Data Paradigm**      | Feature stores, tabular labeled data         | Unstructured text, vector indexes, prompt schemas        |
+| **Compute Overhead**   | High training compute, low inference compute | High inference compute (VRAM / token costs)              |
+| **Evaluation Metrics** | Deterministic metrics (Accuracy, F1, MSE)    | Non-deterministic metrics (Faithfulness, LLM-as-a-Judge) |
+| **Feedback Loop**      | Ground truth label collection                | User thumbs up/down, implicit interaction traces         |
 
-```
+```text
 Traditional MLOps: Data Prep ──► Train Model ──► Evaluate F1 ──► Deploy Artifact
 LLMOps:            Prompt / RAG ──► Trace Step ──► LLM Eval ──► Guardrails ──► Route API
 ```

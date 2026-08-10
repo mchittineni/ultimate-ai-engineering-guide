@@ -19,11 +19,11 @@ Rogue agents (agents stuck in un-terminated tool loops or recursive API calls) c
 
 Traditional batch end-of-day billing alerts trigger too late to prevent financial damage.
 
-```
+```text
 [Agent Stream] ──► [Kafka / Streaming Telemetry] ──► [Sliding Window Velocity (Flink)]
                                                               │
                     ┌─────────────────────────────────────────┴─────────────────────────────────────────┐
-                    ▼ (Z-Score > 3.0 or Velocity > 50K tokens/min)                                      ▼ (Normal Velocity)
+                    ▼ (Z-Score > 3.0 or Velocity > 20K tokens/min)                                      ▼ (Normal Velocity)
             [KILL SWITCH TRIGGERED]                                                             Process Normally
       Revoke Session Key & Abort Loop
 ```
@@ -54,11 +54,11 @@ class TokenAnomalyDetector:
     def record_and_check(self, tokens: int) -> bool:
         now = time.time()
         self.history.append((now, tokens))
-        
+
         # Evict events outside sliding window
         while self.history and self.history[0][0] < now - self.window_seconds:
             self.history.popleft()
-            
+
         current_window_tokens = sum(t for _, t in self.history)
         if current_window_tokens > self.max_tokens:
             return False # ANOMALY DETECTED: Trigger Kill-Switch

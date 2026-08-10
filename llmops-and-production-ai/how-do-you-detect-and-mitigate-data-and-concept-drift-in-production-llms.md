@@ -17,7 +17,7 @@ tags:
 
 Drift in LLM systems manifests across three distinct surfaces:
 
-```
+```text
 1. Input Data Drift    ──► User query topics, vocabulary, or languages shift over time
 2. Output Concept Drift─► Expected ground-truth answers change (e.g. tax laws, API versions)
 3. Model Behavioral Drift► Vendor silently updates weights (e.g. GPT-4 June vs Nov release)
@@ -30,7 +30,7 @@ Drift in LLM systems manifests across three distinct surfaces:
 
 ## Example
 
-Python calculation of embedding distribution distance using Cosine Centroid Shift:
+Python calculation of embedding distribution distance using Euclidean centroid shift. This is the cheap daily smoke signal, not a distribution test — centroid distance can stay flat while the distribution's shape changes underneath it, which is why MMD or a KS test on projected components belongs in the weekly job:
 
 ```python
 import numpy as np
@@ -40,7 +40,7 @@ def detect_embedding_centroid_drift(baseline_embeddings: np.ndarray, current_emb
     c_base = np.mean(baseline_embeddings, axis=0)
     # Current production query centroid
     c_curr = np.mean(current_embeddings, axis=0)
-    
+
     # Calculate Euclidean distance shift between centroids
     drift_distance = np.linalg.norm(c_base - c_curr)
     return float(drift_distance)

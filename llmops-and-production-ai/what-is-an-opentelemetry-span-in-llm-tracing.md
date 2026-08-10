@@ -17,7 +17,7 @@ tags:
 
 Complex RAG and agent pipelines consist of multiple chained asynchronous calls. When an agent request takes 4 seconds, raw server logs cannot pinpoint which specific step caused the bottleneck.
 
-```
+```text
 [Trace: User Query "Audit Contract"] (Duration: 3.2s)
   ├── Span 1: PII Redaction Guardrail  (Duration: 45ms)
   ├── Span 2: Vector DB Hybrid Search  (Duration: 120ms)
@@ -45,10 +45,10 @@ def execute_llm_step(prompt: str):
     with tracer.start_as_current_span("llm_completion_step") as span:
         span.set_attribute("gen_ai.system", "openai")
         span.set_attribute("gen_ai.request.model", "gpt-4o")
-        
+
         # Simulate LLM call execution
         response_text = "Sample generated completion"
-        
+
         span.set_attribute("gen_ai.usage.input_tokens", 120)
         span.set_attribute("gen_ai.usage.output_tokens", 45)
         return response_text

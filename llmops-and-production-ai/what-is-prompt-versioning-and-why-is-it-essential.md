@@ -19,7 +19,7 @@ In early LLM development, developers hardcode prompt strings directly inside app
 
 As applications scale, un-versioned prompt changes cause silent regressions:
 
-```
+```text
 [Developer Edits Prompt String] ──► Pushed to Production ──► Modifies Model Behavior
                                                                   │
 [Silent Quality Drop] ◄── No Audit Trail / Unable to Rollback ────┘
@@ -46,7 +46,7 @@ metadata:
 template: |
   You are an authorized support agent for {{ company_name }}.
   Classify the user intent into one of the following categories: {{ intent_categories }}.
-  
+
   User Message: {{ user_message }}
   Intent:
 ```

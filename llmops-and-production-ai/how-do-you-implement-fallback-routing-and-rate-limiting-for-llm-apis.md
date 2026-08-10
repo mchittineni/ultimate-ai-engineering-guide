@@ -19,7 +19,7 @@ Third-party LLM providers frequently suffer rate limits (TPM - Tokens Per Minute
 
 ### Resilience Architecture
 
-```
+```text
                                   ┌──► Provider 1 (OpenAI GPT-4o) [Rate Limit Check]
                                   │      │ (HTTP 429 / 5xx Error)
 [User App] ──► [LLM Proxy Router] ┼──────┼──► Fallback Provider 2 (Claude 3.5 Sonnet)
@@ -35,21 +35,33 @@ Third-party LLM providers frequently suffer rate limits (TPM - Tokens Per Minute
 
 ## Example
 
-Python fallback routing logic using `tenacity` retry library pattern:
+Cascading fallback across providers. Note the two-level structure that gets probed: retry the _same_ provider with backoff for transient faults, and only cascade to the _next_ provider once that budget is spent — a bare `for provider in providers` loop skips straight to the fallback and wastes the primary's capacity:
 
 ```python
+import random
 import time
 
-def call_llm_with_fallback(prompt: str, providers: list[str]) -> str:
+
+def call_provider(provider: str, prompt: str) -> str:
+    if provider == "primary_openai":
+        raise RuntimeError("HTTP 429 Rate Limit Exceeded")
+    return f"Response from {provider}"
+
+
+def call_llm_with_fallback(prompt: str, providers: list[str], attempts_per_provider: int = 3) -> str:
     for provider in providers:
-        try:
-            print(f"Attempting invocation with provider: {provider}")
-            # Simulate API call execution
-            if provider == "primary_openai":
-                raise Exception("HTTP 429 Rate Limit Exceeded")
-            return f"Response from {provider}"
-        except Exception as e:
-            print(f"Provider {provider} failed: {e}. Cascading to next fallback...")
+        for attempt in range(attempts_per_provider):
+            try:
+                return call_provider(provider, prompt)
+            except RuntimeError as exc:
+                # Exponential backoff with full jitter, so a fleet of clients
+                # does not retry in lockstep and re-create the spike.
+                if attempt < attempts_per_provider - 1:
+                    backoff = random.uniform(0, 2**attempt * 0.5)
+                    print(f"{provider} attempt {attempt + 1} failed ({exc}); sleeping {backoff:.2f}s")
+                    time.sleep(backoff)
+                else:
+                    print(f"{provider} exhausted {attempts_per_provider} attempts; cascading...")
     raise RuntimeError("All LLM provider fallbacks exhausted.")
 
 result = call_llm_with_fallback("Hello", ["primary_openai", "fallback_anthropic", "self_hosted_vllm"])

@@ -19,7 +19,7 @@ Unlike traditional microservices where requests take uniform compute, LLM cost a
 
 ### Core LLM Production Metrics
 
-```
+```text
 [User Request] ──► [TTFT: Latency to 1st Byte] ──► [TPOT: Decoding Speed] ──► [Total Tokens = Prompt + Completion]
 ```
 
