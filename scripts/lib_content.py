@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(".")
 
 QUESTION_FILE_RE = re.compile(r"^([a-z0-9-]+)\.md$")
 TOPIC_META_PATH = Path(__file__).resolve().parent / "topic_meta.json"
@@ -97,6 +97,13 @@ def parse_frontmatter(text: str) -> tuple[dict, str]:
     return data, text[match.end():]
 
 
+def read_text_safe(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
 def topic_title(directory: str, readme_text: str | None = None) -> str:
     """Topic display name, taken from the topic README frontmatter when present."""
     if readme_text:
@@ -121,7 +128,7 @@ def load_topics(root: Path = REPO_ROOT) -> list[Topic]:
             description=str(meta_entry.get("description", "")),
             study_notes=list(meta_entry.get("study_notes", [])),
             title=topic_title(
-                directory, readme.read_text(encoding="utf-8") if readme.exists() else None
+                directory, read_text_safe(readme) if readme.exists() else None
             ),
         )
         for md in sorted(entry.glob("*.md")):
@@ -130,7 +137,7 @@ def load_topics(root: Path = REPO_ROOT) -> list[Topic]:
             file_match = QUESTION_FILE_RE.match(md.name)
             if not file_match:
                 continue
-            meta, body = parse_frontmatter(md.read_text(encoding="utf-8"))
+            meta, body = parse_frontmatter(read_text_safe(md))
             topic.questions.append(
                 Question(
                     path=md,

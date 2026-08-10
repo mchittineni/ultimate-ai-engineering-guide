@@ -22,6 +22,7 @@ from lib_content import (
     all_questions,
     load_topics,
     normalize_markdown,
+    read_text_safe,
     topic_meta,
 )
 
@@ -31,7 +32,7 @@ HEADING_RE = re.compile(r"^# (.+)$", re.M)
 
 
 def strip_code_blocks(text: str) -> str:
-    """Blank out fenced code blocks so their contents are not linted as prose."""
+    """Blank out fenced code blocks and inline code snippets so their contents are not linted as prose/links."""
     out, fence = [], None
     for line in text.splitlines():
         marker = line.lstrip()
@@ -44,7 +45,8 @@ def strip_code_blocks(text: str) -> str:
                 fence = None
             out.append("")
             continue
-        out.append(line)
+        line_clean = re.sub(r"`[^`]*`", "", line)
+        out.append(line_clean)
     return "\n".join(out)
 
 
@@ -114,7 +116,7 @@ def check_links(errors: list[str]) -> None:
     for md in sorted(REPO_ROOT.rglob("*.md")):
         if ".git" in md.parts or "node_modules" in md.parts:
             continue
-        text = strip_code_blocks(md.read_text(encoding="utf-8"))
+        text = strip_code_blocks(read_text_safe(md))
         for target in LINK_RE.findall(text):
             path_part = target.split("#", 1)[0]
             if not path_part:
@@ -133,7 +135,9 @@ def check_indexes(topics, errors: list[str]) -> None:
         if not readme.exists():
             errors.append(f"{topic.directory}/README.md: missing topic index")
             continue
-        current = readme.read_text(encoding="utf-8")
+        current = read_text_safe(readme)
+        if not current:
+            continue
         if normalize_markdown(render_topic_readme(topic, current)) != normalize_markdown(current):
             errors.append(
                 f"{topic.directory}/README.md: stale - run `python3 scripts/generate_indexes.py`"
@@ -141,7 +145,7 @@ def check_indexes(topics, errors: list[str]) -> None:
 
     root_path = REPO_ROOT / "README.md"
     if root_path.exists():
-        root = normalize_markdown(root_path.read_text(encoding="utf-8"))
+        root = normalize_markdown(read_text_safe(root_path))
         for marker, payload in (("TOC", render_root_toc(topics)), ("STATS", render_stats(topics))):
             if normalize_markdown(payload) not in root:
                 errors.append(

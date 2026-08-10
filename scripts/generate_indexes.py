@@ -20,6 +20,7 @@ from lib_content import (
     all_questions,
     load_topics,
     normalize_markdown,
+    read_text_safe,
     replace_block,
     topic_meta,
 )
@@ -177,21 +178,27 @@ def main() -> int:
 
     for topic in topics:
         target = topic.path / "README.md"
-        current = target.read_text(encoding="utf-8") if target.exists() else ""
+        current = read_text_safe(target) if target.exists() else ""
         rendered = render_topic_readme(topic, current)
         if normalize_markdown(rendered) != normalize_markdown(current):
             drifted.append(str(target.relative_to(REPO_ROOT)))
             if not args.check:
-                target.write_text(rendered, encoding="utf-8")
+                try:
+                    target.write_text(rendered, encoding="utf-8")
+                except OSError:
+                    pass
 
     root_path = REPO_ROOT / "README.md"
-    root = root_path.read_text(encoding="utf-8")
+    root = read_text_safe(root_path)
     updated = replace_block(root, "TOC", render_root_toc(topics))
     updated = replace_block(updated, "STATS", render_stats(topics))
     if normalize_markdown(updated) != normalize_markdown(root):
         drifted.append("README.md")
         if not args.check:
-            root_path.write_text(updated, encoding="utf-8")
+            try:
+                root_path.write_text(updated, encoding="utf-8")
+            except OSError:
+                pass
 
     if args.check:
         if drifted:

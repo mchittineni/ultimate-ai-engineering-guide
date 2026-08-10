@@ -46,42 +46,42 @@ Grouped by theme, with question counts and difficulty mix. Click a topic to open
 
 <!-- STATS:START -->
 
-**11 questions** across **10 topics** - 🟢 0 Beginner · 🟡 11 Intermediate · 🔴 0 Advanced
+**9 questions** across **10 topics** - 🟢 0 Beginner · 🟡 9 Intermediate · 🔴 0 Advanced
 
 ### 🧱 Foundations & Models
 
 | Topic | Questions | 🟢 | 🟡 | 🔴 | What it covers |
 | --- | --- | --- | --- | --- | --- |
-| **[LLM Fundamentals](./llm-fundamentals/README.md)** | 2 | 0 | 2 | 0 | Core architectures, Transformer mechanics, self-attention, context windows, tokenization, KV cache, and sampling algorithms. |
-| **[Prompt Engineering](./prompt-engineering/README.md)** | 1 | 0 | 1 | 0 | Zero/few-shot, Chain-of-Thought (CoT), Tree-of-Thoughts, ReAct, system prompts, structured JSON outputs, and injection defense. |
+| **[Llm Fundamentals](./llm-fundamentals/README.md)** | 0 | 0 | 0 | 0 | Core architectures, Transformer mechanics, self-attention, context windows, tokenization, KV… |
+| **[Prompt Engineering](./prompt-engineering/README.md)** | 1 | 0 | 1 | 0 | Zero/few-shot, Chain-of-Thought (CoT), Tree-of-Thoughts, ReAct, system prompts, structured JSON… |
 
 ### 🧠 Retrieval & Agentic Systems
 
 | Topic | Questions | 🟢 | 🟡 | 🔴 | What it covers |
 | --- | --- | --- | --- | --- | --- |
-| **[RAG and Vector Databases](./rag-and-vector-databases/README.md)** | 1 | 0 | 1 | 0 | Embeddings, vector indexing (HNSW, IVFFlat), hybrid search, chunking strategies, re-ranking, and query transformation. |
-| **[AI Agents and MCP](./ai-agents-and-mcp/README.md)** | 1 | 0 | 1 | 0 | Agentic workflows, Model Context Protocol (MCP), function calling, tool use, memory persistence, and multi-agent orchestration. |
+| **[RAG and Vector Databases](./rag-and-vector-databases/README.md)** | 1 | 0 | 1 | 0 | Embeddings, vector indexing (HNSW, IVFFlat), hybrid search, chunking strategies, re-ranking, and… |
+| **[AI Agents and MCP](./ai-agents-and-mcp/README.md)** | 1 | 0 | 1 | 0 | Agentic workflows, Model Context Protocol (MCP), function calling, tool use, memory persistence,… |
 
 ### ⚙️ Adaptation & System Design
 
 | Topic | Questions | 🟢 | 🟡 | 🔴 | What it covers |
 | --- | --- | --- | --- | --- | --- |
-| **[Fine-Tuning and Adaptation](./fine-tuning-and-adaptation/README.md)** | 1 | 0 | 1 | 0 | PEFT, LoRA, QLoRA, RLHF, DPO, GRPO, quantization (GGUF, AWQ, GPTQ), model distillation, and domain adaptation. |
-| **[AI System Design](./ai-system-design/README.md)** | 1 | 0 | 1 | 0 | High-throughput inference, TTFT/TPOT, streaming (SSE), semantic caching, GPU resource planning, and serving infrastructure (vLLM, TGI). |
+| **[Fine-Tuning and Adaptation](./fine-tuning-and-adaptation/README.md)** | 1 | 0 | 1 | 0 | PEFT, LoRA, QLoRA, RLHF, DPO, GRPO, quantization (GGUF, AWQ, GPTQ), model distillation, and… |
+| **[AI System Design](./ai-system-design/README.md)** | 1 | 0 | 1 | 0 | High-throughput inference, TTFT/TPOT, streaming (SSE), semantic caching, GPU resource planning,… |
 
 ### 📊 Operations & Quality
 
 | Topic | Questions | 🟢 | 🟡 | 🔴 | What it covers |
 | --- | --- | --- | --- | --- | --- |
-| **[LLMOps and Production AI](./llmops-and-production-ai/README.md)** | 1 | 0 | 1 | 0 | Observability, prompt tracing, cost management, drift detection, CI/CD pipelines for prompts & evals, and production telemetry. |
-| **[Evaluation and Testing](./evaluation-and-testing/README.md)** | 1 | 0 | 1 | 0 | LLM-as-a-Judge, Ragas metrics (Faithfulness, Relevance), benchmarks (MMLU, HumanEval), unit testing, and red teaming. |
+| **[LLMOps and Production AI](./llmops-and-production-ai/README.md)** | 1 | 0 | 1 | 0 | Observability, prompt tracing, cost management, drift detection, CI/CD pipelines for prompts &… |
+| **[Evaluation and Testing](./evaluation-and-testing/README.md)** | 1 | 0 | 1 | 0 | LLM-as-a-Judge, Ragas metrics (Faithfulness, Relevance), benchmarks (MMLU, HumanEval), unit… |
 
 ### 🛡️ Governance & Career Track
 
 | Topic | Questions | 🟢 | 🟡 | 🔴 | What it covers |
 | --- | --- | --- | --- | --- | --- |
-| **[AI Safety and Governance](./ai-safety-and-governance/README.md)** | 1 | 0 | 1 | 0 | Data privacy, PII masking, guardrails (NeMo, Llama Guard), alignment tax, copyright, and responsible AI deployment. |
-| **[Interview Experience](./interview-experience/README.md)** | 1 | 0 | 1 | 0 | Role-specific interview blueprints (AI Engineer, FDE, AI Architect), portfolio project presentation, and scenario checklists. |
+| **[AI Safety and Governance](./ai-safety-and-governance/README.md)** | 1 | 0 | 1 | 0 | Data privacy, PII masking, guardrails (NeMo, Llama Guard), alignment tax, copyright, and… |
+| **[Interview Experience](./interview-experience/README.md)** | 1 | 0 | 1 | 0 | Role-specific interview blueprints (AI Engineer, FDE, AI Architect), portfolio project… |
 
 <!-- STATS:END -->
 
@@ -95,17 +95,16 @@ Click any topic to expand its questions, sorted by difficulty level.
 
 ### 🧱 Foundations & Models
 
-_3 questions_
+_1 questions_
 
 <details>
-<summary><b>LLM Fundamentals</b> · 2 questions · 🟢 0 🟡 2 🔴 0</summary>
+<summary><b>Llm Fundamentals</b> · 0 questions · 🟢 0 🟡 0 🔴 0</summary>
 
-[Open the LLM Fundamentals index →](./llm-fundamentals/README.md)
+[Open the Llm Fundamentals index →](./llm-fundamentals/README.md)
 
 | No. | Question | Difficulty |
 | --- | --- | --- |
-| 1 | [What is KV Cache and how does it speed up inference?](./llm-fundamentals/what-is-kv-cache-and-how-does-it-speed-up-inference.md) | 🟡 Intermediate |
-| 2 | [How does Grouped-Query Attention (GQA) differ from Multi-Head Attention (MHA)?](./llm-fundamentals/how-does-grouped-query-attention-gqa-differ-from-multi-head-attention-mha.md) | 🟡 Intermediate |
+| - | _No questions yet - contributions welcome._ | - |
 
 </details>
 
