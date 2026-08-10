@@ -15,9 +15,9 @@ Zero/few-shot, Chain-of-Thought (CoT), Tree-of-Thoughts, ReAct, system prompts, 
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 3 | [How does ReAct (Reasoning and Acting) prompting work?](./how-does-react-reasoning-and-acting-prompting-work.md) | 🟡 Intermediate |
+| #   | Question                                                                                                         | Difficulty      |
+| --- | ---------------------------------------------------------------------------------------------------------------- | --------------- |
+| 3   | [How does ReAct (Reasoning and Acting) prompting work?](./how-does-react-reasoning-and-acting-prompting-work.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 

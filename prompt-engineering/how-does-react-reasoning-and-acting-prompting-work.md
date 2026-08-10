@@ -52,6 +52,7 @@ User Query
 ```
 
 ### Why ReAct is central to AI Engineering
+
 - **Explainability:** Human developers can inspect the model's reasoning trajectory step-by-step.
 - **Error Recovery:** If an action returns an error or empty result, the subsequent `Thought` step allows the LLM to modify its search query or try an alternative tool.
 - **Groundedness:** Reduces hallucinations by grounding answers in retrieved observations rather than parametric memory.
