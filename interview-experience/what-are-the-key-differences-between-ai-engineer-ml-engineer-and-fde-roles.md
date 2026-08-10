@@ -17,7 +17,7 @@ tags:
 
 As the AI ecosystem matured, hiring managers split traditional "Machine Learning" job requisitions into specialized tracks based on operational focus, daily toolchains, and business objectives.
 
-```
+```text
        ┌─────────────────────────────────────────────────────────────┐
        │                   AI Specialization Spectrum                │
        └─────────────────────────────────────────────────────────────┘
@@ -28,7 +28,7 @@ As the AI ecosystem matured, hiring managers split traditional "Machine Learning
  • PyTorch, CUDA, Triton      • LangChain, LlamaIndex  • Customer Integration
  • Custom Model Training      • RAG & Vector DBs       • Enterprise Security
  • GPU Cluster Scaling        • MCP & Agent Workflows  • On-Prem Deployments
-```
+```text
 
 ### Role Matrix Comparison
 
