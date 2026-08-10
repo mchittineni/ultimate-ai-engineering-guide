@@ -1,0 +1,71 @@
+name: 📝 Fix or improve an answer
+description: An answer is wrong, out of date, incomplete, or shallower than an interview needs.
+title: "[answer] "
+labels: ["improve-answer"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Corrections are the most valuable contribution here - a wrong answer costs somebody an interview. Please be specific about what is wrong and, where you can, link a source.
+
+  - type: input
+    id: file
+    attributes:
+      label: Which file?
+      description: The repository path, or paste the file's URL.
+      placeholder: llm-fundamentals/what-is-kv-cache-and-how-does-it-speed-up-inference.md
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem is it?
+      options:
+        - Factually wrong
+        - Out of date (behaviour, version, or deprecated feature)
+        - Incomplete - missing the part an interviewer actually probes
+        - Misleading emphasis or a bad recommendation
+        - Broken or non-working example
+        - Wording, typo, or formatting
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong?
+      description: Quote the sentence or code line, then say what is incorrect about it.
+      placeholder: |
+        The answer states that GQA stores 1 KV head per query head. In Grouped-Query Attention (GQA), multiple query heads share a single key-value head (1:N group ratio).
+    validations:
+      required: true
+
+  - type: textarea
+    id: correction
+    attributes:
+      label: What should it say instead?
+      description: Your proposed wording, or the mechanism as you understand it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Source or reproduction
+      description: A link to upstream documentation, a paper, or code output that demonstrates it. This is what makes a correction quick to merge.
+      placeholder: |
+        GQA Paper: https://arxiv.org/abs/2305.13245
+        "Grouped-query attention divides query heads into G groups, each sharing a single key and value head."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I am reporting a problem with the content, not a vulnerability in a third-party tool the answer describes.
+          required: true
+        - label: I am willing to open a pull request for this (optional, but say so and it is yours).
+          required: false
