@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-REPO_ROOT = Path(".")
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 QUESTION_FILE_RE = re.compile(r"^([a-z0-9-]+)\.md$")
 TOPIC_META_PATH = Path(__file__).resolve().parent / "topic_meta.json"
