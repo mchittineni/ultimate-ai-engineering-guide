@@ -19,7 +19,7 @@ Relying solely on system prompts or base model safety alignment is insufficient 
 
 A robust AI safety architecture implements **Dual-Layer Guardrails**:
 
-```text
+````text
                        Input Firewall                                 Output Firewall
  ┌────────────┐     ┌──────────────────┐     ┌───────────┐     ┌──────────────────┐     ┌────────────┐
  │ User Prompt│ ──► │ Input Guardrail  │ ──► │  Primary  │ ──► │ Output Guardrail │ ──► │ Client View│
@@ -93,3 +93,4 @@ print(f"Safe: {is_safe} | Clean Prompt: {clean_prompt}")
 ---
 
 [⬅ Back to AI Safety and Governance](./README.md) · [All topics](../README.md)
+````
