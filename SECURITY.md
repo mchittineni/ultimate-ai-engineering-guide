@@ -20,6 +20,7 @@ To report a vulnerability:
 4. Fill in the form with a clear, concise description of the vulnerability and steps to reproduce it.
 
 Alternatively, you may contact the maintainer directly:
+
 - GitHub: [@mchittineni](https://github.com/mchittineni)
 
 ## What We Consider a Security Issue

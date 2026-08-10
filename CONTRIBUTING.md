@@ -5,7 +5,8 @@ Thank you for helping build the ultimate, production-grade guide for AI Engineer
 ## 🎯 Content Philosophy
 
 Every question and answer in this repository follows a strict quality standard:
-1. **Answer to interviewer depth**: Don't stop at definitions. Explain *why* it works, trade-offs, edge cases, and production failure modes.
+
+1. **Answer to interviewer depth**: Don't stop at definitions. Explain _why_ it works, trade-offs, edge cases, and production failure modes.
 2. **Standardized answer structure**:
    - `YAML Frontmatter` (title, id, category, difficulty, tags)
    - `# Title`
