@@ -28,12 +28,13 @@ User Clicks Send ───► [Prefill Phase] ───► First Token Received 
 
 ### Architectural Trade-offs & Optimizations
 
-| Latency Metric | Bound Type | Primary Bottleneck | Optimization Strategies |
-| --- | --- | --- | --- |
-| **TTFT** | Compute Bound | GPU Tensor Core Matrix Multiply FLOPs (Prompt Length) | - **Chunked Prefill:** Split long prompts into smaller blocks.<br>- **Prompt Caching:** Reuse precomputed KV cache for static system prompts.<br>- **Prefix Tuning & FlashAttention.** |
-| **TPOT** | Memory Bandwidth Bound | HBM Memory Transfer Speed (Fetching weights + KV cache) | - **PagedAttention (vLLM):** Eliminate KV cache fragmentation.<br>- **Speculative Decoding:** Use a small draft model to generate tokens in parallel.<br>- **Weight Quantization (INT8/INT4):** Reduce bytes transferred per step. |
+| Latency Metric | Bound Type             | Primary Bottleneck                                      | Optimization Strategies                                                                                                                                                                                                            |
+| -------------- | ---------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **TTFT**       | Compute Bound          | GPU Tensor Core Matrix Multiply FLOPs (Prompt Length)   | - **Chunked Prefill:** Split long prompts into smaller blocks.<br>- **Prompt Caching:** Reuse precomputed KV cache for static system prompts.<br>- **Prefix Tuning & FlashAttention.**                                             |
+| **TPOT**       | Memory Bandwidth Bound | HBM Memory Transfer Speed (Fetching weights + KV cache) | - **PagedAttention (vLLM):** Eliminate KV cache fragmentation.<br>- **Speculative Decoding:** Use a small draft model to generate tokens in parallel.<br>- **Weight Quantization (INT8/INT4):** Reduce bytes transferred per step. |
 
 ### Disaggregation (Prefill-Decode Disaggregation)
+
 Modern production clusters (like Mooncake or Splitwise architectures) separate GPU worker pools into dedicated **Prefill Nodes** (optimized for compute FLOPs and compute-bound matrix multiplies) and **Decode Nodes** (optimized for memory bandwidth and low-latency KV cache fetches), transferring the KV cache state over high-speed NVLink / InfiniBand.
 
 ## Example
