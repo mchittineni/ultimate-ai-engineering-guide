@@ -17,17 +17,17 @@ tags:
 
 Evaluating generation quality in RAG applications requires evaluating two distinct failure modes:
 
-```
+```text
                   ┌──► Faithfulness Score  ──► "Is the answer 100% grounded in context?"
 [Generated Answer]┤                            (Detects hallucinations / fabricated facts)
                   └──► Answer Relevance    ──► "Does the answer directly address the prompt?"
                                                (Detects evasive or off-topic responses)
 ```
 
-| Metric | High Score Meaning | Failure Mode Identified |
-| --- | --- | --- |
-| **Faithfulness** | Every claim in the output is supported by retrieved context. | Hallucination / Claim Fabrication |
-| **Answer Relevance** | Response directly addresses the user's query without fluff. | Off-topic rambling / Evasive answers |
+| Metric               | High Score Meaning                                           | Failure Mode Identified              |
+| -------------------- | ------------------------------------------------------------ | ------------------------------------ |
+| **Faithfulness**     | Every claim in the output is supported by retrieved context. | Hallucination / Claim Fabrication    |
+| **Answer Relevance** | Response directly addresses the user's query without fluff.  | Off-topic rambling / Evasive answers |
 
 ### Faithfulness Calculation
 

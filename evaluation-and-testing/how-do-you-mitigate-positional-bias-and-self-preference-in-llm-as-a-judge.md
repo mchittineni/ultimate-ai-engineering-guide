@@ -25,7 +25,7 @@ LLM-as-a-Judge systems exhibit systematic biases that skew evaluation results:
 
 ### Mitigation Techniques
 
-```
+```text
 [Candidate Pair (A, B)] ──► Pass 1: Rate (A, B) ──┐
                                                  ├──► Average / Consolidate Score
 [Candidate Pair (B, A)] ──► Pass 2: Rate (B, A) ──┘
@@ -43,11 +43,11 @@ Python implementation of swap-aware pairwise scoring:
 def evaluate_pairwise_unbiased(llm_judge_fn, prompt: str, resp_a: str, resp_b: str) -> str:
     # Pass 1: Candidate A first
     winner_1 = llm_judge_fn(prompt, candidate_a=resp_a, candidate_b=resp_b) # returns 'A', 'B', or 'Tie'
-    
+
     # Pass 2: Candidate B first (swapped)
     winner_2_raw = llm_judge_fn(prompt, candidate_a=resp_b, candidate_b=resp_a)
     winner_2 = 'A' if winner_2_raw == 'B' else ('B' if winner_2_raw == 'A' else 'Tie')
-    
+
     if winner_1 == winner_2:
         return winner_1
     return "Tie (Positional Inconsistency Detected)"

@@ -22,15 +22,17 @@ Before trusting an LLM-as-a-Judge to automate production evaluation pipelines, d
 $$\kappa = \frac{P_o - P_e}{1 - P_e}$$
 
 Where:
+
 - $P_o$ is the observed proportional agreement between human annotator and LLM judge.
 - $P_e$ is the expected agreement by chance.
 
-```
-Kappa Score Interpretation:
-  < 0.20  ──► Poor Agreement (Do NOT trust LLM judge)
+```text
+Kappa Score Interpretation (Landis & Koch):
+  0.00 - 0.20 ──► Slight Agreement      (Do NOT trust this LLM judge)
+  0.21 - 0.40 ──► Fair Agreement
   0.41 - 0.60 ──► Moderate Agreement
-  0.61 - 0.80 ──► Substantial Agreement
-  0.81 - 1.00 ──► Near Perfect Alignment (Production-ready LLM judge)
+  0.61 - 0.80 ──► Substantial Agreement (usable with spot-checking)
+  0.81 - 1.00 ──► Almost Perfect Agreement
 ```
 
 ## Example
@@ -46,7 +48,9 @@ llm_judge_ratings = [1, 1, 0, 1, 1, 0, 1, 1, 0, 0] # Disagrees on 2 items
 
 kappa = cohen_kappa_score(human_ratings, llm_judge_ratings)
 print(f"Inter-Annotator Cohen's Kappa: {kappa:.3f}")
-# Kappa ~ 0.60 indicates moderate-to-substantial alignment
+# 0.583 -> Moderate agreement. Note that 8/10 raw agreement sounds strong but
+# collapses to kappa 0.58 once chance agreement (P_e = 0.52) is removed -- which
+# is exactly why raw accuracy is the wrong way to validate a judge.
 ```
 
 ## Interview tips

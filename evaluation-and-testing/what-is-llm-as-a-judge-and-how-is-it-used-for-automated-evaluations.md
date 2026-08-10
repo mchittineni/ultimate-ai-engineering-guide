@@ -23,7 +23,7 @@ Traditional NLP metrics like BLEU or ROUGE perform exact n-gram matching, failin
 2. **Pairwise Comparison (A/B Testing):** The judge receives two outputs (Model A vs Model B) for a given prompt and selects the winning response (or tie).
 3. **Reference-Based Evaluation:** The judge compares the generated response against a human-written ground truth reference answer.
 
-```
+```text
 [Prompt + Candidate Output + Scoring Rubric] ──► [Judge LLM] ──► Structured Grade + Rationale
 ```
 

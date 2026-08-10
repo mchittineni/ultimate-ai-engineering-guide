@@ -19,7 +19,7 @@ In traditional software, modifying code triggers unit tests. In LLM engineering,
 
 ### CI/CD Pipeline Architecture
 
-```
+```text
 [PR Opened / Prompt Updated] ──► [GitHub Actions Worker]
                                          │
                    ┌─────────────────────┴─────────────────────┐

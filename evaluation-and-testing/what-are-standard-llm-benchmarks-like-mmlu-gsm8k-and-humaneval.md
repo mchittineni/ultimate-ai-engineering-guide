@@ -17,13 +17,13 @@ tags:
 
 Evaluating foundation models requires standardized datasets covering diverse reasoning domains:
 
-| Benchmark | Target Capability | Problem Format | Evaluation Method |
-| --- | --- | --- | --- |
-| **MMLU** (Massive Multitask Language Understanding) | General domain knowledge (57 subjects: humanities, STEM, social sciences) | Multiple-choice (4 options) | Multiple-choice accuracy |
-| **GSM8K** (Grade School Math) | Multi-step mathematical reasoning | Word math problems requiring sequential arithmetic | Exact numeric match on final answer |
-| **HumanEval** | Python code generation | Function signatures + docstrings + unit tests | **pass@k** functional code execution against hidden unit tests |
-| **MATH** | Advanced competition math | High-school / Olympiad math problems | Exact match on LaTeX numeric expression |
-| **SWE-bench** | Real-world software engineering | Full GitHub issues + repository codebases | Resolving unit test failures across repos |
+| Benchmark                                           | Target Capability                                                         | Problem Format                                     | Evaluation Method                                              |
+| --------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------- |
+| **MMLU** (Massive Multitask Language Understanding) | General domain knowledge (57 subjects: humanities, STEM, social sciences) | Multiple-choice (4 options)                        | Multiple-choice accuracy                                       |
+| **GSM8K** (Grade School Math)                       | Multi-step mathematical reasoning                                         | Word math problems requiring sequential arithmetic | Exact numeric match on final answer                            |
+| **HumanEval**                                       | Python code generation                                                    | Function signatures + docstrings + unit tests      | **pass@k** functional code execution against hidden unit tests |
+| **MATH**                                            | Advanced competition math                                                 | High-school / Olympiad math problems               | Exact match on LaTeX numeric expression                        |
+| **SWE-bench**                                       | Real-world software engineering                                           | Full GitHub issues + repository codebases          | Resolving unit test failures across repos                      |
 
 ### Understanding pass@k Metric in Code Benchmarks
 

@@ -17,16 +17,16 @@ tags:
 
 Evaluating the retrieval stage of a RAG pipeline requires separating retrieval precision from generation quality (e.g. in the Ragas evaluation framework).
 
-```
+```text
 Retrieved Context Chunks: [Chunk 1 (Relevant), Chunk 2 (Irrelevant), Chunk 3 (Irrelevant)]
   ├── Context Precision = Low (1/3 relevant chunks = high noise)
   └── Context Recall    = High (if Chunk 1 contains ALL necessary facts)
 ```
 
-| Metric | Focus Question | Target Metric Optimization |
-| --- | --- | --- |
-| **Context Precision** | *"Are top-ranked chunks actually relevant, or did we retrieve clutter?"* | Optimizes rank position (Rerankers, higher similarity thresholds) |
-| **Context Recall** | *"Did the retriever find all key facts required to answer the question?"* | Optimizes recall search (Increasing $K$, hybrid search BM25 + Dense) |
+| Metric                | Focus Question                                                            | Target Metric Optimization                                           |
+| --------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **Context Precision** | _"Are top-ranked chunks actually relevant, or did we retrieve clutter?"_  | Optimizes rank position (Rerankers, higher similarity thresholds)    |
+| **Context Recall**    | _"Did the retriever find all key facts required to answer the question?"_ | Optimizes recall search (Increasing $K$, hybrid search BM25 + Dense) |
 
 ### Context Precision Formula (Ragas)
 

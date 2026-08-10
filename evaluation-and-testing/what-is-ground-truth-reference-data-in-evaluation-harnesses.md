@@ -17,7 +17,7 @@ tags:
 
 Without ground-truth reference data, evaluating LLM pipeline quality relies on subjective manual inspection.
 
-```
+```text
 [Golden Reference Dataset] ──► (Run Candidate Model) ──► Compare Output vs Ground Truth
 (50-200 Human-Verified Pairs)                                    │
                                                                  ▼
