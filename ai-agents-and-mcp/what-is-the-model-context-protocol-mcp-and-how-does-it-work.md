@@ -19,7 +19,7 @@ Before MCP, connecting AI applications or coding assistants to external systems 
 
 MCP replaces $M \times N$ custom integrations with a clean client-server interface:
 
-```text
+````text
 ┌────────────────────────────────┐
 │           MCP Client           │
 │   (e.g., Claude Desktop, IDE)  │
@@ -82,3 +82,4 @@ if __name__ == "__main__":
 ---
 
 [⬅ Back to AI Agents and MCP](./README.md) · [All topics](../README.md)
+````
