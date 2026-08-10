@@ -46,13 +46,13 @@ Grouped by theme, with question counts and difficulty mix. Click a topic to open
 
 <!-- STATS:START -->
 
-**9 questions** across **10 topics** - 🟢 0 Beginner · 🟡 9 Intermediate · 🔴 0 Advanced
+**11 questions** across **10 topics** - 🟢 0 Beginner · 🟡 11 Intermediate · 🔴 0 Advanced
 
 ### 🧱 Foundations & Models
 
 | Topic | Questions | 🟢 | 🟡 | 🔴 | What it covers |
 | --- | --- | --- | --- | --- | --- |
-| **[Llm Fundamentals](./llm-fundamentals/README.md)** | 0 | 0 | 0 | 0 | Core architectures, Transformer mechanics, self-attention, context windows, tokenization, KV… |
+| **[LLM Fundamentals](./llm-fundamentals/README.md)** | 2 | 0 | 2 | 0 | Core architectures, Transformer mechanics, self-attention, context windows, tokenization, KV… |
 | **[Prompt Engineering](./prompt-engineering/README.md)** | 1 | 0 | 1 | 0 | Zero/few-shot, Chain-of-Thought (CoT), Tree-of-Thoughts, ReAct, system prompts, structured JSON… |
 
 ### 🧠 Retrieval & Agentic Systems
@@ -95,16 +95,17 @@ Click any topic to expand its questions, sorted by difficulty level.
 
 ### 🧱 Foundations & Models
 
-_1 questions_
+_3 questions_
 
 <details>
-<summary><b>Llm Fundamentals</b> · 0 questions · 🟢 0 🟡 0 🔴 0</summary>
+<summary><b>LLM Fundamentals</b> · 2 questions · 🟢 0 🟡 2 🔴 0</summary>
 
-[Open the Llm Fundamentals index →](./llm-fundamentals/README.md)
+[Open the LLM Fundamentals index →](./llm-fundamentals/README.md)
 
 | No. | Question | Difficulty |
 | --- | --- | --- |
-| - | _No questions yet - contributions welcome._ | - |
+| 1 | [What is KV Cache and how does it speed up inference?](./llm-fundamentals/what-is-kv-cache-and-how-does-it-speed-up-inference.md) | 🟡 Intermediate |
+| 2 | [How does Grouped-Query Attention (GQA) differ from Multi-Head Attention (MHA)?](./llm-fundamentals/how-does-grouped-query-attention-gqa-differ-from-multi-head-attention-mha.md) | 🟡 Intermediate |
 
 </details>
 
