@@ -15,9 +15,9 @@ Embeddings, vector indexing (HNSW, IVFFlat), hybrid search, chunking strategies,
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 4 | [What is the difference between HNSW and IVFFlat vector indexes?](./what-is-the-difference-between-hnsw-and-ivfflat-vector-indexes.md) | 🟡 Intermediate |
+| #   | Question                                                                                                                               | Difficulty      |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| 4   | [What is the difference between HNSW and IVFFlat vector indexes?](./what-is-the-difference-between-hnsw-and-ivfflat-vector-indexes.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 

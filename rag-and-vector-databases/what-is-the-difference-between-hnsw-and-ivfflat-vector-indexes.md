@@ -18,27 +18,31 @@ tags:
 Exact Nearest Neighbor (kNN) search requires computing vector distance against every document in the database, scaling as $O(N \cdot D)$. Approximate Nearest Neighbor (ANN) indexes trade a tiny fraction of search recall to achieve sub-linear $O(\log N)$ query speed.
 
 ### HNSW (Hierarchical Navigable Small World)
+
 HNSW is a graph-based indexing algorithm inspired by skip-lists:
+
 - **Structure:** Builds a multi-layer graph where top layers have long-range links for fast coarse navigation across vector space, while lower layers have short-range links for fine-grained local search.
 - **Querying:** Search starts at the top layer, greedily traverses long edges, steps down a layer when no closer neighbor exists, and reaches the bottom layer for precise final candidates.
 - **Pros:** Ultra-fast query latency (<5ms) and extremely high recall (>95-98%).
 - **Cons:** Heavy RAM footprint (requires storing graph edges alongside vectors) and slow index build times.
 
 ### IVFFlat (Inverted File Flat)
+
 IVFFlat is a cluster-based partitioning index:
+
 - **Structure:** Uses k-means clustering to divide vector space into $N_{list}$ Voronoi centroids. Vectors are assigned to their nearest centroid.
 - **Querying:** When a search query arrives, IVFFlat calculates distance to all $N_{list}$ centroids, selects the top $N_{probe}$ nearest clusters, and performs exhaustive distance checks only within those clusters.
 - **Pros:** Low memory overhead, fast index build time, easy to combine with Product Quantization (IVF-PQ).
 - **Cons:** Lower recall if $N_{probe}$ is too small; increasing $N_{probe}$ improves accuracy but reduces query throughput.
 
-| Dimension | HNSW | IVFFlat |
-| --- | --- | --- |
-| **Index Type** | Multi-layer Graph | Inverted File Index (Clustering) |
-| **Memory (RAM) Usage** | High (1.5x - 2x raw vector footprint) | Low (Raw vectors + small centroid table) |
-| **Query Latency** | Extremely Low (< 5ms) | Low to Medium (depends on `nprobe`) |
-| **Recall Rate** | 95% - 99%+ | 85% - 95% |
-| **Index Build Speed** | Slow | Fast |
-| **Ideal Use Case** | Real-time user queries, high precision RAG | Billions of vectors, cost-constrained infra |
+| Dimension              | HNSW                                       | IVFFlat                                     |
+| ---------------------- | ------------------------------------------ | ------------------------------------------- |
+| **Index Type**         | Multi-layer Graph                          | Inverted File Index (Clustering)            |
+| **Memory (RAM) Usage** | High (1.5x - 2x raw vector footprint)      | Low (Raw vectors + small centroid table)    |
+| **Query Latency**      | Extremely Low (< 5ms)                      | Low to Medium (depends on `nprobe`)         |
+| **Recall Rate**        | 95% - 99%+                                 | 85% - 95%                                   |
+| **Index Build Speed**  | Slow                                       | Fast                                        |
+| **Ideal Use Case**     | Real-time user queries, high precision RAG | Billions of vectors, cost-constrained infra |
 
 ## Example
 
