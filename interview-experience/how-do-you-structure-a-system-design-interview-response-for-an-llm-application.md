@@ -19,7 +19,7 @@ LLM system design interviews evaluate both traditional distributed systems princ
 
 ### The 6-Step LLM System Design Framework
 
-```
+```text
 Step 1: Requirements & Scale  ──► Define QPS, TTFT SLA, latency, token limits, accuracy targets
 Step 2: High-Level Data Flow  ──► Client -> Proxy -> Cache -> RAG / Agent Loop -> LLM Engine
 Step 3: Component Deep-Dive   ──► Vector Indexing (HNSW), Hybrid Search, Reranking, Prompting
@@ -37,7 +37,7 @@ Step 6: Reliability & Safety  ──► Guardrails, PII redaction, Rate Limiting
 
 System design whiteboard component template (Markdown representation):
 
-```
+```text
 +------------------+      +-------------------+      +---------------------+
 |   Client App     | ---> |  API Gateway /    | ---> |   Semantic Cache    |
 | (Web / Mobile)   |      |  Rate Limiter     |      |   (Redis Vector)    |
@@ -58,7 +58,7 @@ System design whiteboard component template (Markdown representation):
 
 ## Interview tips
 
-- Proactively state quantitative trade-offs: *"Using a cross-encoder reranker adds ~100ms latency but increases context recall accuracy by 15%."*
+- Proactively state quantitative trade-offs: _"Using a cross-encoder reranker adds ~100ms latency but increases context recall accuracy by 15%."_
 - Don't forget guardrails, safety, and evaluation logging when sketching out high-level architectures.
 
 ---

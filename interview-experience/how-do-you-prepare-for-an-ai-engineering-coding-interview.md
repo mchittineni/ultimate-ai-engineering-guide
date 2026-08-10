@@ -19,18 +19,18 @@ Unlike traditional Data Structure & Algorithm (DSA) LeetCode interviews, AI Engi
 
 ### Core Interview Coding Categories
 
-```
+```text
 1. Model & Vector Primitives  ──► Implement dot-product attention, cosine similarity, BPE merge
 2. System & API Integrations ──► Implement SSE streaming server, function call dispatch loop
 3. Pipeline Mechanics        ──► Implement RAG chunker, semantic cache, sliding window memory
 ```
 
-| Domain | Key Algorithms / Coding Tasks to Master |
-| --- | --- |
-| **Math / ML Primitives** | Cosine similarity, softmax, dot-product attention, RRF rank fusion |
-| **Parsing & Chunking** | Fixed-size sliding window text chunker, markdown header splitter |
-| **Agent / Tools** | Dynamic tool dispatcher loop, structured Pydantic schema validator |
-| **Async & Streaming** | Python `asyncio` generator, SSE chunk parser, exponential retry loop |
+| Domain                   | Key Algorithms / Coding Tasks to Master                              |
+| ------------------------ | -------------------------------------------------------------------- |
+| **Math / ML Primitives** | Cosine similarity, softmax, dot-product attention, RRF rank fusion   |
+| **Parsing & Chunking**   | Fixed-size sliding window text chunker, markdown header splitter     |
+| **Agent / Tools**        | Dynamic tool dispatcher loop, structured Pydantic schema validator   |
+| **Async & Streaming**    | Python `asyncio` generator, SSE chunk parser, exponential retry loop |
 
 ## Example
 
@@ -41,7 +41,7 @@ def sliding_window_chunker(text: str, chunk_size: int = 100, overlap: int = 20) 
     words = text.split()
     if not words:
         return []
-    
+
     chunks = []
     step = chunk_size - overlap
     for i in range(0, len(words), step):

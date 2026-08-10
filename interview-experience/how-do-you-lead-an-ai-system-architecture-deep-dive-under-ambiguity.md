@@ -15,9 +15,9 @@ tags:
 
 ## Detail
 
-In senior AI staff/architect interviews, prompts are intentionally vague (e.g. *"Design an enterprise AI assistant for 50,000 employees"*). Senior engineers drive the structure rather than waiting for questions.
+In senior AI staff/architect interviews, prompts are intentionally vague (e.g. _"Design an enterprise AI assistant for 50,000 employees"_). Senior engineers drive the structure rather than waiting for questions.
 
-```
+```text
                   ┌──► 1. Scope & SLA Constraints (QPS, Latency SLAs, Budget)
                   ├──► 2. High-Level System Topology (Gateway, Cache, Vector DB, Serving Engine)
 Architecture ─────┼──► 3. Technical Trade-Off Justification (RAG vs Fine-Tuning, vLLM vs API)
@@ -27,8 +27,8 @@ Deep Dive         ├──► 4. Production Operations (OpenTelemetry, Evals, C
 
 ### The Senior Leadership Framework
 
-1. **Clarify Constraints Proactively:** Calculate quantitative bounds (e.g., *"At 100 QPS with 2K context prompts, our KV cache VRAM requirement will be ~40GB"*).
-2. **Justify Technical Decisions:** Explain *why* alternative approaches were rejected (e.g. *"We chose hybrid RAG over fine-tuning because internal policy documents update daily"*).
+1. **Clarify Constraints Proactively:** Calculate quantitative bounds (e.g., _"At 100 QPS with 2K context prompts, our KV cache VRAM requirement will be ~40GB"_).
+2. **Justify Technical Decisions:** Explain _why_ alternative approaches were rejected (e.g. _"We chose hybrid RAG over fine-tuning because internal policy documents update daily"_).
 3. **Address Failure Modes & Cost Control:** Detail circuit breaker loop limits, semantic caching, rate limiting, and fallback LLM provider routing.
 
 ## Example

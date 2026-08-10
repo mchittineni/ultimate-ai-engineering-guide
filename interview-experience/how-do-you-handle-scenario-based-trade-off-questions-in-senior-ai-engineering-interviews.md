@@ -19,7 +19,7 @@ Senior AI engineering interviews evaluate your ability to navigate ambiguous bus
 
 ### The 4-Axis Trade-off Matrix
 
-```
+```text
                       Accuracy & Quality
                               ▲
                               │
@@ -29,11 +29,11 @@ Senior AI engineering interviews evaluate your ability to navigate ambiguous bus
                         Cost & Compute
 ```
 
-| Scenario Question Example | Primary Trade-off Axis | Competing Solutions | Optimal Senior Response |
-| --- | --- | --- | --- |
-| *"Should we fine-tune a model or use RAG for internal enterprise search?"* | Knowledge Freshness vs Format Adherence | RAG vs Fine-Tuning | Use RAG for dynamic internal docs; use LoRA fine-tuning only if specific domain output syntax is required. |
-| *"How do we serve 1,000 QPS under 200ms latency on a tight budget?"* | Latency & Cost vs Model Capability | Proprietary API vs Self-Hosted Quantized Model | Deploy 8B parameter quantized model (vLLM INT4) with semantic caching and SSE streaming. |
-| *"How to process sensitive medical records compliant with HIPAA?"* | Privacy vs Cloud Model Power | On-Prem Self-Hosted vs Anonymized Cloud API | Deploy local PII redaction pipeline + self-hosted open model in VPC. |
+| Scenario Question Example                                                  | Primary Trade-off Axis                  | Competing Solutions                            | Optimal Senior Response                                                                                    |
+| -------------------------------------------------------------------------- | --------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| _"Should we fine-tune a model or use RAG for internal enterprise search?"_ | Knowledge Freshness vs Format Adherence | RAG vs Fine-Tuning                             | Use RAG for dynamic internal docs; use LoRA fine-tuning only if specific domain output syntax is required. |
+| _"How do we serve 1,000 QPS under 200ms latency on a tight budget?"_       | Latency & Cost vs Model Capability      | Proprietary API vs Self-Hosted Quantized Model | Deploy 8B parameter quantized model (vLLM INT4) with semantic caching and SSE streaming.                   |
+| _"How to process sensitive medical records compliant with HIPAA?"_         | Privacy vs Cloud Model Power            | On-Prem Self-Hosted vs Anonymized Cloud API    | Deploy local PII redaction pipeline + self-hosted open model in VPC.                                       |
 
 ## Example
 
@@ -54,7 +54,7 @@ print("Recommended pattern for high QPS:", evaluate_architecture_tradeoff("low_l
 
 ## Interview tips
 
-- Always ask clarifying questions before answering scenario questions (e.g. *"What is the expected target QPS, p95 TTFT SLA, and monthly token budget?"*).
+- Always ask clarifying questions before answering scenario questions (e.g. _"What is the expected target QPS, p95 TTFT SLA, and monthly token budget?"_).
 - Frame answers using empirical trade-offs rather than dogmatic technology preferences.
 
 ---

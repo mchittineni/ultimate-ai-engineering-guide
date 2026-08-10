@@ -17,7 +17,7 @@ tags:
 
 Interviewers look for candidates who understand that hallucinations cannot be eliminated by a single prompt tweak; mitigation requires a multi-tier pipeline.
 
-```
+```text
                   ┌──► 1. Grounding Layer: RAG (Hybrid Search + Reranker)
                   ├──► 2. Prompt Layer: System Rules + Strict Context Tagging
 Hallucination ────┼──► 3. Sampling Layer: Low Temperature (T=0.0 - 0.2)
@@ -46,8 +46,8 @@ Structured response framework summary table to use in interviews:
 
 ## Interview tips
 
-- Avoid saying *"I solved hallucinations 100%"*; instead emphasize *"I implemented a multi-layered defense that reduced hallucination rates from 12% to under 0.8%."*
-- Be ready to explain Ragas faithfulness evaluation metrics.
+- Avoid absolutes like _"I solved hallucinations"_. Quote a measured before/after instead — _"faithfulness on our 200-case eval set went from 0.88 to 0.97, and unsupported-claim rate from 12% to under 1%"_ — and name the eval set, its size, and who labelled it. Use **your own** numbers: an interviewer's next question is always "how did you measure that?", and a borrowed figure collapses immediately.
+- Be ready to explain Ragas faithfulness evaluation metrics, including that the judge itself needs validating against human labels before you trust its numbers.
 
 ---
 

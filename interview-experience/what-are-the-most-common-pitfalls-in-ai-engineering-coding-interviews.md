@@ -19,7 +19,7 @@ Interviewers evaluate whether candidates understand AI primitives under the hood
 
 ### Top 4 Interview Pitfalls
 
-```
+```text
 1. Framework Wrapper Trap   ──► Calling high-level abstractions without knowing underlying prompt/HTTP payloads
 2. Missing Exception Checks ──► Assuming API calls never rate-limit (HTTP 429) or timeout
 3. Context Blindness        ──► Passing unlimited text into prompts without calculating token limits
@@ -58,7 +58,7 @@ def get_answer_good(client, prompt: str, max_tokens: int = 500) -> str:
 
 ## Interview tips
 
-- Ask the interviewer early: *"Would you prefer I use standard Python SDKs or higher-level frameworks like LangChain?"*
+- Ask the interviewer early: _"Would you prefer I use standard Python SDKs or higher-level frameworks like LangChain?"_
 - Always talk through trade-offs out loud: cost, latency, context window limits, and model choice.
 
 ---

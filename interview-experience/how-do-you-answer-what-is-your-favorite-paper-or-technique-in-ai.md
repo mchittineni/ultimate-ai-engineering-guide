@@ -19,7 +19,7 @@ Interviewers use this question to test whether you actively keep up with state-o
 
 ### The 4-Part Response Blueprint
 
-```
+```text
 1. Selection & Thesis  ──► Name paper/technique (e.g. FlashAttention-2 or DPO)
 2. The Bottleneck      ──► What was broken before? (HBM memory traffic vs quadratic attention)
 3. The Core Mechanism  ──► How does it work under the hood? (Tiling online softmax / logit ratios)

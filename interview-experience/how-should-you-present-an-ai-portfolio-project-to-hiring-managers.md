@@ -19,7 +19,7 @@ Generic portfolio projects (e.g. calling `openai.ChatCompletion` wrapper scripts
 
 ### The 4-Part Portfolio Presentation Blueprint
 
-```
+```text
 1. Business Context & Problem  ──► What bottleneck was solved? (Latency, manual ops cost)
 2. Architecture & Trade-offs   ──► Why this stack? (Vector DB choice, model size selection)
 3. Production Engineering      ──► How is quality verified? (Eval suite, CI/CD, tracing)
@@ -47,7 +47,7 @@ Architecture breakdown structure for resume / portfolio README:
 
 ## Interview tips
 
-- Always be ready to answer: *"What broke in production when you deployed this, and how did you debug it?"*
+- Always be ready to answer: _"What broke in production when you deployed this, and how did you debug it?"_
 - Be transparent about token costs and latency bottlenecks encountered during development.
 
 ---

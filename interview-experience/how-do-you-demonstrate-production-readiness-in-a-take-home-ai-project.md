@@ -19,27 +19,27 @@ Most take-home AI submissions look like prototype scripts: a single Python file 
 
 A production-ready submission stands out by treating AI software with standard software engineering rigor.
 
-```
+```text
 Prototype Project:   `main.py` script ──► `openai.ChatCompletion()` ──► Printed to stdout
-                                                                            
+
 Production Project:  Dockerized FastAPI Service ──► Guardrails ──► Eval Harness ──► Telemetry Spans
 ```
 
 ### Essential Production Elements
 
-| Feature Area | Implementation Requirement |
-| --- | --- |
-| **Evaluation** | A PyTest evaluation harness running 20–50 test queries scoring precision/faithfulness. |
-| **Observability** | Tracing integration (LangSmith / Phoenix / OpenTelemetry) capturing spans & token costs. |
-| **Validation** | Pydantic model enforcing 100% structured JSON outputs. |
+| Feature Area         | Implementation Requirement                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------------- |
+| **Evaluation**       | A PyTest evaluation harness running 20–50 test queries scoring precision/faithfulness.         |
+| **Observability**    | Tracing integration (LangSmith / Phoenix / OpenTelemetry) capturing spans & token costs.       |
+| **Validation**       | Pydantic model enforcing 100% structured JSON outputs.                                         |
 | **Containerization** | Clean `Dockerfile` and `docker-compose.yml` with single-command startup (`docker compose up`). |
-| **Documentation** | Architecture diagram, benchmark results table, and cost/latency SLA analysis. |
+| **Documentation**    | Architecture diagram, benchmark results table, and cost/latency SLA analysis.                  |
 
 ## Example
 
 Project repository layout for a top-tier take-home submission:
 
-```
+```text
 ├── README.md               # Architecture diagram, eval benchmark results, setup instructions
 ├── Dockerfile              # Production container build
 ├── docker-compose.yml
@@ -56,7 +56,7 @@ Project repository layout for a top-tier take-home submission:
 ## Interview tips
 
 - Include a live working demo link (e.g. deployed on Streamlit/HuggingFace Spaces/Vercel) alongside the repository.
-- Explicitly document what you *would* build next if given more time (e.g. fine-tuning, continuous batching, disaggregated prefill).
+- Explicitly document what you _would_ build next if given more time (e.g. fine-tuning, continuous batching, disaggregated prefill).
 
 ---
 
