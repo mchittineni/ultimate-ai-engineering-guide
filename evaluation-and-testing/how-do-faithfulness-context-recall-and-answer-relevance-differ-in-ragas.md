@@ -17,7 +17,7 @@ tags:
 
 Evaluating Retrieval-Augmented Generation (RAG) systems without ground-truth human annotations requires breaking down performance into distinct sub-metrics. Ragas (Retrieval Augmented Generation Assessment) isolates the Retriever component from the Generator (LLM) component using LLM-as-a-Judge prompting.
 
-```text
+````text
                   ┌──────────────────────┐
                   │      User Query      │
                   └──────────┬───────────┘
@@ -106,3 +106,4 @@ print(results)
 ---
 
 [⬅ Back to Evaluation and Testing](./README.md) · [All topics](../README.md)
+````
