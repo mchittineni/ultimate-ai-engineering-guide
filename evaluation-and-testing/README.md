@@ -15,9 +15,9 @@ LLM-as-a-Judge, Ragas metrics (Faithfulness, Relevance), benchmarks (MMLU, Human
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 9 | [How do Faithfulness, Context Recall, and Answer Relevance differ in Ragas?](./how-do-faithfulness-context-recall-and-answer-relevance-differ-in-ragas.md) | 🟡 Intermediate |
+| #   | Question                                                                                                                                                   | Difficulty      |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| 9   | [How do Faithfulness, Context Recall, and Answer Relevance differ in Ragas?](./how-do-faithfulness-context-recall-and-answer-relevance-differ-in-ragas.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 

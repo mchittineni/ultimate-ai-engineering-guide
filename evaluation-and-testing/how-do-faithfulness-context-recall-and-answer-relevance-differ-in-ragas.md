@@ -11,7 +11,7 @@ tags:
 
 # How do Faithfulness, Context Recall, and Answer Relevance differ in Ragas?
 
-**Short answer:** Ragas evaluates RAG systems by separating retrieval quality from generation quality: **Faithfulness** measures if the generated answer relies *only* on retrieved context, **Answer Relevance** measures if the generated answer directly addresses the prompt, and **Context Recall** measures if the retriever fetched all ground-truth facts needed.
+**Short answer:** Ragas evaluates RAG systems by separating retrieval quality from generation quality: **Faithfulness** measures if the generated answer relies _only_ on retrieved context, **Answer Relevance** measures if the generated answer directly addresses the prompt, and **Context Recall** measures if the retriever fetched all ground-truth facts needed.
 
 ## Detail
 
@@ -42,26 +42,29 @@ Evaluating Retrieval-Augmented Generation (RAG) systems without ground-truth hum
 ### The Core Ragas Metrics
 
 #### 1. Faithfulness (Generation Safety / Hallucination Metric)
+
 - **Measures:** Is the generated answer grounded strictly in the retrieved context?
 - **Calculation:** The judge LLM extracts claims from the output answer and verifies what fraction of those claims can be directly inferred from the retrieved context.
-- **Formula:** 
+- **Formula:**
 
 $$\text{Faithfulness} = \frac{|\text{Verifiable Claims in Context}|}{|\text{Total Claims in Answer}|}$$
 
 #### 2. Answer Relevance (Generation Focus Metric)
+
 - **Measures:** Does the answer directly address the user's question, or does it wander off-topic?
 - **Calculation:** The judge LLM generates $N$ synthetic questions based solely on the generated answer and computes cosine similarity between the original user query vector and the average vector of the generated questions.
 
 #### 3. Context Recall (Retrieval Completeness Metric)
+
 - **Measures:** Did the retriever fetch all relevant information required to answer the ground-truth reference?
 - **Calculation:** Evaluates what percentage of sentences in the ground-truth answer can be attributed to the retrieved context chunks.
 
-| Metric | Component Evaluated | Requires Ground-Truth Reference? | Target Metric Goal |
-| --- | --- | --- | --- |
-| **Faithfulness** | Generator (LLM) | No | 1.0 (Zero Hallucinations) |
-| **Answer Relevance** | Generator (LLM) | No | High (> 0.85) |
-| **Context Precision** | Retriever | No | High (Signal-to-noise ratio in chunks) |
-| **Context Recall** | Retriever | Yes (Reference Ground Truth) | 1.0 (Fetched all necessary facts) |
+| Metric                | Component Evaluated | Requires Ground-Truth Reference? | Target Metric Goal                     |
+| --------------------- | ------------------- | -------------------------------- | -------------------------------------- |
+| **Faithfulness**      | Generator (LLM)     | No                               | 1.0 (Zero Hallucinations)              |
+| **Answer Relevance**  | Generator (LLM)     | No                               | High (> 0.85)                          |
+| **Context Precision** | Retriever           | No                               | High (Signal-to-noise ratio in chunks) |
+| **Context Recall**    | Retriever           | Yes (Reference Ground Truth)     | 1.0 (Fetched all necessary facts)      |
 
 ## Example
 
