@@ -17,7 +17,7 @@ tags:
 
 Vector embedding models have fixed context windows (e.g. 512 tokens for `bge-large-en` or 8192 tokens for `text-embedding-3-small`). Long documents (PDFs, Markdown files) must be segmented prior to indexing.
 
-```
+```text
 Document Text: [==================================================]
 Chunk 1:       [===============>]
 Chunk 2:               [<Overlap>]===============>]
@@ -25,9 +25,9 @@ Chunk 2:               [<Overlap>]===============>]
 
 ### Trade-offs
 
-| Parameter | Low Value Impact | High Value Impact |
-| --- | --- | --- |
-| **Chunk Size** | Fine-grained precision, but loses broader document context | Richer context, but higher embedding noise and LLM prompt context cost |
+| Parameter         | Low Value Impact                                                 | High Value Impact                                                         |
+| ----------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Chunk Size**    | Fine-grained precision, but loses broader document context       | Richer context, but higher embedding noise and LLM prompt context cost    |
 | **Chunk Overlap** | Faster indexing, but risks splitting sentences/facts mid-thought | Preserves context across boundaries, but creates duplicate vector storage |
 
 Standard baseline starting point: 512 tokens chunk size with 10–15% overlap (50–75 tokens).

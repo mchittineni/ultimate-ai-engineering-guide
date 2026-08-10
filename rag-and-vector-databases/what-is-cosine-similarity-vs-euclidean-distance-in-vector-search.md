@@ -20,13 +20,13 @@ Vector databases use similarity metrics to rank top-$K$ nearest neighbors:
 ### Formulas
 
 1. **Cosine Similarity:**
-$$\cos(\theta) = \frac{\mathbf{A} \cdot \mathbf{B}}{\|\mathbf{A}\| \|\mathbf{B}\|} = \frac{\sum A_i B_i}{\sqrt{\sum A_i^2} \sqrt{\sum B_i^2}}$$
+   $$\cos(\theta) = \frac{\mathbf{A} \cdot \mathbf{B}}{\|\mathbf{A}\| \|\mathbf{B}\|} = \frac{\sum A_i B_i}{\sqrt{\sum A_i^2} \sqrt{\sum B_i^2}}$$
 
 2. **Euclidean Distance ($L_2$):**
-$$d(\mathbf{A}, \mathbf{B}) = \sqrt{\sum_{i=1}^N (A_i - B_i)^2}$$
+   $$d(\mathbf{A}, \mathbf{B}) = \sqrt{\sum_{i=1}^N (A_i - B_i)^2}$$
 
 3. **Dot Product (Inner Product):**
-$$\mathbf{A} \cdot \mathbf{B} = \sum_{i=1}^N A_i B_i$$
+   $$\mathbf{A} \cdot \mathbf{B} = \sum_{i=1}^N A_i B_i$$
 
 ### Normalized Vector Identity
 

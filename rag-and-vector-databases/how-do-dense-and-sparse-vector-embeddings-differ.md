@@ -17,13 +17,13 @@ tags:
 
 Retrieval systems rely on complementary embedding paradigms to maximize search recall and precision.
 
-| Characteristic | Dense Embeddings | Sparse Embeddings |
-| --- | --- | --- |
-| **Dimensionality** | Low to medium (384 – 3072 dims) | High (vocabulary size, e.g., 30,000+ dims) |
-| **Values** | Non-zero float32 / float16 values | Mostly zero values (sparse matrix) |
-| **Primary Strength** | Semantic similarity, synonyms, intent matching | Exact keyword matching, product IDs, rare jargon |
-| **Weakness** | Can miss exact out-of-vocabulary product SKUs or names | Cannot recognize synonyms (e.g., "physician" vs "doctor") |
-| **Algorithms / Models** | OpenAI `text-embedding-3-small`, BGE-large, E5 | BM25, TF-IDF, SPLADE |
+| Characteristic          | Dense Embeddings                                       | Sparse Embeddings                                         |
+| ----------------------- | ------------------------------------------------------ | --------------------------------------------------------- |
+| **Dimensionality**      | Low to medium (384 – 3072 dims)                        | High (vocabulary size, e.g., 30,000+ dims)                |
+| **Values**              | Non-zero float32 / float16 values                      | Mostly zero values (sparse matrix)                        |
+| **Primary Strength**    | Semantic similarity, synonyms, intent matching         | Exact keyword matching, product IDs, rare jargon          |
+| **Weakness**            | Can miss exact out-of-vocabulary product SKUs or names | Cannot recognize synonyms (e.g., "physician" vs "doctor") |
+| **Algorithms / Models** | OpenAI `text-embedding-3-small`, BGE-large, E5         | BM25, TF-IDF, SPLADE                                      |
 
 Combining dense and sparse embeddings via Hybrid Search produces the highest retrieval accuracy in production RAG systems.
 

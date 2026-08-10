@@ -24,6 +24,7 @@ Rather than directly summing raw similarity scores (which operate on different s
 $$RRF\_Score(d \in D) = \sum_{m \in M} \frac{1}{k + r_m(d)}$$
 
 Where:
+
 - $M$ is the set of retrieval systems (Dense and Sparse).
 - $r_m(d)$ is the rank position of document $d$ in retriever $m$.
 - $k$ is a smoothing constant (typically $k=60$).

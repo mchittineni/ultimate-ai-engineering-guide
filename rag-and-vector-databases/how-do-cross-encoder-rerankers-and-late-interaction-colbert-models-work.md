@@ -17,7 +17,7 @@ tags:
 
 Retrieval architecture follows a multi-stage funnel:
 
-```
+```text
 [Candidate Documents: 10,000+]
             │
    (Bi-Encoder / Hybrid Search) ──► Fast ANN search
@@ -31,11 +31,11 @@ Retrieval architecture follows a multi-stage funnel:
 
 ### Architecture Comparison
 
-| Model Type | Representation | Query-Doc Attention | Latency | Accuracy |
-| --- | --- | --- | --- | --- |
-| **Bi-Encoder** | Single vector per doc | No cross-attention (dot product / cosine) | Low (~5-10ms) | Good |
-| **Cross-Encoder** | Joint classification | Full cross-attention ($Q \leftrightarrow Doc$) | High (~50-200ms) | Highest |
-| **ColBERT (Late-Interaction)** | Multi-vector matrix per doc | Token-level MaxSim dot product | Medium (~15-30ms) | Near Cross-Encoder |
+| Model Type                     | Representation              | Query-Doc Attention                            | Latency           | Accuracy           |
+| ------------------------------ | --------------------------- | ---------------------------------------------- | ----------------- | ------------------ |
+| **Bi-Encoder**                 | Single vector per doc       | No cross-attention (dot product / cosine)      | Low (~5-10ms)     | Good               |
+| **Cross-Encoder**              | Joint classification        | Full cross-attention ($Q \leftrightarrow Doc$) | High (~50-200ms)  | Highest            |
+| **ColBERT (Late-Interaction)** | Multi-vector matrix per doc | Token-level MaxSim dot product                 | Medium (~15-30ms) | Near Cross-Encoder |
 
 ### ColBERT MaxSim Calculation
 

@@ -17,7 +17,7 @@ tags:
 
 Research shows that LLM context recall follows a U-shaped performance curve:
 
-```
+```text
 Recall Accuracy
 100% ────┐                                             ┌────
          │                                             │
@@ -28,7 +28,7 @@ Recall Accuracy
 
 ### Why it Happens
 
-1. **Pracy & Recency Attention Bias:** Pre-training autoregressive masks and positional embeddings bias self-attention layers toward early system instructions and recent user query tokens.
+1. **Primacy & Recency Attention Bias:** Pre-training autoregressive masks and positional embeddings bias self-attention layers toward early system instructions and recent user query tokens.
 2. **Context Dilution:** As prompt length grows (e.g. inserting 20 retrieved RAG chunks), middle tokens experience lower attention weight density.
 
 ### RAG Mitigation Strategies
@@ -41,19 +41,32 @@ Recall Accuracy
 Python snippet for U-shaped context placement:
 
 ```python
+from collections import deque
+
+
 def reorder_snippets_u_shaped(snippets: list[str]) -> list[str]:
-    # Given snippets sorted by relevance rank [Rank 1, Rank 2, Rank 3, Rank 4, Rank 5]
-    # Re-order to [Rank 1, Rank 3, Rank 5, Rank 4, Rank 2]
-    reordered = []
-    left = True
-    for snip in snippets:
-        if left:
-            reordered.insert(0, snip)
-        else:
-            reordered.append(snip)
-        left = not left
-    return reordered
+    """Place the highest-ranked snippets at the two edges of the prompt.
+
+    Input is sorted best-first. Rank 1 must end up first or last -- never in
+    the middle -- so we append the best remaining snippet to the front, the
+    next to the back, and so on. The weakest snippets converge on the centre.
+
+        ["R1", "R2", "R3", "R4", "R5"] -> ["R1", "R3", "R5", "R4", "R2"]
+    """
+    remaining = deque(snippets)
+    front, back = [], []
+    while remaining:
+        front.append(remaining.popleft())
+        if remaining:
+            back.append(remaining.popleft())
+    return front + back[::-1]
+
+
+ranked = ["R1", "R2", "R3", "R4", "R5"]
+print(reorder_snippets_u_shaped(ranked))  # ['R1', 'R3', 'R5', 'R4', 'R2']
 ```
+
+Verify the invariant when you write this yourself: rank 1 must land at an edge. The naive alternating `insert(0)` / `append` loop looks equivalent but yields `['R5', 'R3', 'R1', 'R2', 'R4']` — it buries the best snippet in the exact position this technique exists to avoid.
 
 ## Interview tips
 

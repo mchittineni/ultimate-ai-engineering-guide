@@ -16,6 +16,7 @@ tags:
 ## Detail
 
 LLMs suffer from three core limitations in enterprise settings:
+
 1. **Hallucinations:** Inventing plausible-sounding facts when lacking specific knowledge.
 2. **Stale Knowledge Cutoffs:** Inability to access up-to-date real-time data post pre-training.
 3. **Lack of Proprietary Context:** Inability to read internal enterprise databases or private documents.
@@ -26,7 +27,7 @@ LLMs suffer from three core limitations in enterprise settings:
 2. **Retrieval:** Embed the user query, search the vector DB for top-$K$ semantic matches (using cosine similarity or HNSW index).
 3. **Generation:** Augment the system prompt with retrieved context snippets and pass to the LLM to synthesize an accurate answer.
 
-```
+```text
 [User Query] ──► [Embedder] ──► [Vector DB Search] ──► Top K Snippets
                                                              │
 [User Query] + [Top K Snippets] ──► [LLM Generator] ──► [Grounded Response]

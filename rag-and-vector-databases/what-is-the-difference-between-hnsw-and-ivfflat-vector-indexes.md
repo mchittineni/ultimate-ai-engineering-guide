@@ -48,7 +48,7 @@ IVFFlat is a cluster-based partitioning index:
 
 Configuration in PGVector / Qdrant / FAISS:
 
-````python
+```python
 import faiss
 import numpy as np
 
@@ -70,7 +70,7 @@ index_ivf = faiss.IndexIVFFlat(quantizer, dimension, nlist)
 index_ivf.train(data)
 index_ivf.add(data)
 index_ivf.nprobe = 10 # Number of clusters inspected at query time
-```text
+```
 
 ## Interview tips
 
@@ -80,4 +80,3 @@ index_ivf.nprobe = 10 # Number of clusters inspected at query time
 ---
 
 [⬅ Back to RAG and Vector Databases](./README.md) · [All topics](../README.md)
-````

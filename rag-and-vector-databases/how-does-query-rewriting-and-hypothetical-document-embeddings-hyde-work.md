@@ -15,11 +15,11 @@ tags:
 
 ## Detail
 
-Directly embedding brief user queries (e.g. *"Why is my server slow?"*) often results in poor vector matches because query syntax differs structurally from document syntax.
+Directly embedding brief user queries (e.g. _"Why is my server slow?"_) often results in poor vector matches because query syntax differs structurally from document syntax.
 
 ### HyDE Pipeline
 
-```
+```text
 [User Query] ──► [LLM Generator] ──► [Hypothetical Answer Document]
                                                 │
                                                 ▼
@@ -39,10 +39,10 @@ def hyde_retrieval(user_query: str, llm_fn, embedder_fn, vector_db):
     # Step 1: Generate hypothetical document
     hyde_prompt = f"Write a detailed passage answering the question: '{user_query}'"
     hypothetical_doc = llm_fn(hyde_prompt)
-    
+
     # Step 2: Embed hypothetical doc instead of short user query
     hypothetical_vector = embedder_fn(hypothetical_doc)
-    
+
     # Step 3: Perform vector search using hypothetical vector
     real_documents = vector_db.search(hypothetical_vector, k=5)
     return real_documents

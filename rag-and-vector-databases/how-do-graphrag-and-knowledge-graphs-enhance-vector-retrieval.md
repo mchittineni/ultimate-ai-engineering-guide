@@ -15,9 +15,9 @@ tags:
 
 ## Detail
 
-Standard vector RAG excels at localized passage retrieval (e.g. *"What is Company X's Q3 revenue?"*), but struggles with global, holistic dataset queries (e.g. *"What are the top 5 overarching themes across all 500 customer support transcripts?"*).
+Standard vector RAG excels at localized passage retrieval (e.g. _"What is Company X's Q3 revenue?"_), but struggles with global, holistic dataset queries (e.g. _"What are the top 5 overarching themes across all 500 customer support transcripts?"_).
 
-```
+```text
 Unstructured Text ──► [LLM Entity Extractor] ──► Knowledge Graph (Nodes & Edges)
                                                        │
 [User Query] ──► Vector Search + Graph Traversal (Sub-graph extraction) ──► Global Summary
