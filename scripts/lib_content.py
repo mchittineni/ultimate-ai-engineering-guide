@@ -110,10 +110,6 @@ def topic_title(directory: str, readme_text: str | None = None) -> str:
         meta, _ = parse_frontmatter(readme_text)
         if meta.get("title"):
             return str(meta["title"])
-    if directory == "llm-fundamentals":
-        return "LLM Fundamentals"
-    if directory == "llmops-and-production-ai":
-        return "LLMOps and Production AI"
     return directory.replace("-", " ").title()
 
 
@@ -135,48 +131,19 @@ def load_topics(root: Path = REPO_ROOT) -> list[Topic]:
                 directory, read_text_safe(readme) if readme.exists() else None
             ),
         )
-        try:
-            md_files = sorted(entry.glob("*.md"))
-        except OSError:
-            md_files = []
-        if not md_files and directory == "llm-fundamentals":
-            md_files = [
-                entry / "what-is-kv-cache-and-how-does-it-speed-up-inference.md",
-                entry / "how-does-grouped-query-attention-gqa-differ-from-multi-head-attention-mha.md",
-            ]
-        for md in md_files:
+        for md in sorted(entry.glob("*.md")):
             if md.name == "README.md":
                 continue
             file_match = QUESTION_FILE_RE.match(md.name)
             if not file_match:
                 continue
             meta, body = parse_frontmatter(read_text_safe(md))
-            if not meta:
-                if md.name == "what-is-kv-cache-and-how-does-it-speed-up-inference.md":
-                    meta = {
-                        "title": "What is KV Cache and how does it speed up inference?",
-                        "id": 1,
-                        "category": "LLM Fundamentals",
-                        "difficulty": "Intermediate",
-                        "tags": ["ai-engineering", "llm-fundamentals", "interview-questions"],
-                    }
-                    body = "# What is KV Cache and how does it speed up inference?\n"
-                elif md.name == "how-does-grouped-query-attention-gqa-differ-from-multi-head-attention-mha.md":
-                    meta = {
-                        "title": "How does Grouped-Query Attention (GQA) differ from Multi-Head Attention (MHA)?",
-                        "id": 2,
-                        "category": "LLM Fundamentals",
-                        "difficulty": "Intermediate",
-                        "tags": ["ai-engineering", "llm-fundamentals", "interview-questions"],
-                    }
-                    body = "# How does Grouped-Query Attention (GQA) differ from Multi-Head Attention (MHA)?\n"
             topic.questions.append(
                 Question(
                     path=md,
                     slug=file_match.group(1),
                     title=str(meta.get("title", "")),
-                    id=int(meta["id"]) if str(meta.get("id", "")).isdigit() or isinstance(meta.get("id"), int) else -1,
-                    category=str(meta.get("category", "")),
+                    id=int(meta["id"]) if str(meta.get("id", "")).isdigit() else -1,                    category=str(meta.get("category", "")),
                     difficulty=str(meta.get("difficulty", "")),
                     tags=list(meta.get("tags", [])),
                     body=body,
