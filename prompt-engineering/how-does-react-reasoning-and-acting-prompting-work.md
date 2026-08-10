@@ -24,7 +24,7 @@ ReAct bridges reasoning and execution by structuring prompt generation into disc
 3. **Observation:** The external system runs the tool and appends the result back into the conversation context as an `Observation`.
 4. **Repeat:** The model reads the new observation and generates the next `Thought`, continuing until it reaches a final `Thought` and outputs `Finish[answer]`.
 
-```
+```text
 User Query
     │
     ▼
@@ -49,7 +49,7 @@ User Query
     │
     ▼
   Finish
-```
+```text
 
 ### Why ReAct is central to AI Engineering
 
@@ -87,7 +87,7 @@ Observation: 92
 
 Thought: I have calculated the final result.
 Final Answer: The age of the current President of France multiplied by 2 is 92.
-```
+```text
 
 ## Interview tips
 
