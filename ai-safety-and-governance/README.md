@@ -15,9 +15,9 @@ Data privacy, PII masking, guardrails (NeMo, Llama Guard), alignment tax, copyri
 
 ## Questions
 
-| # | Question | Difficulty |
-| --- | --- | --- |
-| 10 | [How do input and output guardrails prevent jailbreaks and data leaks?](./how-do-input-and-output-guardrails-prevent-jailbreaks-and-data-leaks.md) | 🟡 Intermediate |
+| #   | Question                                                                                                                                           | Difficulty      |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| 10  | [How do input and output guardrails prevent jailbreaks and data leaks?](./how-do-input-and-output-guardrails-prevent-jailbreaks-and-data-leaks.md) | 🟡 Intermediate |
 
 ## What interviewers probe here
 

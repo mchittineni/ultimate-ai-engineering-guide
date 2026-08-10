@@ -30,13 +30,17 @@ A robust AI safety architecture implements **Dual-Layer Guardrails**:
 ```
 
 ### 1. Input Guardrails (Pre-Inference Protection)
-Executed *before* passing user input to the main LLM:
+
+Executed _before_ passing user input to the main LLM:
+
 - **Jailbreak Classifier:** Runs dedicated, lightweight safety models (e.g., `Llama-Guard-3-8B` or `Prompt-Guard`) to detect indirect prompt injections, adversarial overrides, or system prompt exfiltration attempts.
 - **PII Scrubbing:** Uses Regex and Named Entity Recognition (NER) models (Presidio, SpaCy) to automatically anonymize Social Security Numbers, credit cards, emails, and API keys.
 - **Topical Boundaries:** Ensures incoming requests remain strictly within domain boundaries (e.g., blocking cooking recipe questions on a financial advisory bot).
 
 ### 2. Output Guardrails (Post-Inference Inspection)
-Executed *after* LLM completion, prior to returning response to the end user:
+
+Executed _after_ LLM completion, prior to returning response to the end user:
+
 - **Data Exfiltration Filter:** Scans output text for accidental leakage of database secrets, system prompt instructions, or unredacted internal PII.
 - **JSON Schema Validation:** Verifies that structured responses strictly conform to required JSON schemas, triggering automated retries if invalid.
 - **Safety Classifiers:** Detects toxic content, self-harm instructions, hate speech, or competitor mentions.
@@ -54,18 +58,18 @@ class ProductionGuardrailPipeline:
         # Regex for PII detection (SSN & Email)
         self.email_regex = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
         self.ssn_regex = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
-        
+
     def inspect_input(self, user_prompt: str) -> Tuple[bool, str]:
         # 1. PII Redaction
         sanitized = self.email_regex.sub("[REDACTED_EMAIL]", user_prompt)
         sanitized = self.ssn_regex.sub("[REDACTED_SSN]", sanitized)
-        
+
         # 2. Basic Prompt Injection Guard
         injection_keywords = ["ignore previous instructions", "system prompt", "you are now DAN"]
         for keyword in injection_keywords:
             if keyword.lower() in user_prompt.lower():
                 return False, "Blocked: Potential prompt injection attempt detected."
-                
+
         return True, sanitized
 
     def inspect_output(self, llm_response: str) -> str:
