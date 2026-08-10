@@ -17,11 +17,11 @@ tags:
 
 The Anthropic Model Context Protocol (MCP) standardizes how AI applications connect to external data and systems:
 
-| Primitives | Directionality | Mode of Operation | Example |
-| --- | --- | --- | --- |
-| **MCP Resource** | Read-Only | Passive context reading | Reading a local `schema.sql` file, fetching a log file, reading a git diff |
-| **MCP Tool** | Read/Write | Executable action | `send_email()`, `run_git_commit()`, `execute_query()` |
-| **MCP Prompt** | Read-Only | Pre-designed template | System prompt templates, workflow guidelines |
+| Primitives       | Directionality | Mode of Operation       | Example                                                                    |
+| ---------------- | -------------- | ----------------------- | -------------------------------------------------------------------------- |
+| **MCP Resource** | Read-Only      | Passive context reading | Reading a local `schema.sql` file, fetching a log file, reading a git diff |
+| **MCP Tool**     | Read/Write     | Executable action       | `send_email()`, `run_git_commit()`, `execute_query()`                      |
+| **MCP Prompt**   | Read-Only      | Pre-designed template   | System prompt templates, workflow guidelines                               |
 
 ### Why Separation Matters
 
@@ -54,7 +54,7 @@ JSON-RPC schema difference in MCP:
 
 ## Interview tips
 
-- Highlight MCP's architecture: decoupling LLM clients (Claude Desktop, IDEs) from backend data servers via standardized JSON-RPC over stdio or SSE.
+- Highlight MCP's architecture: decoupling LLM clients (Claude Desktop, IDEs) from backend data servers via standardized JSON-RPC over stdio or Streamable HTTP.
 - Explain human-in-the-loop security for MCP tool calls.
 
 ---

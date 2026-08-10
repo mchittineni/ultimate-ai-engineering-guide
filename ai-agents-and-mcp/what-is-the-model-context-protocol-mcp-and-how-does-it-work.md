@@ -19,18 +19,18 @@ Before MCP, connecting AI applications or coding assistants to external systems 
 
 MCP replaces $M \times N$ custom integrations with a clean client-server interface:
 
-````text
+```text
 ┌────────────────────────────────┐
 │           MCP Client           │
 │   (e.g., Claude Desktop, IDE)  │
 └───────────────┬────────────────┘
-                │ JSON-RPC 2.0 (stdio / SSE)
+                │ JSON-RPC 2.0 (stdio / Streamable HTTP)
                 ▼
 ┌────────────────────────────────┐
 │           MCP Server           │
 │ (Postgres, GitHub, Slack, etc) │
 └────────────────────────────────┘
-```text
+```
 
 ### Core MCP Primitives
 
@@ -42,10 +42,12 @@ MCP defines three primary capabilities exposed by servers to clients:
 
 ### Transport Layer
 
-MCP operates over two primary transport channels:
+MCP defines two standard transports:
 
 - **`stdio`:** Standard Input/Output communication, ideal for local processes (e.g., local CLI tools, desktop tools).
-- **`SSE` (Server-Sent Events) over HTTP:** Used for remote MCP servers running on web servers or cloud endpoints.
+- **Streamable HTTP:** A single HTTP endpoint accepting `POST` for client-to-server messages, which may optionally upgrade its response to an SSE stream for server-to-client messages.
+
+Know the history, because plenty of older material and tutorials still teach the older shape: the original spec paired `POST` with a **separate long-lived SSE endpoint**. The 2025-03-26 revision replaced that with Streamable HTTP and deprecated the standalone HTTP+SSE transport, because holding one connection open per session made remote servers awkward to scale and to resume.
 
 ## Example
 
@@ -72,7 +74,7 @@ def get_database_schema() -> str:
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
-```text
+```
 
 ## Interview tips
 
@@ -82,4 +84,3 @@ if __name__ == "__main__":
 ---
 
 [⬅ Back to AI Agents and MCP](./README.md) · [All topics](../README.md)
-````

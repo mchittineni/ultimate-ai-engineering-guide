@@ -17,7 +17,7 @@ tags:
 
 Autonomous agents operating in ReAct loops can get stuck repeatedly executing identical failing tool calls or oscillating between two unviable actions.
 
-```
+```text
 [Agent Execution Loop]
          │
          ├── Step Counter >= Max Steps (e.g. 10) ──► TERMINATE (Step Limit)
@@ -51,11 +51,11 @@ class AgentCircuitBreaker:
         self.current_step += 1
         if self.current_step > self.max_steps:
             raise RuntimeError("Circuit Breaker: Max execution steps reached.")
-            
+
         # Create deterministic hash of tool call
         call_sig = f"{tool_name}:{str(sorted(tool_args.items()))}"
         call_hash = hashlib.md5(call_sig.encode()).hexdigest()
-        
+
         self.call_counts[call_hash] = self.call_counts.get(call_hash, 0) + 1
         if self.call_counts[call_hash] > self.max_repeats:
             raise RuntimeError(f"Circuit Breaker: Cyclic loop detected on tool '{tool_name}'. Aborting.")

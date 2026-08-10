@@ -17,7 +17,7 @@ tags:
 
 The transition from a raw LLM to an AI Agent introduces three key operational loops:
 
-```
+```text
                   ┌───────────────────────────┐
                   ▼                           │
 [User Goal] ──► [LLM Planner] ──► [Tool Call] ──► [Environment Observation]
@@ -27,12 +27,12 @@ The transition from a raw LLM to an AI Agent introduces three key operational lo
 2. **Action & Tool Execution:** Executing API calls, database queries, shell scripts, or web browsing.
 3. **Observation & Reflection:** Feeding execution outputs and errors back into the LLM context to determine next steps or retry failed operations.
 
-| Core Dimension | Standard LLM | AI Agent |
-| --- | --- | --- |
-| **Execution Style** | Single forward-pass generation | Multi-turn reasoning loop |
-| **Tool Integration** | None (pure text generation) | External APIs, DBs, search engines, sandboxes |
-| **State & Memory** | Ephemeral context window | Persistent memory (short-term & long-term) |
-| **Autonomy** | Passive responder | Active goal-directed executor |
+| Core Dimension       | Standard LLM                   | AI Agent                                      |
+| -------------------- | ------------------------------ | --------------------------------------------- |
+| **Execution Style**  | Single forward-pass generation | Multi-turn reasoning loop                     |
+| **Tool Integration** | None (pure text generation)    | External APIs, DBs, search engines, sandboxes |
+| **State & Memory**   | Ephemeral context window       | Persistent memory (short-term & long-term)    |
+| **Autonomy**         | Passive responder              | Active goal-directed executor                 |
 
 ## Example
 
@@ -47,16 +47,16 @@ class Agent:
 
     def run(self, goal: str, max_steps: int = 5):
         self.memory.append({"role": "user", "content": goal})
-        
+
         for step in range(max_steps):
             response = self.llm.generate(self.memory)
             if response.is_final_answer:
                 return response.answer
-            
+
             # Execute tool action selected by LLM
             tool_result = self.tools[response.tool_name](**response.tool_args)
             self.memory.append({"role": "tool", "content": str(tool_result)})
-            
+
         return "Max steps reached without completion."
 ```
 

@@ -17,7 +17,7 @@ tags:
 
 If an external tool call fails (e.g. invalid SQL syntax or broken API key), crashing the python process breaks the agent loop.
 
-```
+```text
 [Tool Invocation Failed] ──► Catch Exception ──► Format Error String ──► Append to Agent Context
                                                                                  │
 [LLM Evaluates Error]   ◄── Re-evaluate Parameters ◄── "SQL syntax error at line 1" ┘

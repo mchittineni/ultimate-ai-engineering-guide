@@ -17,7 +17,7 @@ tags:
 
 Agent memory systems mirror human memory cognitive architectures:
 
-```
+```text
 [Agent Perception]
        │
        ├──► Short-Term Memory ──► Sliding Window / Context Buffer (In-Memory)
@@ -25,15 +25,18 @@ Agent memory systems mirror human memory cognitive architectures:
        └──► Long-Term Memory  ──► Vector Search (Episodic) + Knowledge Graph (Semantic)
 ```
 
-| Memory Type | Technology | Purpose | Eviction / Compression Strategy |
-| --- | --- | --- | --- |
+| Memory Type              | Technology                     | Purpose                                                      | Eviction / Compression Strategy                                  |
+| ------------------------ | ------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------- |
 | **Short-Term (Working)** | Context window (Message array) | Maintaining current conversation goal & multi-turn tool logs | Sliding window, message trimming, LLM conversation summarization |
-| **Long-Term Episodic** | Vector Database (Embeddings) | Recalling past user sessions, past agent task executions | Semantic similarity retrieval ($k$-NN search) |
-| **Long-Term Procedural** | Key-Value / Graph DB / SQL | Storing explicit user profiles, entities, system rules | CRUD database operations |
+| **Long-Term Episodic**   | Vector Database (Embeddings)   | Recalling past user sessions, past agent task executions     | Semantic similarity retrieval ($k$-NN search)                    |
+| **Long-Term Semantic**   | Key-Value / Graph DB / SQL     | Storing explicit user profiles, entities, system rules       | CRUD database operations                                         |
+
+Use the cognitive terms precisely, because interviewers borrowing from the CoALA framework will: **episodic** memory is specific past events ("what happened in session 12"), **semantic** memory is facts about the world ("this user's plan is Enterprise"), and **procedural** memory is learned how-to — the agent's own skills, usually living in its prompts, tool definitions, or weights rather than in a row of a database.
 
 ### Context Window Optimization
 
 To prevent context window overflow during long agent sessions:
+
 1. **Windowed Buffer:** Retain only the last $N$ turns.
 2. **Summary Buffer:** When message history exceeds token threshold (e.g., 8,000 tokens), compress older turns into a high-level summary using a background LLM pass.
 

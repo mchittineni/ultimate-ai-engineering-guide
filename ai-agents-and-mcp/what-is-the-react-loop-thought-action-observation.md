@@ -17,7 +17,7 @@ tags:
 
 Standard LLMs struggle with multi-turn problem solving if forced to choose actions blindly without explicit intermediate reasoning.
 
-```
+```text
 [Goal] ──► Thought: "I need to check stock price for NVDA."
        ──► Action: `get_stock_price(ticker="NVDA")`
        ──► Observation: `{"price": 135.50}`
@@ -42,11 +42,11 @@ def parse_react_step(llm_output: str) -> tuple[str, str, str]:
     thought_match = re.search(r"Thought:\s*(.*?)(?=Action:|$)", llm_output, re.DOTALL)
     action_match = re.search(r"Action:\s*(.*?)(?=Action Input:|$)", llm_output, re.DOTALL)
     action_input_match = re.search(r"Action Input:\s*(.*)", llm_output, re.DOTALL)
-    
+
     thought = thought_match.group(1).strip() if thought_match else ""
     action = action_match.group(1).strip() if action_match else ""
     action_input = action_input_match.group(1).strip() if action_input_match else ""
-    
+
     return thought, action, action_input
 
 sample_llm_step = """Thought: I should search for recent weather data.

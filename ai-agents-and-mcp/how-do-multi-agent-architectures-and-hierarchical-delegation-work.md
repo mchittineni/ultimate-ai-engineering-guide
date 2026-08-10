@@ -17,7 +17,7 @@ tags:
 
 Single-agent systems degrade as prompt complexity and tool counts grow (tool choice overload). Multi-agent systems apply software modularity principles to AI workloads.
 
-```
+```text
                   ┌──────────────────────┐
                   │   Supervisor Agent   │
                   └──────────┬───────────┘

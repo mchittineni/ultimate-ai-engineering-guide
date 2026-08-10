@@ -17,7 +17,7 @@ tags:
 
 Before MCP, every AI tool integration required custom $M \times N$ integrations between every application host and every external service API.
 
-```
+```text
 Legacy:  Host App A ──► Custom Code ──► Postgres
          Host App B ──► Custom Code ──► Postgres
 
@@ -28,7 +28,7 @@ MCP:     Host App A (MCP Client) ──┐
 
 ### Protocol Mechanics
 
-1. **Transport Layer:** Transport operates over `stdio` (local subprocesses) or HTTP with Server-Sent Events (SSE) (remote network services).
+1. **Transport Layer:** Transport operates over `stdio` (local subprocesses) or Streamable HTTP (remote network services). Streamable HTTP superseded the original standalone HTTP+SSE transport in the 2025-03-26 spec revision; SSE now appears only as an optional upgrade of a `POST` response.
 2. **Capability Negotiation:** On connection startup (`initialize`), client and server exchange capabilities (resources, tools, prompts).
 3. **JSON-RPC Methods:** Standard methods include `tools/list`, `tools/call`, `resources/read`, and `prompts/get`.
 
@@ -53,7 +53,7 @@ JSON-RPC 2.0 payload sent by MCP client to execute a tool:
 ## Interview tips
 
 - Contrast MCP with traditional OpenAPI custom function calling wrappers: MCP standardizes resource discovery, active tool execution, and prompt templating across vendors.
-- Discuss transport security: running stdio for local sandboxed tools vs SSE over TLS for remote cloud tools.
+- Discuss transport security: stdio for local sandboxed tools vs Streamable HTTP over TLS for remote cloud tools, where you must also validate the `Origin` header and bind local servers to localhost to prevent DNS-rebinding attacks.
 
 ---
 
