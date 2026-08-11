@@ -17,7 +17,7 @@ tags:
 
 Without cost attribution modeling, shared LLM API accounts present aggregated monthly invoices without visibility into which team or user consumed the budget.
 
-```
+```text
 Incoming Request ──► Proxy Gateway ──► Inspect API Key / Tenant Metadata
                                              │
                                              ▼

@@ -17,7 +17,7 @@ tags:
 
 Un-versioned prompt changes lead to silent quality regressions across production services.
 
-```
+```text
 Format: vMAJOR.MINOR.PATCH
 - MAJOR (v2.0.0): Breaking changes (e.g. changing output schema from Markdown to JSON).
 - MINOR (v1.1.0): New features / instructions (e.g. adding new guardrail rules or persona hints).

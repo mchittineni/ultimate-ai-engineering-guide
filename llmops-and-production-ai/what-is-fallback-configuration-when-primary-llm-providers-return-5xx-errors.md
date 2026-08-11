@@ -17,7 +17,7 @@ tags:
 
 Third-party API providers experience occasional outages, capacity overloads (503 Service Unavailable), and internal server failures (500 Internal Server Error).
 
-```
+```text
 [Incoming User Request] ──► Primary Endpoint (OpenAI GPT-4o) ──► HTTP 503 Outage!
                                                                        │
                                                                        ▼ (Intercept Exception)

@@ -17,7 +17,7 @@ tags:
 
 Unstructured text logging (`print(response)`) makes searching, alerting, and cost accounting impossible across production systems.
 
-```
+```text
 Unstructured Log: "LLM responded to user 123 in 1.2s with text Hello"
 
 Structured JSON Log:

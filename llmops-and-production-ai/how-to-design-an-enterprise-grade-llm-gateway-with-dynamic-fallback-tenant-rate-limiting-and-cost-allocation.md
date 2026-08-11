@@ -17,7 +17,7 @@ tags:
 
 Direct API consumption by internal microservices creates security risks, uncoordinated vendor spend, and rate-limit fragility.
 
-```
+```text
 [Internal Microservice A] ──┐
 [Internal Microservice B] ──┼──► [Enterprise LLM Gateway Proxy]
 [Internal Microservice C] ──┘                 │
@@ -46,15 +46,15 @@ async def handle_gateway_request(tenant_id: str, request_payload: dict, redis_cl
     # 1. Tenant Budget & Rate Limit Check
     if not await check_rate_limit(redis_client, tenant_id, request_payload["estimated_tokens"]):
         return {"error": "HTTP 429: Rate Limit Exceeded"}, 429
-        
+
     # 2. Semantic Cache Lookup
     cached_resp = await get_semantic_cache(request_payload["prompt"])
     if cached_resp:
         return cached_resp, 200
-        
+
     # 3. Provider Invocation with Fallback
     response, cost = await provider_client.execute_with_fallback(request_payload)
-    
+
     # 4. Asynchronous Cost & Metric Logging
     await log_cost_attribution(tenant_id, cost)
     return response, 200

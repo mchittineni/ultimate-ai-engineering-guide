@@ -17,7 +17,7 @@ tags:
 
 Over time, production user prompt distributions drift away from initial benchmark datasets due to new product releases, seasonal trends, or changed user habits.
 
-```
+```text
 Time Window T1 (Baseline):  [Cluster A: Billing], [Cluster B: Login Issues]
                                         │
                                         ▼ (Compute Centroid Distance)
@@ -28,7 +28,7 @@ Time Window T2 (Current):   [Cluster A: Billing], [NEW Emerging Cluster C: Featu
 
 1. **Centroid Distance Shift:** Computing cosine distance between the mean vector of baseline queries $\mu_1$ and active queries $\mu_2$:
 
-$$d_{drift} = 1 - \cos(\mu_1, \mu_2)$$
+   $$d_{drift} = 1 - \cos(\mu_1, \mu_2)$$
 
 2. **Unassigned Vector Rate:** Tracking the percentage of production query vectors falling outside pre-established HDBSCAN cluster boundaries.
 
@@ -43,7 +43,7 @@ def calculate_centroid_drift(baseline_embeddings: np.ndarray, current_embeddings
     # Compute mean centroid vectors
     c_base = np.mean(baseline_embeddings, axis=0)
     c_curr = np.mean(current_embeddings, axis=0)
-    
+
     # Cosine distance
     cosine_sim = np.dot(c_base, c_curr) / (np.linalg.norm(c_base) * np.linalg.norm(c_curr))
     drift = 1.0 - cosine_sim

@@ -19,7 +19,7 @@ Evaluating 100% of production traces manually is impossible due to cost and scal
 
 Continuous evaluation uses intelligent sampling to route the most informative interaction traces to human review queues.
 
-```
+```text
 Production Traces Stream ──► [Automated Heuristic Filter]
                                       │
        ┌──────────────────────────────┼──────────────────────────────┐
@@ -49,11 +49,11 @@ def should_sample_for_human_review(trace: dict, sample_rate: float = 0.01) -> bo
     # 1. Always sample explicit user feedback negative flags
     if trace.get("user_feedback") == "thumbs_down":
         return True
-        
+
     # 2. Always sample guardrail flags or low judge scores
     if trace.get("judge_faithfulness_score", 1.0) < 0.7:
         return True
-        
+
     # 3. Stratified random baseline sample
     return random.random() < sample_rate
 ```

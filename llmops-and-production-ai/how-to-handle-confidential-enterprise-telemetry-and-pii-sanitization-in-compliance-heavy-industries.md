@@ -17,7 +17,7 @@ tags:
 
 Sending un-sanitized user telemetry containing Personally Identifiable Information (PII) or Protected Health Information (PHI) to third-party SaaS logging platforms violates data privacy laws.
 
-```
+```text
 Raw Prompt Input ──► [Local Presidio PII Engine] ──► Token Hash Mapping: {"JOHN_DOE" -> "<PERSON_1>"}
                                                                  │
                                                                  ▼

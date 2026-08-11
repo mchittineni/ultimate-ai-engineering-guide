@@ -17,17 +17,17 @@ tags:
 
 Traditional REST API SLAs track total request duration. In streaming LLM applications, total request duration depends heavily on requested completion length.
 
-```
+```text
 Total Request Latency = TTFT (Prefill Delay) + (Generated Tokens * TPOT)
 ```
 
 ### Core Performance Metrics
 
-| Metric | Target SLO Baseline | What it Measures |
-| --- | --- | --- |
-| **Time-to-First-Token (TTFT)** | $< 200\text{ ms}$ (p95) | Prefill latency before first token streams to user UI |
-| **Time-Per-Output-Token (TPOT)** | $< 20\text{ ms}$ (p95) | Latency between consecutive generated tokens |
-| **Generation Throughput** | $> 50\text{ tokens/sec}$ | Speed of text generation perceived by end user |
+| Metric                           | Target SLO Baseline      | What it Measures                                      |
+| -------------------------------- | ------------------------ | ----------------------------------------------------- |
+| **Time-to-First-Token (TTFT)**   | $< 200\text{ ms}$ (p95)  | Prefill latency before first token streams to user UI |
+| **Time-Per-Output-Token (TPOT)** | $< 20\text{ ms}$ (p95)   | Latency between consecutive generated tokens          |
+| **Generation Throughput**        | $> 50\text{ tokens/sec}$ | Speed of text generation perceived by end user        |
 
 ## Example
 
@@ -54,7 +54,7 @@ class LLMStreamProfiler:
         gen_duration = self.token_times[-1] - self.first_token_time
         tpot_ms = (gen_duration / (num_tokens - 1) * 1000.0) if num_tokens > 1 else 0.0
         throughput = (num_tokens - 1) / gen_duration if gen_duration > 0 else 0.0
-        
+
         return {"ttft_ms": round(ttft_ms, 2), "tpot_ms": round(tpot_ms, 2), "tokens_per_sec": round(throughput, 1)}
 ```
 

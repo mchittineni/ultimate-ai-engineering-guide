@@ -17,7 +17,7 @@ tags:
 
 Modifying system prompt text without regression testing risks breaking production output structures or degrading accuracy on edge-case user queries.
 
-```
+```text
 Pull Request Opened (Prompt Update) ──► GitHub Actions CI Trigger
                                                  │
                                                  ▼
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          
+
       - name: Run Prompt Eval Harness
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
