@@ -19,7 +19,7 @@ Standard speculative decoding requires hosting two distinct models in GPU memory
 
 Medusa eliminates the separate draft model by attaching lightweight feed-forward heads directly to the base model:
 
-```
+```text
 Medusa Architecture:
 Base LLM Backbone ──► Last Hidden State h_t ──┬──► Original Head ──► Predicts Token t+1
                                               ├──► Medusa Head 1 ──► Predicts Token t+2

@@ -17,7 +17,7 @@ tags:
 
 Achieving sub-100ms TTFT globally requires optimizing every network hop and GPU compute stage.
 
-```
+```text
 [Global User Request] ──► Anycast DNS / Edge CDN (TLS Terminated < 20ms)
                                      │
                                      ▼
@@ -35,12 +35,12 @@ Achieving sub-100ms TTFT globally requires optimizing every network hop and GPU 
 
 ### Key Architectural Pillars
 
-| Component Layer | Optimization Technique | TTFT Impact |
-| --- | --- | --- |
-| **Network Edge** | Anycast BGP Routing + HTTP/2 Connection Pooling | Saves 100-200ms TLS handshake latency |
-| **Caching Layer** | Distributed Redis Semantic Cache ($>0.92$ Cosine Match) | Returns instant cached completion (~25ms) |
-| **Compute Layer** | Chunked Prefill + Disaggregated P&D Nodes | Eliminates prefill queue interference |
-| **KV Cache** | GPU Prefix Caching (vLLM PagedAttention) | Skips 80%+ of prompt prefill matrix operations |
+| Component Layer   | Optimization Technique                                  | TTFT Impact                                    |
+| ----------------- | ------------------------------------------------------- | ---------------------------------------------- |
+| **Network Edge**  | Anycast BGP Routing + HTTP/2 Connection Pooling         | Saves 100-200ms TLS handshake latency          |
+| **Caching Layer** | Distributed Redis Semantic Cache ($>0.92$ Cosine Match) | Returns instant cached completion (~25ms)      |
+| **Compute Layer** | Chunked Prefill + Disaggregated P&D Nodes               | Eliminates prefill queue interference          |
+| **KV Cache**      | GPU Prefix Caching (vLLM PagedAttention)                | Skips 80%+ of prompt prefill matrix operations |
 
 ## Example
 
@@ -52,7 +52,7 @@ async def handle_low_latency_inference_request(request: dict, semantic_cache, pr
     cached_res = await semantic_cache.get(request["prompt"])
     if cached_res:
         return cached_res # TTFT < 30ms
-        
+
     # 2. Dispatch to prefill-optimized cluster with prefix matching
     prefill_node = prefill_pool.get_node_with_prefix_match(request["system_prompt_hash"])
     stream = await prefill_node.execute_chunked_prefill(request)

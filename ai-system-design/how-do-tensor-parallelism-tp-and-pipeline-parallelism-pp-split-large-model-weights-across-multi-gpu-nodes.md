@@ -17,7 +17,7 @@ tags:
 
 Fitting 70B to 405B parameter models in GPU memory exceeds single-GPU VRAM capacity (e.g. 80GB H100).
 
-```
+```text
 Tensor Parallelism (TP=2) - Intra-Layer Split:
 Matrix W (4096 x 4096) ──► Split Column-wise ──► GPU 0: W1 (4096 x 2048)
                                               ──► GPU 1: W2 (4096 x 2048)
@@ -30,12 +30,12 @@ GPU 1 (Node B): Transformer Layers 17 to 32
 
 ### Core Comparison
 
-| Dimension | Tensor Parallelism (TP) | Pipeline Parallelism (PP) |
-| --- | --- | --- |
-| **Partition Unit** | Individual Linear Weight Matrices ($W$) | Whole Transformer Layers (Blocks) |
+| Dimension                      | Tensor Parallelism (TP)                  | Pipeline Parallelism (PP)                       |
+| ------------------------------ | ---------------------------------------- | ----------------------------------------------- |
+| **Partition Unit**             | Individual Linear Weight Matrices ($W$)  | Whole Transformer Layers (Blocks)               |
 | **Communication Interconnect** | High-speed Intra-Node NVLink (~900 GB/s) | Inter-Node InfiniBand / Ethernet (~50-100 GB/s) |
-| **Communication Frequency** | High (AllReduce per attention/FFN layer) | Low (Handshake at stage boundaries) |
-| **Primary Bottleneck** | Memory Bandwidth & NVLink Latency | Pipeline Bubble (GPU Idle Time) |
+| **Communication Frequency**    | High (AllReduce per attention/FFN layer) | Low (Handshake at stage boundaries)             |
+| **Primary Bottleneck**         | Memory Bandwidth & NVLink Latency        | Pipeline Bubble (GPU Idle Time)                 |
 
 ## Example
 

@@ -17,7 +17,7 @@ tags:
 
 Opening a new TCP + TLS connection for every incoming LLM prompt request introduces severe latency penalties:
 
-```
+```text
 Without Connection Pooling (Per Request):
 DNS Lookup ──► TCP 3-Way Handshake ──► TLS 1.3 Handshake (100-300ms Overhead) ──► Send LLM Request
 

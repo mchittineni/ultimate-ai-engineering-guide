@@ -19,7 +19,7 @@ Traditional inference engines pre-allocate contiguous GPU memory blocks for ever
 
 Because actual generated sequences vary in length, pre-allocating contiguous blocks causes severe **internal and external memory fragmentation**:
 
-```
+```text
 Traditional KV Allocator (Contiguous Allocation):
 [ Req 1 (Reserved 4096 Tokens) | Actual Output: 100 Tokens | 3996 Tokens WASTED ] ──► ~80% VRAM Wasted!
 
@@ -49,12 +49,12 @@ class PagedKVCacheManager:
     def allocate_token_slot(self, seq_id: str, current_seq_len: int) -> int:
         if seq_id not in self.block_tables:
             self.block_tables[seq_id] = []
-            
+
         # Check if new physical block is needed
         if current_seq_len % self.block_size == 1:
             physical_block = self.free_blocks.pop(0)
             self.block_tables[seq_id].append(physical_block)
-            
+
         return self.block_tables[seq_id][-1]
 ```
 

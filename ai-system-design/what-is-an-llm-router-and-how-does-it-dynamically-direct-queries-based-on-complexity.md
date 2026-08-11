@@ -17,7 +17,7 @@ tags:
 
 Routing 100% of user queries to frontier flagship models causes excessive cost and unnecessary latency.
 
-```
+```text
 Incoming User Query
          │
          ▼
@@ -42,11 +42,11 @@ Python concept illustrating intent-based LLM routing:
 def route_user_query(prompt: str) -> str:
     COMPLEX_KEYWORDS = {"code", "python", "refactor", "proof", "math", "architect"}
     words = set(prompt.lower().split())
-    
+
     # Check if query contains high-complexity technical triggers
     if words.intersection(COMPLEX_KEYWORDS) or len(prompt.split()) > 200:
         return "models/flagship-reasoning-model" # High complexity -> Route to o3-mini / GPT-4o
-        
+
     return "models/lightweight-fast-model" # Low complexity -> Route to GPT-4o-mini
 
 print("Routing Simple Query:", route_user_query("What is the capital of France?"))

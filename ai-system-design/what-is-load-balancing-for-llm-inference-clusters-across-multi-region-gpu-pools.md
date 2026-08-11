@@ -19,7 +19,7 @@ Standard round-robin load balancers (like Nginx default) treat all HTTP requests
 
 In LLM inference, a request with a 10,000-token prompt requires dramatically more compute and KV memory than a 20-token prompt.
 
-```
+```text
 Incoming Request ──► Intelligent LLM Load Balancer ──► Inspects Active Queue Depth & KV Memory
                                                                │
                     ┌──────────────────────────────────────────┴──────────────────────────────────────────┐

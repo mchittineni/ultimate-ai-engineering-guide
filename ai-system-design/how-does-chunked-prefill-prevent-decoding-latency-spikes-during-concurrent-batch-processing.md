@@ -17,7 +17,7 @@ tags:
 
 In standard inference engines without chunked prefill, a new request with a 10,000-token prompt preempts active decoding requests, running compute-heavy matrix multiplications across all 10,000 tokens in a single pass.
 
-```
+```text
 Without Chunked Prefill (Interference Spike):
 Active Decode Streams ──► [LONG PREFILL (10,000 Tokens) BLOCKS GPU] ──► TPOT Spikes to 500ms+
 
@@ -39,17 +39,17 @@ Python concept illustrating batch budget calculation for chunked prefill:
 ```python
 def assemble_chunked_batch(prefill_queue: list[list[int]], active_decodes: list[int], max_num_batched_tokens: int = 2048):
     batch_tokens = []
-    
+
     # 1. Allocate 1 token slot for each active decoding stream
     num_decodes = len(active_decodes)
     remaining_budget = max_num_batched_tokens - num_decodes
-    
+
     # 2. Fill remaining token budget with prompt prefill chunks
     prefill_chunk_size = 0
     if prefill_queue and remaining_budget > 0:
         next_prompt = prefill_queue[0]
         prefill_chunk_size = min(len(next_prompt), remaining_budget)
-        
+
     return {
         "num_decodes": num_decodes,
         "prefill_chunk_size": prefill_chunk_size,

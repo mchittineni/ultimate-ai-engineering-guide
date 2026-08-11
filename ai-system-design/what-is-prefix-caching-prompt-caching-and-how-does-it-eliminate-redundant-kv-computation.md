@@ -17,7 +17,7 @@ tags:
 
 In multi-turn chat applications or RAG pipelines, every incoming API request re-sends the same system instructions.
 
-```
+```text
 Request 1: [System Prompt (2000 Tokens)] + [User Query 1] ──► Full Prefill Computation ──► Cache KV Tensors
 Request 2: [System Prompt (2000 Tokens)] + [User Query 2] ──► PREFIX CACHE HIT! Read KV ──► Only Prefill Query 2
 ```
@@ -42,11 +42,11 @@ class PrefixKVCacheManager:
     def get_or_compute_kv(self, prefix_tokens: list[int], compute_fn):
         prefix_bytes = str(prefix_tokens).encode()
         prefix_hash = hashlib.sha256(prefix_bytes).hexdigest()
-        
+
         if prefix_hash in self.cache:
             print("PREFIX CACHE HIT! Reusing precomputed KV tensors.")
             return self.cache[prefix_hash]
-            
+
         print("PREFIX CACHE MISS. Executing prefill matrix multiplication...")
         kv_tensors = compute_fn(prefix_tokens)
         self.cache[prefix_hash] = kv_tensors

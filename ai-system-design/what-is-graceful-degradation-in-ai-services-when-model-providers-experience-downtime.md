@@ -17,7 +17,7 @@ tags:
 
 Relying on a single third-party LLM API endpoint creates a single point of failure.
 
-```
+```text
 Primary API (OpenAI GPT-4o) ──► HTTP 503 Outage / Timeout
                                         │
                                         ▼
