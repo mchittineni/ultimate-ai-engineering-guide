@@ -21,7 +21,7 @@ GPTQ quantizes weight columns sequentially by solving inverse Hessian error comp
 
 AWQ observes that **not all weights are equally important**:
 
-```
+```text
 Observation: 1% of weight channels correspond to 99% of large activation magnitudes.
 
 AWQ Strategy:
@@ -32,12 +32,12 @@ AWQ Strategy:
 
 ### Key Differences
 
-| Feature | GPTQ | AWQ |
-| --- | --- | --- |
-| **Quantization Basis** | Second-order inverse Hessian weight error | Activation magnitude norms $\|X\|$ |
-| **Outlier Protection** | Error compensation across matrix columns | Per-channel activation scaling $s \cdot W$ |
-| **Generalization** | Prone to overfitting calibration dataset | Superior generalization across out-of-domain prompts |
-| **Inference Hardware Speed** | High | Ultra-fast (Native vLLM/TRT-LLM 4-bit kernels) |
+| Feature                      | GPTQ                                      | AWQ                                                  |
+| ---------------------------- | ----------------------------------------- | ---------------------------------------------------- |
+| **Quantization Basis**       | Second-order inverse Hessian weight error | Activation magnitude norms $\|X\|$                   |
+| **Outlier Protection**       | Error compensation across matrix columns  | Per-channel activation scaling $s \cdot W$           |
+| **Generalization**           | Prone to overfitting calibration dataset  | Superior generalization across out-of-domain prompts |
+| **Inference Hardware Speed** | High                                      | Ultra-fast (Native vLLM/TRT-LLM 4-bit kernels)       |
 
 ## Example
 

@@ -19,7 +19,7 @@ Standard LoRA updates weight matrix $W$ by adding $\Delta W = B A$.
 
 Analysis reveals that full parameter fine-tuning changes weight magnitude ($m = \|W\|$) and directional orientation ($V = W / \|W\|$) with distinct subtle correlation patterns, whereas standard LoRA forces magnitude and direction to scale proportionally.
 
-```
+```text
 Weight Vector Matrix W = m * (V / ||V||)
   ├── Magnitude m (Scalar norm) ──► Trained independently
   └── Direction V (Matrix)      ──► Adapted via LoRA low-rank decomposition (B * A)
@@ -46,10 +46,10 @@ class DoRALayer(nn.Module):
         super().__init__()
         self.out_dim, self.in_dim = W_base.shape
         self.W0 = W_base # Frozen base weights
-        
+
         # Trainable magnitude scalar norm
         self.m = nn.Parameter(torch.norm(W_base, dim=0, keepdim=True))
-        
+
         # LoRA directional adapters
         self.lora_A = nn.Parameter(torch.randn(r, self.in_dim) * 0.01)
         self.lora_B = nn.Parameter(torch.zeros(self.out_dim, r))

@@ -17,7 +17,7 @@ tags:
 
 Before GGUF, GGML files stored model weights without embedding tokenizer metadata, causing frequent file incompatibility breakage across software releases.
 
-```
+```text
 GGUF File Structure:
 ┌────────────────────────────────────────────────────────┐
 │ Header & Metadata (Tokenizer, Arch, Quant Parameters)  │

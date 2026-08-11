@@ -21,7 +21,7 @@ If a single GPU VRAM limit permits fitting a micro-batch size of only 4 sequence
 
 $$\text{Effective Batch Size} = \text{Per-Device Micro-Batch Size} \times \text{Gradient Accumulation Steps} \times \text{Number of GPUs}$$
 
-```
+```text
 Micro-Batch 1 (Size 4) ──► Forward + Backward ──► Accumulate Gradients (No weight update)
 Micro-Batch 2 (Size 4) ──► Forward + Backward ──► Accumulate Gradients (No weight update)
 Micro-Batch 3 (Size 4) ──► Forward + Backward ──► Accumulate Gradients (No weight update)
@@ -47,7 +47,7 @@ for step, (inputs, targets) in enumerate(dataset_loader):
     outputs = model(inputs)
     loss = criterion(outputs, targets) / accumulation_steps # Scale loss
     loss.backward() # Accumulate gradients
-    
+
     if (step + 1) % accumulation_steps == 0:
         optimizer.step() # Apply accumulated gradient updates
         optimizer.zero_grad() # Reset accumulated gradients

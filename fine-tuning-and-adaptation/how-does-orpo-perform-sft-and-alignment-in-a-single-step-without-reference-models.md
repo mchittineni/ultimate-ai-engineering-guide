@@ -16,10 +16,11 @@ tags:
 ## Detail
 
 Traditional preference alignment requires a 2-stage pipeline:
+
 1. Stage 1: Supervised Fine-Tuning (SFT) on target dataset.
 2. Stage 2: Preference alignment (DPO or RLHF), requiring loading both policy model $\pi_\theta$ and frozen reference model $\pi_{ref}$ into GPU memory simultaneously.
 
-```
+```text
 Standard 2-Stage DPO: SFT Training ──► Save Checkpoint ──► Load Policy + Reference Models into VRAM ──► DPO Loss
 ORPO Single-Stage:   Raw Base Model ──► Monolithic ORPO Loss (SFT Loss + Odds Ratio Penalty) ──► Aligned Model
 ```
@@ -29,6 +30,7 @@ ORPO Single-Stage:   Raw Base Model ──► Monolithic ORPO Loss (SFT Loss + O
 $$\mathcal{L}_{ORPO} = \mathcal{L}_{SFT} + \lambda \cdot \mathcal{L}_{OR}$$
 
 Where:
+
 - $\mathcal{L}_{SFT}$ is standard negative log-likelihood on favored completions $y_w$.
 - $\mathcal{L}_{OR}$ is the log odds ratio between winning $y_w$ and losing $y_l$ completions:
 
@@ -48,10 +50,10 @@ def orpo_loss(policy_chosen_logps, policy_rejected_logps, sft_loss, lambda_or=0.
     # Calculate log odds ratio
     log_odds_chosen = policy_chosen_logps - torch.log1p(-torch.exp(policy_chosen_logps))
     log_odds_rejected = policy_rejected_logps - torch.log1p(-torch.exp(policy_rejected_logps))
-    
+
     log_odds_ratio = log_odds_chosen - log_odds_rejected
     or_loss = -F.logsigmoid(log_odds_ratio).mean()
-    
+
     # Unified monolithic loss
     total_loss = sft_loss + lambda_or * or_loss
     return total_loss

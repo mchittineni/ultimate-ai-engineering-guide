@@ -17,7 +17,7 @@ tags:
 
 Standard single precision (FP32) uses 32 bits (1 sign, 8 exponent, 23 mantissa).
 
-```
+```text
 FP32 (32-bit):     [Sign: 1] [Exponent: 8 bits] [Mantissa: 23 bits]  -> Dynamic Range ~10^38
 FP16 (16-bit):     [Sign: 1] [Exponent: 5 bits] [Mantissa: 10 bits]  -> Dynamic Range ~65,504 (Prone to Overflow!)
 BF16 (Bfloat16):   [Sign: 1] [Exponent: 8 bits] [Mantissa: 7 bits]   -> Dynamic Range ~10^38 (Same Range as FP32!)
@@ -29,11 +29,11 @@ FP16's 5-bit exponent limits max values to $65,504$. Small gradient values ($< 6
 
 BF16 retains FP32's 8-bit exponent, providing identical dynamic range ($\sim 10^{38}$) without needing loss scaling.
 
-| Precision Format | Bits | Dynamic Range | Underflow Risk | Hardware Requirement |
-| --- | --- | --- | --- | --- |
-| **FP32** | 32 | $10^{-38} - 10^{38}$ | Minimal | All GPUs |
-| **FP16** | 16 | $6 \times 10^{-5} - 65,504$ | High (Requires Loss Scaler) | NVIDIA Volta (V100)+ |
-| **BF16** | 16 | $10^{-38} - 10^{38}$ | Minimal (No Loss Scaler) | NVIDIA Ampere (A100/H100)+ |
+| Precision Format | Bits | Dynamic Range               | Underflow Risk              | Hardware Requirement       |
+| ---------------- | ---- | --------------------------- | --------------------------- | -------------------------- |
+| **FP32**         | 32   | $10^{-38} - 10^{38}$        | Minimal                     | All GPUs                   |
+| **FP16**         | 16   | $6 \times 10^{-5} - 65,504$ | High (Requires Loss Scaler) | NVIDIA Volta (V100)+       |
+| **BF16**         | 16   | $10^{-38} - 10^{38}$        | Minimal (No Loss Scaler)    | NVIDIA Ampere (A100/H100)+ |
 
 ## Example
 

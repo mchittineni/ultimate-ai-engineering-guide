@@ -17,7 +17,7 @@ tags:
 
 In standard Data Parallelism (DP), every GPU holds a 100% duplicate copy of model parameters, gradients, and Adam optimizer states (FP32 master weights, momentum, variance).
 
-```
+```text
 Standard DP: GPU 0 [Parameters + Gradients + Optimizer States] (Redundant on GPU 1, GPU 2...)
 
 ZeRO-1 (Optimizer State Partitioning):
@@ -34,12 +34,12 @@ GPU 0 [Param Part 0] [Grad Part 0] [Opt Part 0] | GPU 1 [Param Part 1] [Grad Par
 
 For model with $P$ parameters trained in FP16/BF16 with Adam optimizer:
 
-| ZeRO Stage | Partitioned Components | Total Memory Footprint per GPU | Communication Overhead |
-| --- | --- | --- | --- |
-| **Baseline DP** | None (Fully Replicated) | $2P (\text{Weights}) + 2P (\text{Grads}) + 12P (\text{Adam}) = 16P$ | Baseline AllReduce |
-| **ZeRO-1** | Optimizer States ($P_{opt}$) | $4P + \frac{12P}{N_{gpus}}$ | Same as Baseline |
-| **ZeRO-2** | Optimizer States + Gradients ($P_{grad}$) | $2P + \frac{14P}{N_{gpus}}$ | Same as Baseline |
-| **ZeRO-3** | Optimizer States + Gradients + Parameters ($P_{param}$) | $\frac{16P}{N_{gpus}}$ | ~1.5x AllGather overhead |
+| ZeRO Stage      | Partitioned Components                                  | Total Memory Footprint per GPU                                      | Communication Overhead   |
+| --------------- | ------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------ |
+| **Baseline DP** | None (Fully Replicated)                                 | $2P (\text{Weights}) + 2P (\text{Grads}) + 12P (\text{Adam}) = 16P$ | Baseline AllReduce       |
+| **ZeRO-1**      | Optimizer States ($P_{opt}$)                            | $4P + \frac{12P}{N_{gpus}}$                                         | Same as Baseline         |
+| **ZeRO-2**      | Optimizer States + Gradients ($P_{grad}$)               | $2P + \frac{14P}{N_{gpus}}$                                         | Same as Baseline         |
+| **ZeRO-3**      | Optimizer States + Gradients + Parameters ($P_{param}$) | $\frac{16P}{N_{gpus}}$                                              | ~1.5x AllGather overhead |
 
 ## Example
 

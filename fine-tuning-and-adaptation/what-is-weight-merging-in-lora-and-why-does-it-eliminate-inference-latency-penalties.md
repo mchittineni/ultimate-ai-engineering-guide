@@ -21,7 +21,7 @@ $$h = W_0 x + \frac{\alpha}{r} (B A) x$$
 
 If deployed with separate adapter weights in production, every layer must compute two matrix multiplications instead of one, adding a 10–20% latency overhead.
 
-```
+```text
 Unmerged (Inference Overhead):
 Input x ──┬──► Base Matrix W_0 (d x k) ──┐
           └──► Adapter (B * A) * scale ──┴──► Add Outputs (2 MatMuls per layer)

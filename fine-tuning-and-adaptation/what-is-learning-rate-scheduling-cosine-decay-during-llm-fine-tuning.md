@@ -17,7 +17,7 @@ tags:
 
 Constant learning rates cause training instability: too high a learning rate early on causes loss divergence, while too high a learning rate late in training prevents the model from settling into optimal loss minima.
 
-```
+```text
 Learning Rate (η)
   ▲
   │     /─── Cosine Decay Curve ───\

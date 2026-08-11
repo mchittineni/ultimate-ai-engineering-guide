@@ -52,7 +52,7 @@ def convert_alpaca_to_sharegpt(alpaca_item: dict) -> dict:
     user_content = alpaca_item["instruction"]
     if alpaca_item.get("input"):
         user_content += f"\nContext:\n{alpaca_item['input']}"
-        
+
     return {
         "conversations": [
             {"from": "human", "value": user_content},
