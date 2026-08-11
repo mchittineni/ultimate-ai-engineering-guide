@@ -17,7 +17,7 @@ tags:
 
 Staff-level system design interviews evaluate your ability to design complex, multi-turn, multi-agent systems that operate safely and reliably.
 
-```
+```text
 [User Request (Feature Spec)]
            │
            ▼
@@ -40,13 +40,13 @@ Staff-level system design interviews evaluate your ability to design complex, mu
 
 ### 5 Staff-Level Architectural Pillars
 
-| Component | Staff-Level Engineering Solution |
-| --- | --- |
-| **State Management** | State graph with persistent Postgres checkpointing & thread resume capabilities |
-| **Tool Standard** | Model Context Protocol (MCP) for standardizing local/remote tool bindings |
-| **Sandbox Security** | Ephemeral micro-VM container isolation (gVisor/E2B) with network egress controls |
-| **Deadlock Prevention** | Explicit iteration counters ($N \le 3$) and deterministic state reducers |
-| **Human Control** | Human-in-the-Loop (HITL) approval nodes prior to executing git commits / PR merges |
+| Component               | Staff-Level Engineering Solution                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| **State Management**    | State graph with persistent Postgres checkpointing & thread resume capabilities    |
+| **Tool Standard**       | Model Context Protocol (MCP) for standardizing local/remote tool bindings          |
+| **Sandbox Security**    | Ephemeral micro-VM container isolation (gVisor/E2B) with network egress controls   |
+| **Deadlock Prevention** | Explicit iteration counters ($N \le 3$) and deterministic state reducers           |
+| **Human Control**       | Human-in-the-Loop (HITL) approval nodes prior to executing git commits / PR merges |
 
 ## Example
 

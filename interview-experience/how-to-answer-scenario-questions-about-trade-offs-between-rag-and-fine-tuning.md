@@ -15,9 +15,9 @@ tags:
 
 ## Detail
 
-Interviewers present ambiguous scenarios (e.g. *"Should we use RAG or fine-tune Llama 3 for our internal legal assistant?"*) to test candidate decision frameworks.
+Interviewers present ambiguous scenarios (e.g. _"Should we use RAG or fine-tune Llama 3 for our internal legal assistant?"_) to test candidate decision frameworks.
 
-```
+```text
                   ┌──► Dynamic Knowledge (Constantly updating documents) ──► Choose RAG
 Decision Matrix ──┤
                   └──► Custom Style / Tone / Specialized Output Format   ──► Choose Fine-Tuning
@@ -25,12 +25,12 @@ Decision Matrix ──┤
 
 ### Strategic Comparison Matrix
 
-| Evaluation Factor | Retrieval-Augmented Generation (RAG) | Supervised Fine-Tuning (SFT / LoRA) |
-| --- | --- | --- |
-| **Data Freshness** | Instant (Updates vector DB in seconds without retrain) | Static (Requires retraining model on new data) |
-| **Hallucination Control** | High (Grounds generations in explicit source text) | Moderate (Relies on parametric model memory) |
-| **Style / Syntax Control** | Moderate (Requires system prompt instructions) | High (Imprints explicit formatting and syntax into weights) |
-| **Cost & Latency** | Higher prompt token cost & retrieval latency | Lower prompt token cost & faster decoding latency |
+| Evaluation Factor          | Retrieval-Augmented Generation (RAG)                   | Supervised Fine-Tuning (SFT / LoRA)                         |
+| -------------------------- | ------------------------------------------------------ | ----------------------------------------------------------- |
+| **Data Freshness**         | Instant (Updates vector DB in seconds without retrain) | Static (Requires retraining model on new data)              |
+| **Hallucination Control**  | High (Grounds generations in explicit source text)     | Moderate (Relies on parametric model memory)                |
+| **Style / Syntax Control** | Moderate (Requires system prompt instructions)         | High (Imprints explicit formatting and syntax into weights) |
+| **Cost & Latency**         | Higher prompt token cost & retrieval latency           | Lower prompt token cost & faster decoding latency           |
 
 ## Example
 

@@ -17,7 +17,7 @@ tags:
 
 Interviewers routinely reject candidates who demonstrate AI concepts exclusively using single-file Jupyter notebooks.
 
-```
+```text
 Toy Notebook Demo (Rejected):    `df.apply(lambda x: openai.ChatCompletion.create(...))`
 Production Rigor (Hired):       Modular Python package + Pydantic + Async HTTPX + PyTest Evals + OpenTelemetry + Docker
 ```
@@ -33,7 +33,7 @@ Production Rigor (Hired):       Modular Python package + Pydantic + Async HTTPX 
 
 Production package file layout structure:
 
-```
+```text
 my_ai_service/
 ├── src/
 │   ├── core/

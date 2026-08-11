@@ -15,9 +15,9 @@ tags:
 
 ## Detail
 
-Avoid simplistic answers like *"I just tell the model not to hallucinate in the prompt."* Show interviewers that hallucination mitigation is a defense-in-depth system.
+Avoid simplistic answers like _"I just tell the model not to hallucinate in the prompt."_ Show interviewers that hallucination mitigation is a defense-in-depth system.
 
-```
+```text
                     ┌──► 1. Grounding Layer: Hybrid Search (Qdrant + BM25) + Reranker
                     ├──► 2. Prompt Layer: System Directives + XML Context Enclosure
 5-Layer Defense ────┼──► 3. Decoding Layer: Low Temperature (T=0.0 - 0.2)
@@ -28,7 +28,7 @@ Avoid simplistic answers like *"I just tell the model not to hallucinate in the 
 ### The 5 Defense Layers Explained
 
 1. **Retrieval Layer:** Guaranteeing top-ranked chunks contain verified ground-truth facts via hybrid search and cross-encoder reranking.
-2. **Prompt Engineering:** Structuring system instructions: *"Answer using ONLY provided context; if un-mentioned, state 'Insufficient Information'."*
+2. **Prompt Engineering:** Structuring system instructions: _"Answer using ONLY provided context; if un-mentioned, state 'Insufficient Information'."_
 3. **Sampling Dynamics:** Setting `temperature=0.0` to eliminate low-probability tail token sampling.
 4. **Verification Guardrail:** Passing model outputs through NLI entailment classifiers to detect ungrounded claims before returning to the user.
 5. **Continuous Evaluation:** Running daily evaluation benchmarks measuring Ragas Faithfulness scores.
@@ -47,7 +47,7 @@ Summary matrix to outline on a whiteboard during system design interviews:
 
 ## Interview tips
 
-- Quantify impact: *"By implementing RAG grounding paired with NLI guardrails, we reduced production hallucination rate from 8.5% down to under 0.3%."*
+- Quantify impact: _"By implementing RAG grounding paired with NLI guardrails, we reduced production hallucination rate from 8.5% down to under 0.3%."_
 - Connect hallucination mitigation to user trust and safety SLAs.
 
 ## Related Concepts

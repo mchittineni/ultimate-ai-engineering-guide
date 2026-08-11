@@ -19,20 +19,20 @@ Hiring managers review hundreds of generic portfolio projects (e.g. basic Stream
 
 A top-1% portfolio project demonstrates software engineering rigor applied to non-deterministic AI:
 
-```
+```text
 Generic Project:    Single Jupyter Notebook calling OpenAI API ──► Output printed to console
 Production Portfolio: Dockerized FastAPI Service + Golden Eval Harness + OpenTelemetry Spans + Live Web Demo
 ```
 
 ### 5 Required Elements of a Standout AI Portfolio
 
-| Element | Description |
-| --- | --- |
-| **Problem Focus** | Solves a real-world problem (e.g. automated SQL migration or contract compliance audit). |
-| **Evaluation Suite** | Automated PyTest harness scoring accuracy/faithfulness against 50 ground-truth samples. |
-| **Observability** | Integrated tracing (LangSmith / Phoenix) showing span durations, token usage, and cost. |
-| **Architecture Diagram** | Clear system flow diagram illustrating data ingestion, caching, and guardrail layers. |
-| **Live Working Demo** | Deployed containerized application with a live URL link (Streamlit / Vercel). |
+| Element                  | Description                                                                              |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| **Problem Focus**        | Solves a real-world problem (e.g. automated SQL migration or contract compliance audit). |
+| **Evaluation Suite**     | Automated PyTest harness scoring accuracy/faithfulness against 50 ground-truth samples.  |
+| **Observability**        | Integrated tracing (LangSmith / Phoenix) showing span durations, token usage, and cost.  |
+| **Architecture Diagram** | Clear system flow diagram illustrating data ingestion, caching, and guardrail layers.    |
+| **Live Working Demo**    | Deployed containerized application with a live URL link (Streamlit / Vercel).            |
 
 ## Example
 
@@ -51,7 +51,7 @@ Containerized AI application for real-time contract compliance auditing.
 
 ## Interview tips
 
-- Highlight project trade-off decisions in your README: explain *why* specific embedding models, chunk sizes, or vector databases were selected.
+- Highlight project trade-off decisions in your README: explain _why_ specific embedding models, chunk sizes, or vector databases were selected.
 - Include live benchmark metrics (accuracy, TTFT, cost per 1k requests) directly in the repository header.
 
 ## Related Concepts

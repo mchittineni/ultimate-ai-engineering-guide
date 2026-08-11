@@ -17,7 +17,7 @@ tags:
 
 In live AI coding interviews, live LLM API responses can fluctuate unpredictably, outputting malformed JSON or hitting API rate limits mid-interview.
 
-```
+```text
 API Output Mismatch / Error
             │
             ▼
@@ -31,7 +31,7 @@ API Output Mismatch / Error
 
 1. **Deterministic Settings:** Always initialize client calls with `temperature=0.0` and fixed seeds to reduce generation variance during live coding.
 2. **Pydantic Guardrails:** Wrap output parsing in Pydantic schema objects rather than manual dictionary indexing (`data["choices"][0]...`).
-3. **Mocking Fallbacks:** Mention: *"If the live API endpoint experiences rate limits during our interview, I can quickly mock the API response function."*
+3. **Mocking Fallbacks:** Mention: _"If the live API endpoint experiences rate limits during our interview, I can quickly mock the API response function."_
 4. **Verbalize Logic:** Keep talking while debugging—never fall silent.
 
 ## Example

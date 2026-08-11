@@ -17,7 +17,7 @@ tags:
 
 Interviewers evaluate whether candidates understand core AI primitives under the hood.
 
-```
+```text
 Framework Wrapper Trap:  `agent.run("Do task")` ──► Obscures underlying API calls, prompts, and retries.
 Production AI Engineer: Raw SDK / HTTP calls + Pydantic validation + `asyncio` streaming + Exponential backoff.
 ```
@@ -59,7 +59,7 @@ async def analyze_code_clean(code_snippet: str) -> CodeAnalysis:
 
 ## Interview tips
 
-- Ask the interviewer early: *"Would you prefer I use official provider SDKs or higher-level frameworks?"*
+- Ask the interviewer early: _"Would you prefer I use official provider SDKs or higher-level frameworks?"_
 - Always talk through trade-offs out loud: cost, latency, token limits, and fallback strategies.
 
 ## Related Concepts

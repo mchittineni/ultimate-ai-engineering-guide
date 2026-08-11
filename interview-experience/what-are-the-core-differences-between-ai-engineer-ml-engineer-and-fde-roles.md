@@ -17,7 +17,7 @@ tags:
 
 Organizations delineate AI roles based on where focus lies in the technology stack:
 
-```
+```text
 [ML Engineer / Scientist] ──► Pre-training, Loss Functions, PyTorch CUDA Kernels
            │
            ▼
@@ -29,11 +29,11 @@ Organizations delineate AI roles based on where focus lies in the technology sta
 
 ### Core Role Comparison Matrix
 
-| Dimension | AI Engineer | ML Engineer (MLE) | Forward Deployed Engineer (FDE) |
-| --- | --- | --- | --- |
-| **Primary Stack** | Python, TypeScript, Vector DBs, LangChain/MCP, APIs | PyTorch, CUDA, Distributed Training (DeepSpeed, Megatron) | Python, Cloud/K8s, Enterprise APIs, Customer Codebases |
-| **Daily Tasks** | Building RAG, tool-calling agents, evals, prompt pipelines | Model pre-training, RLHF alignment, custom layer math | Custom customer integrations, technical deployment, pilot builds |
-| **Key Metric** | Application quality, latency SLAs, user metrics | Loss convergence, benchmark accuracy (MMLU), FLOPs efficiency | Customer adoption, pilot conversion, integration speed |
+| Dimension         | AI Engineer                                                | ML Engineer (MLE)                                             | Forward Deployed Engineer (FDE)                                  |
+| ----------------- | ---------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **Primary Stack** | Python, TypeScript, Vector DBs, LangChain/MCP, APIs        | PyTorch, CUDA, Distributed Training (DeepSpeed, Megatron)     | Python, Cloud/K8s, Enterprise APIs, Customer Codebases           |
+| **Daily Tasks**   | Building RAG, tool-calling agents, evals, prompt pipelines | Model pre-training, RLHF alignment, custom layer math         | Custom customer integrations, technical deployment, pilot builds |
+| **Key Metric**    | Application quality, latency SLAs, user metrics            | Loss convergence, benchmark accuracy (MMLU), FLOPs efficiency | Customer adoption, pilot conversion, integration speed           |
 
 ## Example
 

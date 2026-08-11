@@ -15,11 +15,11 @@ tags:
 
 ## Detail
 
-In staff-level AI system design interviews, prompts are intentionally broad (e.g. *"Design an enterprise AI customer support system for 100,000 daily active users"*).
+In staff-level AI system design interviews, prompts are intentionally broad (e.g. _"Design an enterprise AI customer support system for 100,000 daily active users"_).
 
 Successful candidates drive the architectural whiteboard structure proactively.
 
-```
+```text
 1. Scope & Constraints  ──► Clarify QPS (100 QPS), Context Length (4K), Latency SLA (TTFT < 200ms)
 2. Back-of-the-Envelope ──► Compute VRAM per node, KV cache footprint, GPU node counts
 3. High-Level Blueprint  ──► Gateway -> Semantic Cache -> Hybrid RAG -> vLLM Serving Engine -> Guardrails

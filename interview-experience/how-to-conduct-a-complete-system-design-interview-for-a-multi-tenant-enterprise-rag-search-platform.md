@@ -17,7 +17,7 @@ tags:
 
 This advanced scenario tests a candidate's ability to synthesize all major sub-systems of enterprise AI engineering into a single coherent blueprint.
 
-```
+```text
 [Enterprise Web Clients]
            │
            ▼
