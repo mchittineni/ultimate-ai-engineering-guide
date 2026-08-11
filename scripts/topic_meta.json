@@ -1,5 +1,6 @@
 {
   "llm-fundamentals": {
+    "title": "LLM Fundamentals",
     "order": 1,
     "group": "Foundations & Models",
     "description": "Core architectures, Transformer mechanics, self-attention, context windows, tokenization, KV cache, and sampling algorithms.",

@@ -1,0 +1,5422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Engineering Knowledge Graph</title>
+  <script src="https://unpkg.com/3d-force-graph"></script>
+  <script src="https://unpkg.com/three"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #030712;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+    }
+    #header {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 15px 20px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      backdrop-filter: blur(8px);
+      max-width: 360px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 1.2rem;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    p {
+      margin: 0 0 10px 0;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+    .legend {
+      display: flex;
+      gap: 12px;
+      font-size: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    #graph {
+      width: 100vw;
+      height: 100vh;
+    }
+    #info-card {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      display: none;
+      max-width: 320px;
+    }
+    #info-card h3 {
+      margin: 0 0 6px 0;
+      font-size: 1rem;
+      color: #f1f5f9;
+    }
+    #info-card a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+    #info-card a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>🧠 AI Engineering Knowledge Graph</h1>
+    <p>Interactive graph showing relationships across 10 topics, questions, and concept tags.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="dot" style="background:#8b5cf6"></span> Topic</div>
+      <div class="legend-item"><span class="dot" style="background:#22c55e"></span> Beginner</div>
+      <div class="legend-item"><span class="dot" style="background:#eab308"></span> Intermediate</div>
+      <div class="legend-item"><span class="dot" style="background:#ef4444"></span> Advanced</div>
+    </div>
+  </div>
+
+  <div id="info-card">
+    <h3 id="card-title">Node Info</h3>
+    <p id="card-desc"></p>
+    <a id="card-link" href="#" target="_blank">Open Markdown File →</a>
+  </div>
+
+  <div id="graph"></div>
+
+  <script>
+    const gData = {
+  "nodes": [
+    {
+      "id": "topic:llm-fundamentals",
+      "label": "LLM Fundamentals",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./llm-fundamentals/README.md",
+      "category": "LLM Fundamentals",
+      "type": "topic"
+    },
+    {
+      "id": "topic:prompt-engineering",
+      "label": "Prompt Engineering",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./prompt-engineering/README.md",
+      "category": "Prompt Engineering",
+      "type": "topic"
+    },
+    {
+      "id": "topic:rag-and-vector-databases",
+      "label": "RAG and Vector Databases",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./rag-and-vector-databases/README.md",
+      "category": "RAG and Vector Databases",
+      "type": "topic"
+    },
+    {
+      "id": "topic:ai-agents-and-mcp",
+      "label": "AI Agents and MCP",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./ai-agents-and-mcp/README.md",
+      "category": "AI Agents and MCP",
+      "type": "topic"
+    },
+    {
+      "id": "topic:fine-tuning-and-adaptation",
+      "label": "Fine-Tuning and Adaptation",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./fine-tuning-and-adaptation/README.md",
+      "category": "Fine-Tuning and Adaptation",
+      "type": "topic"
+    },
+    {
+      "id": "topic:ai-system-design",
+      "label": "AI System Design",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./ai-system-design/README.md",
+      "category": "AI System Design",
+      "type": "topic"
+    },
+    {
+      "id": "topic:llmops-and-production-ai",
+      "label": "LLMOps and Production AI",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./llmops-and-production-ai/README.md",
+      "category": "LLMOps and Production AI",
+      "type": "topic"
+    },
+    {
+      "id": "topic:evaluation-and-testing",
+      "label": "Evaluation and Testing",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./evaluation-and-testing/README.md",
+      "category": "Evaluation and Testing",
+      "type": "topic"
+    },
+    {
+      "id": "topic:ai-safety-and-governance",
+      "label": "AI Safety and Governance",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./ai-safety-and-governance/README.md",
+      "category": "AI Safety and Governance",
+      "type": "topic"
+    },
+    {
+      "id": "topic:interview-experience",
+      "label": "Interview Experience",
+      "group": "Topic",
+      "val": 15,
+      "color": "#8b5cf6",
+      "url": "./interview-experience/README.md",
+      "category": "Interview Experience",
+      "type": "topic"
+    },
+    {
+      "id": "q:3",
+      "label": "#3 How does ReAct (Reasoning and Acting) prompting work?",
+      "title": "How does ReAct (Reasoning and Acting) prompting work?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./prompt-engineering/how-does-react-reasoning-and-acting-prompting-work.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:15",
+      "label": "#15 What is the difference between zero-shot and few-shot prompting?",
+      "title": "What is the difference between zero-shot and few-shot prompting?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/what-is-the-difference-between-zero-shot-and-few-shot-prompting.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:16",
+      "label": "#16 How does Chain-of-Thought (CoT) prompting improve LLM reasoning?",
+      "title": "How does Chain-of-Thought (CoT) prompting improve LLM reasoning?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/how-does-chain-of-thought-cot-prompting-improve-llm-reasoning.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:17",
+      "label": "#17 How do you enforce structured JSON outputs from an LLM?",
+      "title": "How do you enforce structured JSON outputs from an LLM?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./prompt-engineering/how-do-you-enforce-structured-json-outputs-from-an-llm.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:18",
+      "label": "#18 How does Tree-of-Thoughts (ToT) prompting differ from Chain-of-Thought?",
+      "title": "How does Tree-of-Thoughts (ToT) prompting differ from Chain-of-Thought?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./prompt-engineering/how-does-tree-of-thoughts-tot-prompting-differ-from-chain-of-thought.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:56",
+      "label": "#56 What is a system prompt and how does it steer model behavior?",
+      "title": "What is a system prompt and how does it steer model behavior?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/what-is-a-system-prompt-and-how-does-it-steer-model-behavior.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:57",
+      "label": "#57 What is prompt leaking and how do you prevent it?",
+      "title": "What is prompt leaking and how do you prevent it?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/what-is-prompt-leaking-and-how-do-you-prevent-it.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:58",
+      "label": "#58 How do role prompting and persona framing affect LLM outputs?",
+      "title": "How do role prompting and persona framing affect LLM outputs?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/how-do-role-prompting-and-persona-framing-affect-llm-outputs.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:59",
+      "label": "#59 How do you design few-shot examples to prevent label bias?",
+      "title": "How do you design few-shot examples to prevent label bias?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./prompt-engineering/how-do-you-design-few-shot-examples-to-prevent-label-bias.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:60",
+      "label": "#60 How does Skeleton-of-Thought (SoT) speed up generation via parallel decoding?",
+      "title": "How does Skeleton-of-Thought (SoT) speed up generation via parallel decoding?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./prompt-engineering/how-does-skeleton-of-thought-sot-speed-up-generation-via-parallel-decoding.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:111",
+      "label": "#111 What is prompt priming and how does it set expectations for LLM responses?",
+      "title": "What is prompt priming and how does it set expectations for LLM responses?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/what-is-prompt-priming-and-how-does-it-set-expectations-for-llm-responses.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:112",
+      "label": "#112 What is negative prompting and how do you instruct models what not to do?",
+      "title": "What is negative prompting and how do you instruct models what not to do?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/what-is-negative-prompting-and-how-do-you-instruct-models-what-not-to-do.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:113",
+      "label": "#113 What is meta-prompting and how can an LLM generate or optimize its own prompts?",
+      "title": "What is meta-prompting and how can an LLM generate or optimize its own prompts?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/what-is-meta-prompting-and-how-can-an-llm-generate-or-optimize-its-own-prompts.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:114",
+      "label": "#114 How do you format multi-turn dialogue histories for chat models?",
+      "title": "How do you format multi-turn dialogue histories for chat models?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/how-do-you-format-multi-turn-dialogue-histories-for-chat-models.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:115",
+      "label": "#115 What is context window truncation and how do you handle overflow gracefully?",
+      "title": "What is context window truncation and how do you handle overflow gracefully?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./prompt-engineering/what-is-context-window-truncation-and-how-do-you-handle-overflow-gracefully.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:116",
+      "label": "#116 How does Directional Stimulus Prompting guide LLMs toward specific output aspects?",
+      "title": "How does Directional Stimulus Prompting guide LLMs toward specific output aspects?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./prompt-engineering/how-does-directional-stimulus-prompting-guide-llms-toward-specific-output-aspects.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:117",
+      "label": "#117 How does Active Prompting dynamically select the best exemplars for few-shot learning?",
+      "title": "How does Active Prompting dynamically select the best exemplars for few-shot learning?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./prompt-engineering/how-does-active-prompting-dynamically-select-the-best-exemplars-for-few-shot-learning.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:118",
+      "label": "#118 How does Automatic Prompt Engineer (APE) optimize prompt selection using search?",
+      "title": "How does Automatic Prompt Engineer (APE) optimize prompt selection using search?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./prompt-engineering/how-does-automatic-prompt-engineer-ape-optimize-prompt-selection-using-search.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:119",
+      "label": "#119 How does Graph-of-Thoughts (GoT) extend Tree-of-Thoughts for arbitrary network reasoning?",
+      "title": "How does Graph-of-Thoughts (GoT) extend Tree-of-Thoughts for arbitrary network reasoning?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./prompt-engineering/how-does-graph-of-thoughts-got-extend-tree-of-thoughts-for-arbitrary-network-reasoning.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:120",
+      "label": "#120 How do soft prompts and prompt tuning differ from discrete text prompts?",
+      "title": "How do soft prompts and prompt tuning differ from discrete text prompts?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./prompt-engineering/how-do-soft-prompts-and-prompt-tuning-differ-from-discrete-text-prompts.md",
+      "category": "Prompt Engineering",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "prompt-engineering",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:4",
+      "label": "#4 What is the difference between HNSW and IVFFlat vector indexes?",
+      "title": "What is the difference between HNSW and IVFFlat vector indexes?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./rag-and-vector-databases/what-is-the-difference-between-hnsw-and-ivfflat-vector-indexes.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:19",
+      "label": "#19 What is Retrieval-Augmented Generation (RAG) and why is it used?",
+      "title": "What is Retrieval-Augmented Generation (RAG) and why is it used?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-retrieval-augmented-generation-rag-and-why-is-it-used.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:20",
+      "label": "#20 How do dense and sparse vector embeddings differ?",
+      "title": "How do dense and sparse vector embeddings differ?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/how-do-dense-and-sparse-vector-embeddings-differ.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:21",
+      "label": "#21 How does hybrid search combine BM25 and vector embeddings?",
+      "title": "How does hybrid search combine BM25 and vector embeddings?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./rag-and-vector-databases/how-does-hybrid-search-combine-bm25-and-vector-embeddings.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:22",
+      "label": "#22 How do cross-encoder rerankers and late-interaction (ColBERT) models work?",
+      "title": "How do cross-encoder rerankers and late-interaction (ColBERT) models work?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./rag-and-vector-databases/how-do-cross-encoder-rerankers-and-late-interaction-colbert-models-work.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:61",
+      "label": "#61 What is chunk size and chunk overlap in text splitting?",
+      "title": "What is chunk size and chunk overlap in text splitting?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-chunk-size-and-chunk-overlap-in-text-splitting.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:62",
+      "label": "#62 What is Cosine Similarity vs Euclidean Distance in vector search?",
+      "title": "What is Cosine Similarity vs Euclidean Distance in vector search?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-cosine-similarity-vs-euclidean-distance-in-vector-search.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:63",
+      "label": "#63 What is the 'Lost in the Middle' phenomenon in LLM retrieval?",
+      "title": "What is the 'Lost in the Middle' phenomenon in LLM retrieval?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-the-lost-in-the-middle-phenomenon-in-llm-retrieval.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:64",
+      "label": "#64 How does query rewriting and Hypothetical Document Embeddings (HyDE) work?",
+      "title": "How does query rewriting and Hypothetical Document Embeddings (HyDE) work?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./rag-and-vector-databases/how-does-query-rewriting-and-hypothetical-document-embeddings-hyde-work.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:65",
+      "label": "#65 How do GraphRAG and Knowledge Graphs enhance vector retrieval?",
+      "title": "How do GraphRAG and Knowledge Graphs enhance vector retrieval?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./rag-and-vector-databases/how-do-graphrag-and-knowledge-graphs-enhance-vector-retrieval.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:121",
+      "label": "#121 What is an embedding model and how does vector dimension affect search quality?",
+      "title": "What is an embedding model and how does vector dimension affect search quality?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-an-embedding-model-and-how-does-vector-dimension-affect-search-quality.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:122",
+      "label": "#122 What is semantic search and how does it differ from traditional keyword search?",
+      "title": "What is semantic search and how does it differ from traditional keyword search?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-semantic-search-and-how-does-it-differ-from-traditional-keyword-search.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:123",
+      "label": "#123 What is document metadata filtering in vector databases?",
+      "title": "What is document metadata filtering in vector databases?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-document-metadata-filtering-in-vector-databases.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:124",
+      "label": "#124 What is single-representation vs multi-representation document retrieval?",
+      "title": "What is single-representation vs multi-representation document retrieval?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-single-representation-vs-multi-representation-document-retrieval.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:125",
+      "label": "#125 What is document parsing and why do table formats break standard text splitters?",
+      "title": "What is document parsing and why do table formats break standard text splitters?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./rag-and-vector-databases/what-is-document-parsing-and-why-do-table-formats-break-standard-text-splitters.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:126",
+      "label": "#126 How does Parent-Document Retrieval link fine-grained vector chunks back to full parent context?",
+      "title": "How does Parent-Document Retrieval link fine-grained vector chunks back to full parent context?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./rag-and-vector-databases/how-does-parent-document-retrieval-link-fine-grained-vector-chunks-back-to-full-parent-context.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:127",
+      "label": "#127 How does Reciprocal Rank Fusion (RRF) combine scores from sparse and dense retrievers?",
+      "title": "How does Reciprocal Rank Fusion (RRF) combine scores from sparse and dense retrievers?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./rag-and-vector-databases/how-does-reciprocal-rank-fusion-rrf-combine-scores-from-sparse-and-dense-retrievers.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:128",
+      "label": "#128 How does contextual compression reduce context window token usage during RAG?",
+      "title": "How does contextual compression reduce context window token usage during RAG?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./rag-and-vector-databases/how-does-contextual-compression-reduce-context-window-token-usage-during-rag.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:129",
+      "label": "#129 How does RAPTOR perform hierarchical tree-organized retrieval?",
+      "title": "How does RAPTOR perform hierarchical tree-organized retrieval?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./rag-and-vector-databases/how-does-raptor-perform-hierarchical-tree-organized-retrieval.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:130",
+      "label": "#130 How does Self-RAG train models to dynamically decide when to retrieve, evaluate, and critique documents?",
+      "title": "How does Self-RAG train models to dynamically decide when to retrieve, evaluate, and critique documents?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./rag-and-vector-databases/how-does-self-rag-train-models-to-dynamically-decide-when-to-retrieve-evaluate-and-critique-documents.md",
+      "category": "RAG and Vector Databases",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "rag-and-vector-databases",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:5",
+      "label": "#5 What is the Model Context Protocol (MCP) and how does it work?",
+      "title": "What is the Model Context Protocol (MCP) and how does it work?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-agents-and-mcp/what-is-the-model-context-protocol-mcp-and-how-does-it-work.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:23",
+      "label": "#23 What is an AI agent and how does it differ from a standard LLM?",
+      "title": "What is an AI agent and how does it differ from a standard LLM?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-an-ai-agent-and-how-does-it-differ-from-a-standard-llm.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:24",
+      "label": "#24 How does LLM tool use and function calling work?",
+      "title": "How does LLM tool use and function calling work?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/how-does-llm-tool-use-and-function-calling-work.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:25",
+      "label": "#25 How do you manage short-term and long-term memory in AI agents?",
+      "title": "How do you manage short-term and long-term memory in AI agents?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-agents-and-mcp/how-do-you-manage-short-term-and-long-term-memory-in-ai-agents.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:26",
+      "label": "#26 How do multi-agent architectures and hierarchical delegation work?",
+      "title": "How do multi-agent architectures and hierarchical delegation work?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-agents-and-mcp/how-do-multi-agent-architectures-and-hierarchical-delegation-work.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:66",
+      "label": "#66 What is the ReAct loop (Thought, Action, Observation)?",
+      "title": "What is the ReAct loop (Thought, Action, Observation)?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-the-react-loop-thought-action-observation.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:67",
+      "label": "#67 What is an MCP Tool vs an MCP Resource in Model Context Protocol?",
+      "title": "What is an MCP Tool vs an MCP Resource in Model Context Protocol?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-an-mcp-tool-vs-an-mcp-resource-in-model-context-protocol.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:68",
+      "label": "#68 How do you handle tool execution errors in agentic loops?",
+      "title": "How do you handle tool execution errors in agentic loops?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/how-do-you-handle-tool-execution-errors-in-agentic-loops.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:69",
+      "label": "#69 How does MCP server-client architecture standardize context connections?",
+      "title": "How does MCP server-client architecture standardize context connections?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-agents-and-mcp/how-does-mcp-server-client-architecture-standardize-context-connections.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:70",
+      "label": "#70 How do you prevent infinite agentic loops and runaway execution?",
+      "title": "How do you prevent infinite agentic loops and runaway execution?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-agents-and-mcp/how-do-you-prevent-infinite-agentic-loops-and-runaway-execution.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:131",
+      "label": "#131 What is an agent tool schema and how do parameters get validated before invocation?",
+      "title": "What is an agent tool schema and how do parameters get validated before invocation?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-an-agent-tool-schema-and-how-do-parameters-get-validated-before-invocation.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:132",
+      "label": "#132 What is an agent state machine and how does state persist across multi-step execution?",
+      "title": "What is an agent state machine and how does state persist across multi-step execution?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-an-agent-state-machine-and-how-does-state-persist-across-multi-step-execution.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:133",
+      "label": "#133 What is human-in-the-loop (HITL) approval in autonomous agent workflows?",
+      "title": "What is human-in-the-loop (HITL) approval in autonomous agent workflows?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-human-in-the-loop-hitl-approval-in-autonomous-agent-workflows.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:134",
+      "label": "#134 What is synchronous vs asynchronous tool execution in AI agents?",
+      "title": "What is synchronous vs asynchronous tool execution in AI agents?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-synchronous-vs-asynchronous-tool-execution-in-ai-agents.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:135",
+      "label": "#135 What is an agent system prompt and how does it define tool availability?",
+      "title": "What is an agent system prompt and how does it define tool availability?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-agents-and-mcp/what-is-an-agent-system-prompt-and-how-does-it-define-tool-availability.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:136",
+      "label": "#136 How does Plan-and-Solve prompting decompose complex tasks into explicit execution sub-goals?",
+      "title": "How does Plan-and-Solve prompting decompose complex tasks into explicit execution sub-goals?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-agents-and-mcp/how-does-plan-and-solve-prompting-decompose-complex-tasks-into-explicit-execution-sub-goals.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:137",
+      "label": "#137 How does Agentic Search handle real-time pagination and query refinement?",
+      "title": "How does Agentic Search handle real-time pagination and query refinement?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-agents-and-mcp/how-does-agentic-search-handle-real-time-pagination-and-query-refinement.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:138",
+      "label": "#138 How does MCP handle streaming updates and progress reporting from long-running tools?",
+      "title": "How does MCP handle streaming updates and progress reporting from long-running tools?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-agents-and-mcp/how-does-mcp-handle-streaming-updates-and-progress-reporting-from-long-running-tools.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:139",
+      "label": "#139 How do DAG-based Multi-Agent Orchestrators prevent state deadlocks?",
+      "title": "How do DAG-based Multi-Agent Orchestrators prevent state deadlocks?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-agents-and-mcp/how-do-dag-based-multi-agent-orchestrators-prevent-state-deadlocks.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:140",
+      "label": "#140 How do sandbox execution environments secure Code Interpreter tools?",
+      "title": "How do sandbox execution environments secure Code Interpreter tools?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-agents-and-mcp/how-do-sandbox-execution-environments-secure-code-interpreter-tools.md",
+      "category": "AI Agents and MCP",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-agents-and-mcp",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:6",
+      "label": "#6 What is LoRA and QLoRA for efficient fine-tuning?",
+      "title": "What is LoRA and QLoRA for efficient fine-tuning?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./fine-tuning-and-adaptation/what-is-lora-and-qlora-for-efficient-fine-tuning.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:27",
+      "label": "#27 What is the difference between pre-training, fine-tuning, and in-context learning?",
+      "title": "What is the difference between pre-training, fine-tuning, and in-context learning?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-the-difference-between-pre-training-fine-tuning-and-in-context-learning.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:28",
+      "label": "#28 What is quantization and how do INT8 and INT4 reduce LLM footprint?",
+      "title": "What is quantization and how do INT8 and INT4 reduce LLM footprint?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-quantization-and-how-do-int8-and-int4-reduce-llm-footprint.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:29",
+      "label": "#29 How does Direct Preference Optimization (DPO) differ from RLHF?",
+      "title": "How does Direct Preference Optimization (DPO) differ from RLHF?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./fine-tuning-and-adaptation/how-does-direct-preference-optimization-dpo-differ-from-rlhf.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:30",
+      "label": "#30 How does Group Relative Policy Optimization (GRPO) work in DeepSeek R1?",
+      "title": "How does Group Relative Policy Optimization (GRPO) work in DeepSeek R1?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./fine-tuning-and-adaptation/how-does-group-relative-policy-optimization-grpo-work-in-deepseek-r1.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:71",
+      "label": "#71 What is Supervised Fine-Tuning (SFT) and when is it required?",
+      "title": "What is Supervised Fine-Tuning (SFT) and when is it required?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-supervised-fine-tuning-sft-and-when-is-it-required.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:72",
+      "label": "#72 What is catastrophic forgetting during LLM fine-tuning?",
+      "title": "What is catastrophic forgetting during LLM fine-tuning?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-catastrophic-forgetting-during-llm-fine-tuning.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:73",
+      "label": "#73 What is LoRA rank r and alpha scaling factor?",
+      "title": "What is LoRA rank r and alpha scaling factor?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-lora-rank-r-and-alpha-scaling-factor.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:74",
+      "label": "#74 How does model distillation transfer knowledge from teacher to student?",
+      "title": "How does model distillation transfer knowledge from teacher to student?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./fine-tuning-and-adaptation/how-does-model-distillation-transfer-knowledge-from-teacher-to-student.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:75",
+      "label": "#75 How does Kahneman-Tversky Optimization (KTO) differ from DPO?",
+      "title": "How does Kahneman-Tversky Optimization (KTO) differ from DPO?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./fine-tuning-and-adaptation/how-does-kahneman-tversky-optimization-kto-differ-from-dpo.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:141",
+      "label": "#141 What is dataset formatting for instruction tuning (Alpaca vs ShareGPT formats)?",
+      "title": "What is dataset formatting for instruction tuning (Alpaca vs ShareGPT formats)?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-dataset-formatting-for-instruction-tuning-alpaca-vs-sharegpt-formats.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:142",
+      "label": "#142 What is learning rate scheduling (cosine decay) during LLM fine-tuning?",
+      "title": "What is learning rate scheduling (cosine decay) during LLM fine-tuning?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-learning-rate-scheduling-cosine-decay-during-llm-fine-tuning.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:143",
+      "label": "#143 What is gradient accumulation and how does it simulate larger batch sizes on small GPUs?",
+      "title": "What is gradient accumulation and how does it simulate larger batch sizes on small GPUs?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-gradient-accumulation-and-how-does-it-simulate-larger-batch-sizes-on-small-gpus.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:144",
+      "label": "#144 What is mixed precision training (FP16 vs BF16) and why is BF16 preferred on modern GPUs?",
+      "title": "What is mixed precision training (FP16 vs BF16) and why is BF16 preferred on modern GPUs?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-mixed-precision-training-fp16-vs-bf16-and-why-is-bf16-preferred-on-modern-gpus.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:145",
+      "label": "#145 What is weight merging in LoRA and why does it eliminate inference latency penalties?",
+      "title": "What is weight merging in LoRA and why does it eliminate inference latency penalties?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./fine-tuning-and-adaptation/what-is-weight-merging-in-lora-and-why-does-it-eliminate-inference-latency-penalties.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:146",
+      "label": "#146 How does DoRA (Weight-Decomposed Low-Rank Adaptation) improve directional weight updates over LoRA?",
+      "title": "How does DoRA (Weight-Decomposed Low-Rank Adaptation) improve directional weight updates over LoRA?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./fine-tuning-and-adaptation/how-does-dora-weight-decomposed-low-rank-adaptation-improve-directional-weight-updates-over-lora.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:147",
+      "label": "#147 How does GGUF format enable quantization and CPU/GPU offloading in llama.cpp?",
+      "title": "How does GGUF format enable quantization and CPU/GPU offloading in llama.cpp?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./fine-tuning-and-adaptation/how-does-gguf-format-enable-quantization-and-cpu-gpu-offloading-in-llama-cpp.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:148",
+      "label": "#148 How does AWQ (Activation-aware Weight Quantization) preserve critical weights compared to GPTQ?",
+      "title": "How does AWQ (Activation-aware Weight Quantization) preserve critical weights compared to GPTQ?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./fine-tuning-and-adaptation/how-does-awq-activation-aware-weight-quantization-preserve-critical-weights-compared-to-gptq.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:149",
+      "label": "#149 How does ORPO perform SFT and alignment in a single step without reference models?",
+      "title": "How does ORPO perform SFT and alignment in a single step without reference models?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./fine-tuning-and-adaptation/how-does-orpo-perform-sft-and-alignment-in-a-single-step-without-reference-models.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:150",
+      "label": "#150 How does DeepSpeed ZeRO stage 1, 2, and 3 partition optimizer states, gradients, and parameters?",
+      "title": "How does DeepSpeed ZeRO stage 1, 2, and 3 partition optimizer states, gradients, and parameters?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./fine-tuning-and-adaptation/how-does-deepspeed-zero-stage-1-2-and-3-partition-optimizer-states-gradients-and-parameters.md",
+      "category": "Fine-Tuning and Adaptation",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "fine-tuning-and-adaptation",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:7",
+      "label": "#7 How do you optimize Time to First Token (TTFT) vs Time Per Output Token (TPOT)?",
+      "title": "How do you optimize Time to First Token (TTFT) vs Time Per Output Token (TPOT)?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-system-design/how-do-you-optimize-time-to-first-token-ttft-vs-time-per-output-token-tpot.md",
+      "category": "AI System Design",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:31",
+      "label": "#31 What is Server-Sent Events (SSE) streaming for LLM responses?",
+      "title": "What is Server-Sent Events (SSE) streaming for LLM responses?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-server-sent-events-sse-streaming-for-llm-responses.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:32",
+      "label": "#32 How does semantic caching reduce LLM API latency and cost?",
+      "title": "How does semantic caching reduce LLM API latency and cost?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/how-does-semantic-caching-reduce-llm-api-latency-and-cost.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:33",
+      "label": "#33 How does PagedAttention in vLLM solve memory fragmentation?",
+      "title": "How does PagedAttention in vLLM solve memory fragmentation?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-system-design/how-does-pagedattention-in-vllm-solve-memory-fragmentation.md",
+      "category": "AI System Design",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:34",
+      "label": "#34 How does speculative decoding speed up LLM inference?",
+      "title": "How does speculative decoding speed up LLM inference?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-system-design/how-does-speculative-decoding-speed-up-llm-inference.md",
+      "category": "AI System Design",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:76",
+      "label": "#76 What is continuous batching and how does it improve GPU utilization?",
+      "title": "What is continuous batching and how does it improve GPU utilization?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-continuous-batching-and-how-does-it-improve-gpu-utilization.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:77",
+      "label": "#77 What is the difference between prefill phase and decoding phase?",
+      "title": "What is the difference between prefill phase and decoding phase?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-the-difference-between-prefill-phase-and-decoding-phase.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:78",
+      "label": "#78 What is GPU VRAM bandwidth and why is decoding memory-bound?",
+      "title": "What is GPU VRAM bandwidth and why is decoding memory-bound?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-gpu-vram-bandwidth-and-why-is-decoding-memory-bound.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:79",
+      "label": "#79 How do you design a multi-tenant LLM gateway with rate limits?",
+      "title": "How do you design a multi-tenant LLM gateway with rate limits?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-system-design/how-do-you-design-a-multi-tenant-llm-gateway-with-rate-limits.md",
+      "category": "AI System Design",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:80",
+      "label": "#80 How does chunked prefill disaggregate prefill and decoding nodes?",
+      "title": "How does chunked prefill disaggregate prefill and decoding nodes?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-system-design/how-does-chunked-prefill-disaggregate-prefill-and-decoding-nodes.md",
+      "category": "AI System Design",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:151",
+      "label": "#151 What is load balancing for LLM inference clusters across multi-region GPU pools?",
+      "title": "What is load balancing for LLM inference clusters across multi-region GPU pools?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-load-balancing-for-llm-inference-clusters-across-multi-region-gpu-pools.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:152",
+      "label": "#152 What is prefix caching (prompt caching) and how does it eliminate redundant KV computation?",
+      "title": "What is prefix caching (prompt caching) and how does it eliminate redundant KV computation?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-prefix-caching-prompt-caching-and-how-does-it-eliminate-redundant-kv-computation.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:153",
+      "label": "#153 What is an LLM router and how does it dynamically direct queries based on complexity?",
+      "title": "What is an LLM router and how does it dynamically direct queries based on complexity?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-an-llm-router-and-how-does-it-dynamically-direct-queries-based-on-complexity.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:154",
+      "label": "#154 What is connection pooling and keep-alive strategy for high-throughput LLM streaming APIs?",
+      "title": "What is connection pooling and keep-alive strategy for high-throughput LLM streaming APIs?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-connection-pooling-and-keep-alive-strategy-for-high-throughput-llm-streaming-apis.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:155",
+      "label": "#155 What is graceful degradation in AI services when model providers experience downtime?",
+      "title": "What is graceful degradation in AI services when model providers experience downtime?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-system-design/what-is-graceful-degradation-in-ai-services-when-model-providers-experience-downtime.md",
+      "category": "AI System Design",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:156",
+      "label": "#156 How does Chunked Prefill prevent decoding latency spikes during concurrent batch processing?",
+      "title": "How does Chunked Prefill prevent decoding latency spikes during concurrent batch processing?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-system-design/how-does-chunked-prefill-prevent-decoding-latency-spikes-during-concurrent-batch-processing.md",
+      "category": "AI System Design",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:157",
+      "label": "#157 How do tensor parallelism (TP) and pipeline parallelism (PP) split large model weights across multi-GPU nodes?",
+      "title": "How do tensor parallelism (TP) and pipeline parallelism (PP) split large model weights across multi-GPU nodes?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-system-design/how-do-tensor-parallelism-tp-and-pipeline-parallelism-pp-split-large-model-weights-across-multi-gpu-nodes.md",
+      "category": "AI System Design",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:158",
+      "label": "#158 How does Medusa multi-head decoding accelerate inference without a separate draft model?",
+      "title": "How does Medusa multi-head decoding accelerate inference without a separate draft model?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-system-design/how-does-medusa-multi-head-decoding-accelerate-inference-without-a-separate-draft-model.md",
+      "category": "AI System Design",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:159",
+      "label": "#159 How does vLLM PagedAttention manage Virtual Memory Pages to eliminate KV cache fragmentation?",
+      "title": "How does vLLM PagedAttention manage Virtual Memory Pages to eliminate KV cache fragmentation?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-system-design/how-does-vllm-pagedattention-manage-virtual-memory-pages-to-eliminate-kv-cache-fragmentation.md",
+      "category": "AI System Design",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:160",
+      "label": "#160 How to design a global multi-region AI inference architecture with sub-100ms TTFT SLAs?",
+      "title": "How to design a global multi-region AI inference architecture with sub-100ms TTFT SLAs?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-system-design/how-to-design-a-global-multi-region-ai-inference-architecture-with-sub-100ms-ttft-slas.md",
+      "category": "AI System Design",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-system-design",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:8",
+      "label": "#8 How do you implement distributed tracing for multi-step LLM pipelines?",
+      "title": "How do you implement distributed tracing for multi-step LLM pipelines?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./llmops-and-production-ai/how-do-you-implement-distributed-tracing-for-multi-step-llm-pipelines.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:35",
+      "label": "#35 What is LLMOps and how does it differ from traditional MLOps?",
+      "title": "What is LLMOps and how does it differ from traditional MLOps?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-llmops-and-how-does-it-differ-from-traditional-mlops.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:36",
+      "label": "#36 How do you monitor LLM token usage, latency, and costs in production?",
+      "title": "How do you monitor LLM token usage, latency, and costs in production?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/how-do-you-monitor-llm-token-usage-latency-and-costs-in-production.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:37",
+      "label": "#37 How do you implement fallback routing and rate limiting for LLM APIs?",
+      "title": "How do you implement fallback routing and rate limiting for LLM APIs?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./llmops-and-production-ai/how-do-you-implement-fallback-routing-and-rate-limiting-for-llm-apis.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:38",
+      "label": "#38 How do you detect and mitigate data and concept drift in production LLMs?",
+      "title": "How do you detect and mitigate data and concept drift in production LLMs?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./llmops-and-production-ai/how-do-you-detect-and-mitigate-data-and-concept-drift-in-production-llms.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:81",
+      "label": "#81 What is prompt versioning and why is it essential?",
+      "title": "What is prompt versioning and why is it essential?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-prompt-versioning-and-why-is-it-essential.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:82",
+      "label": "#82 What is an OpenTelemetry span in LLM tracing?",
+      "title": "What is an OpenTelemetry span in LLM tracing?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-an-opentelemetry-span-in-llm-tracing.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:83",
+      "label": "#83 How do you budget and cap monthly LLM API costs?",
+      "title": "How do you budget and cap monthly LLM API costs?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/how-do-you-budget-and-cap-monthly-llm-api-costs.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:84",
+      "label": "#84 How do you build a canary deployment pipeline for prompt updates?",
+      "title": "How do you build a canary deployment pipeline for prompt updates?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./llmops-and-production-ai/how-do-you-build-a-canary-deployment-pipeline-for-prompt-updates.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:85",
+      "label": "#85 How do you architect real-time anomaly detection for rogue agent spends?",
+      "title": "How do you architect real-time anomaly detection for rogue agent spends?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./llmops-and-production-ai/how-do-you-architect-real-time-anomaly-detection-for-rogue-agent-spends.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:161",
+      "label": "#161 What is structured logging for LLM prompts, completions, and token metrics?",
+      "title": "What is structured logging for LLM prompts, completions, and token metrics?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-structured-logging-for-llm-prompts-completions-and-token-metrics.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:162",
+      "label": "#162 What is cost attribution modeling per user, team, and organization in LLM applications?",
+      "title": "What is cost attribution modeling per user, team, and organization in LLM applications?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-cost-attribution-modeling-per-user-team-and-organization-in-llm-applications.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:163",
+      "label": "#163 What is SLA/SLO monitoring for Time-to-First-Token (TTFT) and throughput (Tokens/sec)?",
+      "title": "What is SLA/SLO monitoring for Time-to-First-Token (TTFT) and throughput (Tokens/sec)?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-sla-slo-monitoring-for-time-to-first-token-ttft-and-throughput-tokens-sec.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:164",
+      "label": "#164 What is semantic versioning for prompts and model configurations in production deployments?",
+      "title": "What is semantic versioning for prompts and model configurations in production deployments?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-semantic-versioning-for-prompts-and-model-configurations-in-production-deployments.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:165",
+      "label": "#165 What is fallback configuration when primary LLM providers return 5xx errors?",
+      "title": "What is fallback configuration when primary LLM providers return 5xx errors?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./llmops-and-production-ai/what-is-fallback-configuration-when-primary-llm-providers-return-5xx-errors.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:166",
+      "label": "#166 How do you set up automated prompt regression pipelines in GitHub Actions CI/CD?",
+      "title": "How do you set up automated prompt regression pipelines in GitHub Actions CI/CD?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./llmops-and-production-ai/how-do-you-set-up-automated-prompt-regression-pipelines-in-github-actions-ci-cd.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:167",
+      "label": "#167 How to detect semantic drift in user queries using embedding clustering over time?",
+      "title": "How to detect semantic drift in user queries using embedding clustering over time?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./llmops-and-production-ai/how-to-detect-semantic-drift-in-user-queries-using-embedding-clustering-over-time.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:168",
+      "label": "#168 How to build a continuous evaluation pipeline sampling production traces for human review?",
+      "title": "How to build a continuous evaluation pipeline sampling production traces for human review?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./llmops-and-production-ai/how-to-build-a-continuous-evaluation-pipeline-sampling-production-traces-for-human-review.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:169",
+      "label": "#169 How to design an enterprise-grade LLM Gateway with dynamic fallback, tenant rate limiting, and cost allocation?",
+      "title": "How to design an enterprise-grade LLM Gateway with dynamic fallback, tenant rate limiting, and cost allocation?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./llmops-and-production-ai/how-to-design-an-enterprise-grade-llm-gateway-with-dynamic-fallback-tenant-rate-limiting-and-cost-allocation.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:170",
+      "label": "#170 How to handle confidential enterprise telemetry and PII sanitization in compliance-heavy industries?",
+      "title": "How to handle confidential enterprise telemetry and PII sanitization in compliance-heavy industries?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./llmops-and-production-ai/how-to-handle-confidential-enterprise-telemetry-and-pii-sanitization-in-compliance-heavy-industries.md",
+      "category": "LLMOps and Production AI",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "llmops-and-production-ai",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:9",
+      "label": "#9 How do Faithfulness, Context Recall, and Answer Relevance differ in Ragas?",
+      "title": "How do Faithfulness, Context Recall, and Answer Relevance differ in Ragas?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./evaluation-and-testing/how-do-faithfulness-context-recall-and-answer-relevance-differ-in-ragas.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:39",
+      "label": "#39 What is LLM-as-a-Judge and how is it used for automated evaluations?",
+      "title": "What is LLM-as-a-Judge and how is it used for automated evaluations?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-llm-as-a-judge-and-how-is-it-used-for-automated-evaluations.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:40",
+      "label": "#40 What are standard LLM benchmarks like MMLU, GSM8K, and HumanEval?",
+      "title": "What are standard LLM benchmarks like MMLU, GSM8K, and HumanEval?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-are-standard-llm-benchmarks-like-mmlu-gsm8k-and-humaneval.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:41",
+      "label": "#41 How do you build a CI/CD prompt regression testing suite?",
+      "title": "How do you build a CI/CD prompt regression testing suite?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./evaluation-and-testing/how-do-you-build-a-ci-cd-prompt-regression-testing-suite.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:42",
+      "label": "#42 How do you mitigate positional bias and self-preference in LLM-as-a-Judge?",
+      "title": "How do you mitigate positional bias and self-preference in LLM-as-a-Judge?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./evaluation-and-testing/how-do-you-mitigate-positional-bias-and-self-preference-in-llm-as-a-judge.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:86",
+      "label": "#86 What is context precision vs context recall in RAG?",
+      "title": "What is context precision vs context recall in RAG?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-context-precision-vs-context-recall-in-rag.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:87",
+      "label": "#87 What is faithfulness vs answer relevance in LLM evals?",
+      "title": "What is faithfulness vs answer relevance in LLM evals?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-faithfulness-vs-answer-relevance-in-llm-evals.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:88",
+      "label": "#88 What is ground-truth reference data in evaluation harnesses?",
+      "title": "What is ground-truth reference data in evaluation harnesses?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-ground-truth-reference-data-in-evaluation-harnesses.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:89",
+      "label": "#89 How do you measure inter-annotator agreement (Cohen's Kappa) with LLM judges?",
+      "title": "How do you measure inter-annotator agreement (Cohen's Kappa) with LLM judges?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./evaluation-and-testing/how-do-you-measure-inter-annotator-agreement-cohen-s-kappa-with-llm-judges.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:90",
+      "label": "#90 How do you build an automated red teaming harness against jailbreaks?",
+      "title": "How do you build an automated red teaming harness against jailbreaks?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./evaluation-and-testing/how-do-you-build-an-automated-red-teaming-harness-against-jailbreaks.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:171",
+      "label": "#171 What is exact match (EM) vs F1 score in extraction and classification evals?",
+      "title": "What is exact match (EM) vs F1 score in extraction and classification evals?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-exact-match-em-vs-f1-score-in-extraction-and-classification-evals.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:172",
+      "label": "#172 What is BLEU and ROUGE scoring and why are they inadequate for modern LLM evaluation?",
+      "title": "What is BLEU and ROUGE scoring and why are they inadequate for modern LLM evaluation?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-bleu-and-rouge-scoring-and-why-are-they-inadequate-for-modern-llm-evaluation.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:173",
+      "label": "#173 What is assertion testing in LLM unit tests?",
+      "title": "What is assertion testing in LLM unit tests?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-assertion-testing-in-llm-unit-tests.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:174",
+      "label": "#174 What is synthetic evaluation dataset generation and when should you use it?",
+      "title": "What is synthetic evaluation dataset generation and when should you use it?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-synthetic-evaluation-dataset-generation-and-when-should-you-use-it.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:175",
+      "label": "#175 What is human evaluation (RLHF human rating) and how do you design annotation rubrics?",
+      "title": "What is human evaluation (RLHF human rating) and how do you design annotation rubrics?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./evaluation-and-testing/what-is-human-evaluation-rlhf-human-rating-and-how-do-you-design-annotation-rubrics.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:176",
+      "label": "#176 How to measure model hallucination rate using NLI (Natural Language Inference) entailment models?",
+      "title": "How to measure model hallucination rate using NLI (Natural Language Inference) entailment models?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./evaluation-and-testing/how-to-measure-model-hallucination-rate-using-nli-natural-language-inference-entailment-models.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:177",
+      "label": "#177 How to mitigate Verbosity Bias and Position Bias in LLM-as-a-Judge evaluations?",
+      "title": "How to mitigate Verbosity Bias and Position Bias in LLM-as-a-Judge evaluations?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./evaluation-and-testing/how-to-mitigate-verbosity-bias-and-position-bias-in-llm-as-a-judge-evaluations.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:178",
+      "label": "#178 How to build an automated RAG evaluation harness measuring Context Precision and Recall?",
+      "title": "How to build an automated RAG evaluation harness measuring Context Precision and Recall?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./evaluation-and-testing/how-to-build-an-automated-rag-evaluation-harness-measuring-context-precision-and-recall.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:179",
+      "label": "#179 How to implement Elo rating systems to benchmark model performance?",
+      "title": "How to implement Elo rating systems to benchmark model performance?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./evaluation-and-testing/how-to-implement-elo-rating-systems-to-benchmark-model-performance.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:180",
+      "label": "#180 How to build automated adversarial red teaming engines to discover safety guardrail bypasses?",
+      "title": "How to build automated adversarial red teaming engines to discover safety guardrail bypasses?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./evaluation-and-testing/how-to-build-automated-adversarial-red-teaming-engines-to-discover-safety-guardrail-bypasses.md",
+      "category": "Evaluation and Testing",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "evaluation-and-testing",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:10",
+      "label": "#10 How do input and output guardrails prevent jailbreaks and data leaks?",
+      "title": "How do input and output guardrails prevent jailbreaks and data leaks?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-safety-and-governance/how-do-input-and-output-guardrails-prevent-jailbreaks-and-data-leaks.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:43",
+      "label": "#43 What is prompt injection and how does it differ from SQL injection?",
+      "title": "What is prompt injection and how does it differ from SQL injection?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-prompt-injection-and-how-does-it-differ-from-sql-injection.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:44",
+      "label": "#44 How do you redact PII (Personally Identifiable Information) before sending prompts to LLMs?",
+      "title": "How do you redact PII (Personally Identifiable Information) before sending prompts to LLMs?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/how-do-you-redact-pii-personally-identifiable-information-before-sending-prompts-to-llms.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:45",
+      "label": "#45 How does Llama Guard classify unsafe inputs and outputs?",
+      "title": "How does Llama Guard classify unsafe inputs and outputs?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-safety-and-governance/how-does-llama-guard-classify-unsafe-inputs-and-outputs.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:46",
+      "label": "#46 What is the alignment tax and how does it impact model reasoning?",
+      "title": "What is the alignment tax and how does it impact model reasoning?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-safety-and-governance/what-is-the-alignment-tax-and-how-does-it-impact-model-reasoning.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:91",
+      "label": "#91 What is system prompt exfiltration and how to prevent it?",
+      "title": "What is system prompt exfiltration and how to prevent it?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-system-prompt-exfiltration-and-how-to-prevent-it.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:92",
+      "label": "#92 What is data exfiltration via LLM tool calls?",
+      "title": "What is data exfiltration via LLM tool calls?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-data-exfiltration-via-llm-tool-calls.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:93",
+      "label": "#93 What is hallucination and what are its primary causes?",
+      "title": "What is hallucination and what are its primary causes?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-hallucination-and-what-are-its-primary-causes.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:94",
+      "label": "#94 How do NeMo Guardrails enforce programmable rails using Colang?",
+      "title": "How do NeMo Guardrails enforce programmable rails using Colang?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-safety-and-governance/how-do-nemo-guardrails-enforce-programmable-rails-using-colang.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:95",
+      "label": "#95 How do you enforce strict RBAC and data isolation in enterprise RAG?",
+      "title": "How do you enforce strict RBAC and data isolation in enterprise RAG?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-safety-and-governance/how-do-you-enforce-strict-rbac-and-data-isolation-in-enterprise-rag.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:181",
+      "label": "#181 What is indirect prompt injection and how does it occur when parsing web pages/documents?",
+      "title": "What is indirect prompt injection and how does it occur when parsing web pages/documents?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-indirect-prompt-injection-and-how-does-it-occur-when-parsing-web-pages-documents.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:182",
+      "label": "#182 What is PII masking (anonymization) and how do Presidio/Regex filters protect user privacy?",
+      "title": "What is PII masking (anonymization) and how do Presidio/Regex filters protect user privacy?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-pii-masking-anonymization-and-how-do-presidio-regex-filters-protect-user-privacy.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:183",
+      "label": "#183 What is copyright infringement risk in RAG and fine-tuning datasets?",
+      "title": "What is copyright infringement risk in RAG and fine-tuning datasets?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-copyright-infringement-risk-in-rag-and-fine-tuning-datasets.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:184",
+      "label": "#184 What is model jailbreaking and how do safety classifiers block it?",
+      "title": "What is model jailbreaking and how do safety classifiers block it?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-model-jailbreaking-and-how-do-safety-classifiers-block-it.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:185",
+      "label": "#185 What is data lineage tracking for RAG documents and enterprise vector stores?",
+      "title": "What is data lineage tracking for RAG documents and enterprise vector stores?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./ai-safety-and-governance/what-is-data-lineage-tracking-for-rag-documents-and-enterprise-vector-stores.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:186",
+      "label": "#186 How to prevent Data Exfiltration via Markdown image tags and hidden web beacons in LLM outputs?",
+      "title": "How to prevent Data Exfiltration via Markdown image tags and hidden web beacons in LLM outputs?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-safety-and-governance/how-to-prevent-data-exfiltration-via-markdown-image-tags-and-hidden-web-beacons-in-llm-outputs.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:187",
+      "label": "#187 How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?",
+      "title": "How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-safety-and-governance/how-does-llama-guard-taxonomy-classify-unsafe-inputs-and-outputs.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:188",
+      "label": "#188 How to enforce Role-Based Access Control (RBAC) filtering in multi-tenant RAG vector search?",
+      "title": "How to enforce Role-Based Access Control (RBAC) filtering in multi-tenant RAG vector search?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./ai-safety-and-governance/how-to-enforce-role-based-access-control-rbac-filtering-in-multi-tenant-rag-vector-search.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:189",
+      "label": "#189 How do NeMo Guardrails use Colang state flows to strictly control conversation trajectories?",
+      "title": "How do NeMo Guardrails use Colang state flows to strictly control conversation trajectories?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-safety-and-governance/how-do-nemo-guardrails-use-colang-state-flows-to-strictly-control-conversation-trajectories.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:190",
+      "label": "#190 How to audit and secure Model Context Protocol (MCP) servers against unauthorized tool invocation?",
+      "title": "How to audit and secure Model Context Protocol (MCP) servers against unauthorized tool invocation?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./ai-safety-and-governance/how-to-audit-and-secure-model-context-protocol-mcp-servers-against-unauthorized-tool-invocation.md",
+      "category": "AI Safety and Governance",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "ai-safety-and-governance",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:11",
+      "label": "#11 What are the key differences between AI Engineer, ML Engineer, and FDE roles?",
+      "title": "What are the key differences between AI Engineer, ML Engineer, and FDE roles?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./interview-experience/what-are-the-key-differences-between-ai-engineer-ml-engineer-and-fde-roles.md",
+      "category": "Interview Experience",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:47",
+      "label": "#47 How do you prepare for an AI engineering coding interview?",
+      "title": "How do you prepare for an AI engineering coding interview?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-do-you-prepare-for-an-ai-engineering-coding-interview.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:48",
+      "label": "#48 How should you present an AI portfolio project to hiring managers?",
+      "title": "How should you present an AI portfolio project to hiring managers?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-should-you-present-an-ai-portfolio-project-to-hiring-managers.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:49",
+      "label": "#49 How do you structure a system design interview response for an LLM application?",
+      "title": "How do you structure a system design interview response for an LLM application?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./interview-experience/how-do-you-structure-a-system-design-interview-response-for-an-llm-application.md",
+      "category": "Interview Experience",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:50",
+      "label": "#50 How do you handle scenario-based trade-off questions in senior AI engineering interviews?",
+      "title": "How do you handle scenario-based trade-off questions in senior AI engineering interviews?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./interview-experience/how-do-you-handle-scenario-based-trade-off-questions-in-senior-ai-engineering-interviews.md",
+      "category": "Interview Experience",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:96",
+      "label": "#96 What are the most common pitfalls in AI engineering coding interviews?",
+      "title": "What are the most common pitfalls in AI engineering coding interviews?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/what-are-the-most-common-pitfalls-in-ai-engineering-coding-interviews.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:97",
+      "label": "#97 How do you explain LLM hallucination mitigation to interviewers?",
+      "title": "How do you explain LLM hallucination mitigation to interviewers?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-do-you-explain-llm-hallucination-mitigation-to-interviewers.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:98",
+      "label": "#98 How do you demonstrate production readiness in a take-home AI project?",
+      "title": "How do you demonstrate production readiness in a take-home AI project?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-do-you-demonstrate-production-readiness-in-a-take-home-ai-project.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:99",
+      "label": "#99 How do you answer 'What is your favorite paper or technique in AI'?",
+      "title": "How do you answer 'What is your favorite paper or technique in AI'?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./interview-experience/how-do-you-answer-what-is-your-favorite-paper-or-technique-in-ai.md",
+      "category": "Interview Experience",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:100",
+      "label": "#100 How do you lead an AI system architecture deep dive under ambiguity?",
+      "title": "How do you lead an AI system architecture deep dive under ambiguity?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./interview-experience/how-do-you-lead-an-ai-system-architecture-deep-dive-under-ambiguity.md",
+      "category": "Interview Experience",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:191",
+      "label": "#191 How to prepare for an AI Engineer coding interview (raw SDK vs frameworks)?",
+      "title": "How to prepare for an AI Engineer coding interview (raw SDK vs frameworks)?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-to-prepare-for-an-ai-engineer-coding-interview-raw-sdk-vs-frameworks.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:192",
+      "label": "#192 How to structure an AI portfolio project to catch the eye of hiring managers?",
+      "title": "How to structure an AI portfolio project to catch the eye of hiring managers?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-to-structure-an-ai-portfolio-project-to-catch-the-eye-of-hiring-managers.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:193",
+      "label": "#193 What are the core differences between AI Engineer, ML Engineer, and FDE roles?",
+      "title": "What are the core differences between AI Engineer, ML Engineer, and FDE roles?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/what-are-the-core-differences-between-ai-engineer-ml-engineer-and-fde-roles.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:194",
+      "label": "#194 How to answer scenario questions about trade-offs between RAG and Fine-Tuning?",
+      "title": "How to answer scenario questions about trade-offs between RAG and Fine-Tuning?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-to-answer-scenario-questions-about-trade-offs-between-rag-and-fine-tuning.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:195",
+      "label": "#195 How to explain LLM hallucination mitigation in a system design interview?",
+      "title": "How to explain LLM hallucination mitigation in a system design interview?",
+      "group": "Beginner",
+      "val": 3,
+      "color": "#22c55e",
+      "url": "./interview-experience/how-to-explain-llm-hallucination-mitigation-in-a-system-design-interview.md",
+      "category": "Interview Experience",
+      "difficulty": "Beginner",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:196",
+      "label": "#196 How to lead an ambiguous AI system design interview from requirements to architecture?",
+      "title": "How to lead an ambiguous AI system design interview from requirements to architecture?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./interview-experience/how-to-lead-an-ambiguous-ai-system-design-interview-from-requirements-to-architecture.md",
+      "category": "Interview Experience",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:197",
+      "label": "#197 How to handle live coding failures and non-deterministic model outputs during interviews?",
+      "title": "How to handle live coding failures and non-deterministic model outputs during interviews?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./interview-experience/how-to-handle-live-coding-failures-and-non-deterministic-model-outputs-during-interviews.md",
+      "category": "Interview Experience",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:198",
+      "label": "#198 How to demonstrate production-grade AI engineering rigor over toy notebook demos?",
+      "title": "How to demonstrate production-grade AI engineering rigor over toy notebook demos?",
+      "group": "Intermediate",
+      "val": 4,
+      "color": "#eab308",
+      "url": "./interview-experience/how-to-demonstrate-production-grade-ai-engineering-rigor-over-toy-notebook-demos.md",
+      "category": "Interview Experience",
+      "difficulty": "Intermediate",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:199",
+      "label": "#199 How to conduct a complete system design interview for a multi-tenant enterprise RAG search platform?",
+      "title": "How to conduct a complete system design interview for a multi-tenant enterprise RAG search platform?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./interview-experience/how-to-conduct-a-complete-system-design-interview-for-a-multi-tenant-enterprise-rag-search-platform.md",
+      "category": "Interview Experience",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    },
+    {
+      "id": "q:200",
+      "label": "#200 How to design an autonomous multi-agent software engineering system in a staff-level interview?",
+      "title": "How to design an autonomous multi-agent software engineering system in a staff-level interview?",
+      "group": "Advanced",
+      "val": 6,
+      "color": "#ef4444",
+      "url": "./interview-experience/how-to-design-an-autonomous-multi-agent-software-engineering-system-in-a-staff-level-interview.md",
+      "category": "Interview Experience",
+      "difficulty": "Advanced",
+      "tags": [
+        "ai-engineering",
+        "interview-experience",
+        "interview-questions"
+      ],
+      "type": "question"
+    }
+  ],
+  "links": [
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:3",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:15",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:16",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:17",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:18",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:56",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:57",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:58",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:59",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:60",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:111",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:111",
+      "target": "q:135",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:111",
+      "target": "q:164",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:111",
+      "target": "q:191",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:112",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:112",
+      "target": "q:184",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:112",
+      "target": "q:173",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:112",
+      "target": "q:195",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:113",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:113",
+      "target": "q:118",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:113",
+      "target": "q:174",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:113",
+      "target": "q:136",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:114",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:114",
+      "target": "q:132",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:114",
+      "target": "q:138",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:114",
+      "target": "q:154",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:115",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:115",
+      "target": "q:128",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:115",
+      "target": "q:152",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:115",
+      "target": "q:156",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:116",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:116",
+      "target": "q:122",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:116",
+      "target": "q:127",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:116",
+      "target": "q:153",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:117",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:117",
+      "target": "q:118",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:117",
+      "target": "q:168",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:117",
+      "target": "q:175",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:118",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:118",
+      "target": "q:166",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:118",
+      "target": "q:177",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:119",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:119",
+      "target": "q:136",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:119",
+      "target": "q:139",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:119",
+      "target": "q:200",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:prompt-engineering",
+      "target": "q:120",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:120",
+      "target": "q:145",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:120",
+      "target": "q:146",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:120",
+      "target": "q:194",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:4",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:19",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:20",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:21",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:22",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:61",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:62",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:63",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:64",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:65",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:121",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:121",
+      "target": "q:147",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:121",
+      "target": "q:167",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:122",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:122",
+      "target": "q:127",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:122",
+      "target": "q:188",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:122",
+      "target": "q:194",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:123",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:123",
+      "target": "q:188",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:123",
+      "target": "q:185",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:123",
+      "target": "q:169",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:124",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:124",
+      "target": "q:126",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:124",
+      "target": "q:129",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:124",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:125",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:125",
+      "target": "q:124",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:125",
+      "target": "q:181",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:125",
+      "target": "q:199",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:126",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:126",
+      "target": "q:152",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:126",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:127",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:127",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:127",
+      "target": "q:199",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:128",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:128",
+      "target": "q:152",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:128",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:129",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:129",
+      "target": "q:119",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:129",
+      "target": "q:199",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:rag-and-vector-databases",
+      "target": "q:130",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:130",
+      "target": "q:136",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:130",
+      "target": "q:176",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:130",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:5",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:23",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:24",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:25",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:26",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:66",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:67",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:68",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:69",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:70",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:131",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:131",
+      "target": "q:135",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:131",
+      "target": "q:140",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:131",
+      "target": "q:190",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:132",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:132",
+      "target": "q:139",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:132",
+      "target": "q:169",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:132",
+      "target": "q:200",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:133",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:133",
+      "target": "q:184",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:133",
+      "target": "q:190",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:133",
+      "target": "q:200",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:134",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:134",
+      "target": "q:138",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:134",
+      "target": "q:154",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:134",
+      "target": "q:163",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:135",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:135",
+      "target": "q:164",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:135",
+      "target": "q:191",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:136",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:136",
+      "target": "q:139",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:136",
+      "target": "q:200",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:137",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:137",
+      "target": "q:127",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:137",
+      "target": "q:181",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:137",
+      "target": "q:199",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:138",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:138",
+      "target": "q:154",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:138",
+      "target": "q:190",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:139",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:139",
+      "target": "q:200",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-agents-and-mcp",
+      "target": "q:140",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:140",
+      "target": "q:190",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:140",
+      "target": "q:200",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:6",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:27",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:28",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:29",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:30",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:71",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:72",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:73",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:74",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:75",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:141",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:141",
+      "target": "q:145",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:141",
+      "target": "q:149",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:141",
+      "target": "q:194",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:142",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:142",
+      "target": "q:143",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:142",
+      "target": "q:150",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:143",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:143",
+      "target": "q:144",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:143",
+      "target": "q:150",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:144",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:144",
+      "target": "q:147",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:145",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:145",
+      "target": "q:146",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:145",
+      "target": "q:194",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:146",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:146",
+      "target": "q:149",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:146",
+      "target": "q:150",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:147",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:147",
+      "target": "q:148",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:148",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:148",
+      "target": "q:157",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:148",
+      "target": "q:159",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:149",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:149",
+      "target": "q:175",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:fine-tuning-and-adaptation",
+      "target": "q:150",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:150",
+      "target": "q:157",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:7",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:31",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:32",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:33",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:34",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:76",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:76",
+      "target": "q:78",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:77",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:78",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:79",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:80",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:151",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:151",
+      "target": "q:153",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:151",
+      "target": "q:154",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:151",
+      "target": "q:169",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:152",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:152",
+      "target": "q:159",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:153",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:153",
+      "target": "q:169",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:154",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:154",
+      "target": "q:163",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:155",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:155",
+      "target": "q:165",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:155",
+      "target": "q:169",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:155",
+      "target": "q:196",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:156",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:156",
+      "target": "q:159",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:157",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:157",
+      "target": "q:196",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:158",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:158",
+      "target": "q:159",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:158",
+      "target": "q:196",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:159",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-system-design",
+      "target": "q:160",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:160",
+      "target": "q:152",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:160",
+      "target": "q:159",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:160",
+      "target": "q:199",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:8",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:35",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:36",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:37",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:38",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:81",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:82",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:83",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:84",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:85",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:161",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:161",
+      "target": "q:162",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:161",
+      "target": "q:163",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:161",
+      "target": "q:170",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:162",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:162",
+      "target": "q:153",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:162",
+      "target": "q:169",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:163",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:164",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:164",
+      "target": "q:166",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:165",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:165",
+      "target": "q:169",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:165",
+      "target": "q:196",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:166",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:166",
+      "target": "q:173",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:167",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:167",
+      "target": "q:168",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:167",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:168",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:168",
+      "target": "q:175",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:169",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:llmops-and-production-ai",
+      "target": "q:170",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:170",
+      "target": "q:182",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:170",
+      "target": "q:188",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:9",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:39",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:40",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:41",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:42",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:86",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:87",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:88",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:89",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:90",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:171",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:171",
+      "target": "q:172",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:171",
+      "target": "q:173",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:171",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:172",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:172",
+      "target": "q:176",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:172",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:173",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:174",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:174",
+      "target": "q:168",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:174",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:175",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:175",
+      "target": "q:179",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:176",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:176",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:177",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:177",
+      "target": "q:175",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:177",
+      "target": "q:179",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:178",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:179",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:179",
+      "target": "q:192",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:evaluation-and-testing",
+      "target": "q:180",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:180",
+      "target": "q:181",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:180",
+      "target": "q:184",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:180",
+      "target": "q:197",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:10",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:43",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:44",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:45",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:46",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:91",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:92",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:93",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:94",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:95",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:181",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:181",
+      "target": "q:186",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:182",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:182",
+      "target": "q:161",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:182",
+      "target": "q:188",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:183",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:183",
+      "target": "q:181",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:183",
+      "target": "q:185",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:183",
+      "target": "q:186",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:184",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:184",
+      "target": "q:187",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:185",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:185",
+      "target": "q:170",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:185",
+      "target": "q:188",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:186",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:186",
+      "target": "q:190",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:187",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:187",
+      "target": "q:188",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:187",
+      "target": "q:189",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:188",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:189",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:189",
+      "target": "q:132",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:189",
+      "target": "q:139",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:ai-safety-and-governance",
+      "target": "q:190",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:11",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:47",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:48",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:49",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:50",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:96",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:97",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:98",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:99",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:100",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:191",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:191",
+      "target": "q:197",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:192",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:192",
+      "target": "q:166",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:192",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:192",
+      "target": "q:198",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:193",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:193",
+      "target": "q:191",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:193",
+      "target": "q:194",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:193",
+      "target": "q:198",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:194",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:195",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:195",
+      "target": "q:176",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:195",
+      "target": "q:178",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:196",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:196",
+      "target": "q:151",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:196",
+      "target": "q:199",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:197",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:197",
+      "target": "q:173",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:198",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:198",
+      "target": "q:166",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:199",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    },
+    {
+      "source": "q:199",
+      "target": "q:123",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "q:199",
+      "target": "q:159",
+      "type": "cross-link",
+      "color": "rgba(59, 130, 246, 0.5)"
+    },
+    {
+      "source": "topic:interview-experience",
+      "target": "q:200",
+      "type": "topic-link",
+      "color": "rgba(139, 92, 246, 0.3)"
+    }
+  ]
+};
+
+    const card = document.getElementById('info-card');
+    const cardTitle = document.getElementById('card-title');
+    const cardDesc = document.getElementById('card-desc');
+    const cardLink = document.getElementById('card-link');
+    const Graph = ForceGraph3D()
+      (document.getElementById('graph'))
+        .graphData(gData)
+        .nodeId('id')
+        .nodeVal('val')
+        .nodeColor('color')
+        .nodeLabel('label')
+        .nodeResolution(16)
+        .linkOpacity(0.35)
+        .linkWidth(link => link.type === 'topic-link' ? 1.8 : 0.8)
+        .linkColor(link => link.color || 'rgba(148, 163, 184, 0.25)')
+        .linkDirectionalParticles(link => link.type === 'cross-link' ? 3 : 0)
+        .linkDirectionalParticleWidth(2.0)
+        .linkDirectionalParticleSpeed(0.006)
+        .onNodeHover(node => {
+          document.body.style.cursor = node ? 'pointer' : 'default';
+        })
+        .onNodeClick(node => {
+          if (node) {
+            const distance = 120;
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+            Graph.cameraPosition(
+              { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+              node,
+              2000
+            );
+
+            cardTitle.innerText = node.label;
+            cardDesc.innerText = `Category: ${node.category || 'Topic Hub'}\nDifficulty: ${node.group || node.type}\nType: ${node.type}`;
+            cardLink.href = `https://github.com/mchittineni/ultimate-ai-engineering-guide/blob/main/${node.url.replace('./', '')}`;
+            card.style.display = 'block';
+          }
+        });
+
+    Graph.d3Force('charge').strength(-120);
+  </script>
+</body>
+</html>

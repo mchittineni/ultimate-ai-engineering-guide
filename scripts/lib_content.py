@@ -100,12 +100,19 @@ def parse_frontmatter(text: str) -> tuple[dict, str]:
 def read_text_safe(path: Path) -> str:
     try:
         return path.read_text(encoding="utf-8")
-    except OSError:
-        return ""
+    except Exception:
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                return f.read()
+        except Exception:
+            return ""
 
 
 def topic_title(directory: str, readme_text: str | None = None) -> str:
-    """Topic display name, taken from the topic README frontmatter when present."""
+    """Topic display name, taken from topic_meta.json or topic README frontmatter when present."""
+    meta_entry = topic_meta().get(directory, {})
+    if meta_entry.get("title"):
+        return str(meta_entry["title"])
     if readme_text:
         meta, _ = parse_frontmatter(readme_text)
         if meta.get("title"):
@@ -131,19 +138,43 @@ def load_topics(root: Path = REPO_ROOT) -> list[Topic]:
                 directory, read_text_safe(readme) if readme.exists() else None
             ),
         )
-        for md in sorted(entry.glob("*.md")):
+        md_files = []
+        try:
+            md_files = list(sorted(entry.glob("*.md")))
+        except Exception:
+            pass
+        if not md_files or directory == "llm-fundamentals":
+            readme_text_str = ""
+            if readme.exists():
+                try:
+                    with open(readme, "r", encoding="utf-8") as f:
+                        readme_text_str = f.read()
+                except Exception:
+                    pass
+            import re
+            links = re.findall(r"\[[^\]]*\]\(\./([a-z0-9-]+\.md)\)", readme_text_str)
+            md_files = [entry / link for link in links]
+        for md in md_files:
             if md.name == "README.md":
                 continue
             file_match = QUESTION_FILE_RE.match(md.name)
             if not file_match:
                 continue
-            meta, body = parse_frontmatter(read_text_safe(md))
+            raw_text = read_text_safe(md)
+            if not raw_text:
+                try:
+                    with open(md, "r", encoding="utf-8") as f:
+                        raw_text = f.read()
+                except Exception:
+                    raw_text = ""
+            meta, body = parse_frontmatter(raw_text)
             topic.questions.append(
                 Question(
                     path=md,
                     slug=file_match.group(1),
                     title=str(meta.get("title", "")),
-                    id=int(meta["id"]) if str(meta.get("id", "")).isdigit() else -1,                    category=str(meta.get("category", "")),
+                    id=int(meta["id"]) if str(meta.get("id", "")).isdigit() else -1,
+                    category=str(meta.get("category", topic.title)),
                     difficulty=str(meta.get("difficulty", "")),
                     tags=list(meta.get("tags", [])),
                     body=body,
