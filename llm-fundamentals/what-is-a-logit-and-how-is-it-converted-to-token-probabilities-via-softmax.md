@@ -17,7 +17,7 @@ tags:
 
 The final layer of a Transformer projects hidden states $h \in \mathbb{R}^{d}$ to vocabulary dimension $V$ via $z = h W_{vocab}$.
 
-```
+```text
 Hidden State h (4096-dim) ──► W_vocab Projection ──► Raw Logits z (128,000-dim)
                                                           │
                                                           ▼
@@ -32,6 +32,7 @@ Hidden State h (4096-dim) ──► W_vocab Projection ──► Raw Logits z (1
 $$P_i = \frac{e^{z_i / T}}{\sum_{j=1}^{V} e^{z_j / T}}$$
 
 Where $T$ is temperature:
+
 - **Low Temperature ($T \to 0$):** Sharpens probability distribution toward the argmax logit (greedy sampling).
 - **High Temperature ($T > 1.0$):** Flattens probability distribution, increasing output diversity.
 

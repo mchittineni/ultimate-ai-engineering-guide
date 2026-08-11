@@ -19,7 +19,7 @@ Dense Transformers route every token through 100% of model parameters.
 
 MoE models (e.g. Mixtral 8x7B, DeepSeek-V3) decouple total parameter capacity from active inference compute:
 
-```
+```text
 Token Hidden State ──► [Top-K Router / Gating Network]
                              │
        ┌─────────────────────┼─────────────────────┐

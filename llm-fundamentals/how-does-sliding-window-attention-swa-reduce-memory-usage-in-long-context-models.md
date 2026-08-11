@@ -17,7 +17,7 @@ tags:
 
 Standard self-attention forces every token to attend to all prior tokens in the sequence length $N$.
 
-```
+```text
 Full Attention (N=16K):    Token 16,000 attends to ALL 16,000 previous tokens. (Heavy Memory!)
 Sliding Window (W=4K):     Token 16,000 attends ONLY to window [12,000 ... 16,000]. (Linear Memory!)
 ```
@@ -30,10 +30,10 @@ $$\text{Receptive Field} = L \times W$$
 
 A 32-layer model with a sliding window $W = 4096$ achieves an effective receptive field of $32 \times 4096 = 131,072$ tokens without ever allocating an $N \times N$ attention matrix.
 
-| Mechanism | Attention Memory | KV Cache Growth | Max Theoretical Receptive Field |
-| --- | --- | --- | --- |
-| **Full Attention** | $O(N^2)$ | $O(N)$ | $N$ |
-| **Sliding Window Attention (SWA)** | $O(N \cdot W)$ | $O(W)$ | $L \times W$ |
+| Mechanism                          | Attention Memory | KV Cache Growth | Max Theoretical Receptive Field |
+| ---------------------------------- | ---------------- | --------------- | ------------------------------- |
+| **Full Attention**                 | $O(N^2)$         | $O(N)$          | $N$                             |
+| **Sliding Window Attention (SWA)** | $O(N \cdot W)$   | $O(W)$          | $L \times W$                    |
 
 ## Example
 

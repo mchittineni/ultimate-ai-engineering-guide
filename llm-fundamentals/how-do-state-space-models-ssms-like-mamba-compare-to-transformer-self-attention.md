@@ -17,7 +17,7 @@ tags:
 
 Transformers maintain a growing KV cache storing all past tokens. In contrast, Mamba models process context into a fixed-size recurrent hidden state vector.
 
-```
+```text
 Transformer: Input Token ──► KV Cache Grows with N ──► O(N^2) Prefill / O(N) Memory
 Mamba SSM:   Input Token ──► Update Fixed State h_t ──► O(N) Prefill / O(1) Memory
 ```
@@ -32,12 +32,12 @@ $$y_t = C h_t$$
 
 Where parameters $\bar{A}, \bar{B}, C$ are input-dependent functions (Selective State Space Mechanism), allowing the model to dynamically selectively filter out irrelevant context or retain critical facts.
 
-| Attribute | Transformer | Mamba (Selective SSM) |
-| --- | --- | --- |
-| **Inference Time Complexity** | $O(N)$ per token | $O(1)$ per token |
-| **Inference KV Memory** | Grows linearly $O(N)$ | Fixed constant $O(1)$ |
-| **Training Mode** | Parallel via Attention | Parallel via Hardware-Aware Convolution |
-| **Recall Density** | Exact multi-hop retrieval | Compressed state representation |
+| Attribute                     | Transformer               | Mamba (Selective SSM)                   |
+| ----------------------------- | ------------------------- | --------------------------------------- |
+| **Inference Time Complexity** | $O(N)$ per token          | $O(1)$ per token                        |
+| **Inference KV Memory**       | Grows linearly $O(N)$     | Fixed constant $O(1)$                   |
+| **Training Mode**             | Parallel via Attention    | Parallel via Hardware-Aware Convolution |
+| **Recall Density**            | Exact multi-hop retrieval | Compressed state representation         |
 
 ## Example
 

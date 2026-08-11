@@ -21,7 +21,7 @@ $$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d}}\right) 
 
 When context windows scale to 128K+ tokens, accumulated noise across irrelevant tokens degrades retrieval accuracy (causing "Lost in the Middle" errors and hallucinations).
 
-```
+```text
 Standard Attention:     [Signal: 0.4] + [Noise: 0.1] + [Noise: 0.1] + [Noise: 0.1] = Noise Accumulation
 Differential Attention: Softmax(Q1 K1^T) - lambda * Softmax(Q2 K2^T) = Noise Cancelled out
 ```
@@ -49,7 +49,7 @@ class DifferentialAttention(nn.Module):
         d_k = q1.size(-1)
         attn1 = torch.softmax(torch.matmul(q1, k1.transpose(-2, -1)) / (d_k ** 0.5), dim=-1)
         attn2 = torch.softmax(torch.softmax(torch.matmul(q2, k2.transpose(-2, -1)) / (d_k ** 0.5), dim=-1))
-        
+
         # Differential subtraction cancels out uniform background noise
         diff_attn = attn1 - self.lambda_init * attn2
         return torch.matmul(diff_attn, v)

@@ -17,7 +17,7 @@ tags:
 
 Self-attention computes dynamic context weights across sequences.
 
-```
+```text
 Bidirectional Attention (BERT):   Token i <──► Attends to ALL tokens (Past + Future)
 Causal Masked Attention (GPT):   Token i ──► Attends ONLY to past tokens (<= i)
 ```
@@ -30,10 +30,10 @@ $$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_k}} + M\r
 
 For Causal Attention, mask matrix $M_{ij} = -\infty$ for $j > i$, driving Softmax probabilities for future tokens to exact zero.
 
-| Model Type | Attention Type | Primary Use Cases | Examples |
-| --- | --- | --- | --- |
-| **Encoder-only** | Bidirectional | Text classification, embedding generation, NER | BERT, RoBERTa, DeBERTa |
-| **Decoder-only** | Causal (Masked) | Text generation, code generation, reasoning | GPT-4o, Llama 3, Qwen 2.5 |
+| Model Type       | Attention Type  | Primary Use Cases                              | Examples                  |
+| ---------------- | --------------- | ---------------------------------------------- | ------------------------- |
+| **Encoder-only** | Bidirectional   | Text classification, embedding generation, NER | BERT, RoBERTa, DeBERTa    |
+| **Decoder-only** | Causal (Masked) | Text generation, code generation, reasoning    | GPT-4o, Llama 3, Qwen 2.5 |
 
 ## Example
 

@@ -17,7 +17,7 @@ tags:
 
 Unlike Recurrent Neural Networks (RNNs) that process tokens sequentially step-by-step, self-attention processes all tokens in parallel.
 
-```
+```text
 Without Positional Encoding:
 "Dog bites man" ──► [Self-Attention Set Operation] ──► Identical to "Man bites dog"
 
@@ -43,7 +43,7 @@ def get_sinusoidal_positional_encoding(seq_len: int, d_model: int) -> torch.Tens
     pe = torch.zeros(seq_len, d_model)
     position = torch.arange(0, seq_len, dtype=torch.float).unsqueeze(1)
     div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-    
+
     pe[:, 0::2] = torch.sin(position * div_term)
     pe[:, 1::2] = torch.cos(position * div_term)
     return pe

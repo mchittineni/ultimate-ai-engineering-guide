@@ -17,7 +17,7 @@ tags:
 
 Neural networks operate on numerical vector tensors, requiring discrete text to be converted into token indices.
 
-```
+```text
 Raw Input Text: "AI Engineering"
                       │
                       ▼
@@ -29,11 +29,11 @@ Token IDs:          [15496, 21976] ──► Embedding Matrix Lookup (d_model=40
 
 ### Trade-offs: Character vs Word vs Subword Tokenization
 
-| Level | Sequence Length | Vocabulary Size | Out-of-Vocabulary (OOV) |
-| --- | --- | --- | --- |
-| **Character-level** | $4\times$ longer context | Extremely Small (~256) | Zero OOV |
-| **Word-level** | Short context | Unmanageably Large ($1M+$) | High OOV |
-| **Subword (BPE/WordPiece)** | Optimal context | Balanced (32K – 128K) | Zero OOV (Byte fallback) |
+| Level                       | Sequence Length          | Vocabulary Size            | Out-of-Vocabulary (OOV)  |
+| --------------------------- | ------------------------ | -------------------------- | ------------------------ |
+| **Character-level**         | $4\times$ longer context | Extremely Small (~256)     | Zero OOV                 |
+| **Word-level**              | Short context            | Unmanageably Large ($1M+$) | High OOV                 |
+| **Subword (BPE/WordPiece)** | Optimal context          | Balanced (32K – 128K)      | Zero OOV (Byte fallback) |
 
 ## Example
 

@@ -19,7 +19,7 @@ GPU hardware requires batch inputs formatted into uniform rectangular tensor sha
 
 When sequences in a batch have different token lengths, shorter sequences are padded with zero tokens.
 
-```
+```text
 Batch Item 1 (Length 3): ["AI", "Is", "Great"]       ──► [1, 1, 1]  (No Padding)
 Batch Item 2 (Length 2): ["Hello", "World", <PAD>] ──► [1, 1, 0]  (Attention Mask Zeroes <PAD>)
 ```

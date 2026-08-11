@@ -19,7 +19,7 @@ Standard self-attention computes an $N \times N$ attention matrix for sequence l
 
 $$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d}}\right) V \quad \implies \mathcal{O}(N^2 d) \text{ time and memory}$$
 
-```
+```text
 Standard Attention:   (Q [N x d] @ K^T [d x N]) [N x N Matrix!] @ V [N x d]  ──► O(N^2)
 Linear Attention:     phi(Q) [N x d] @ (phi(K)^T [d x N] @ V [N x d])        ──► O(N d^2)
 ```
@@ -50,7 +50,7 @@ class LinearAttention(nn.Module):
     def forward(self, q, k, v):
         Q = self.feature_map(q)
         K = self.feature_map(k)
-        
+
         # Multiply (K^T @ V) first -> [d x d] matrix instead of [N x N]
         KV = torch.matmul(K.transpose(-2, -1), v) # [d x d]
         out = torch.matmul(Q, KV) # [N x d]
