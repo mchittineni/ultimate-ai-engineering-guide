@@ -25,7 +25,7 @@ LLM-as-a-Judge, Ragas metrics (Faithfulness, Relevance), benchmarks (MMLU, Human
 | 86 | [What is context precision vs context recall in RAG?](./what-is-context-precision-vs-context-recall-in-rag.md) | 🟢 Beginner |
 | 87 | [What is faithfulness vs answer relevance in LLM evals?](./what-is-faithfulness-vs-answer-relevance-in-llm-evals.md) | 🟢 Beginner |
 | 88 | [What is ground-truth reference data in evaluation harnesses?](./what-is-ground-truth-reference-data-in-evaluation-harnesses.md) | 🟢 Beginner |
-| 89 | [How do you measure inter-annotator agreement (Cohen's Kappa) with LLM judges?](./how-do-you-measure-inter-annotator-agreement-cohen-s-kappa-with-llm-judges.md) | 🟡 Intermediate |
+| 89 | [How do you measure inter-annotator agreement (Cohen's Kappa) with LLM judges?](./how-do-you-measure-inter-annotator-agreement-cohens-kappa-with-llm-judges.md) | 🟡 Intermediate |
 | 90 | [How do you build an automated red teaming harness against jailbreaks?](./how-do-you-build-an-automated-red-teaming-harness-against-jailbreaks.md) | 🔴 Advanced |
 | 171 | [What is exact match (EM) vs F1 score in extraction and classification evals?](./what-is-exact-match-em-vs-f1-score-in-extraction-and-classification-evals.md) | 🟢 Beginner |
 | 172 | [What is BLEU and ROUGE scoring and why are they inadequate for modern LLM evaluation?](./what-is-bleu-and-rouge-scoring-and-why-are-they-inadequate-for-modern-llm-evaluation.md) | 🟢 Beginner |
