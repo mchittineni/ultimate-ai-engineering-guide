@@ -21,11 +21,11 @@ Transmitting raw user PII to cloud LLM vendors risks regulatory violations under
 
 These are three different things and the distinction is legal, not stylistic:
 
-| Technique | Reversible? | GDPR status |
-| --- | --- | --- |
-| **Masking / redaction** (`****-****-1234`, or dropping the span) | No, but partial values may still identify | Depends on residual identifiability |
-| **Pseudonymization** (placeholder + vault, as below) | Yes, by whoever holds the vault | **Still personal data** — Art. 4(5), fully in scope |
-| **Anonymization** (irreversible, no key retained) | No | Out of GDPR scope entirely — Recital 26 |
+| Technique                                                        | Reversible?                               | GDPR status                                         |
+| ---------------------------------------------------------------- | ----------------------------------------- | --------------------------------------------------- |
+| **Masking / redaction** (`****-****-1234`, or dropping the span) | No, but partial values may still identify | Depends on residual identifiability                 |
+| **Pseudonymization** (placeholder + vault, as below)             | Yes, by whoever holds the vault           | **Still personal data** — Art. 4(5), fully in scope |
+| **Anonymization** (irreversible, no key retained)                | No                                        | Out of GDPR scope entirely — Recital 26             |
 
 The re-hydration step that makes these pipelines usable is precisely what keeps them in scope: if you can restore `John Doe`, so can anyone who compromises the vault. Art. 32 still credits pseudonymization as a security measure, so this is a control worth having — it just reduces blast radius rather than discharging the obligation. Claiming "we anonymize before sending to the LLM" when a vault exists is a misstatement auditors do catch.
 

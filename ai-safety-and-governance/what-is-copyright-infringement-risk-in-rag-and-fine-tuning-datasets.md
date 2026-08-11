@@ -64,7 +64,7 @@ print(check_verbatim_copyright_overlap(tail_copy, corpus, window_words=10))
 
 ## Interview tips
 
-- Discuss legal precedents in AI copyright law (e.g. *New York Times v. OpenAI*).
+- Discuss legal precedents in AI copyright law (e.g. _New York Times v. OpenAI_).
 - Explain output filtering guardrails designed to prevent memorized verbatim text output.
 
 ## Related Concepts

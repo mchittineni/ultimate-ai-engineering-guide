@@ -33,11 +33,11 @@ Memorization is worst for **rare, unique, high-entropy sequences** — exactly t
 
 ### Risk by Access Level
 
-| Access level | Inversion risk | Mechanism | Mitigation |
-| --- | --- | --- | --- |
-| **White-box** (weights/gradients) | Critical | Direct gradient-based inversion; membership inference from loss | No gradient access in production; DP training |
-| **Gray-box** (logits/confidence) | High | Confidence-threshold membership inference; score-guided reconstruction | Return labels only; truncate/round scores; rate limit |
-| **Black-box** (text only) | Low–Moderate | Extraction via memorized-completion prompting; high query volume | Output filtering; volume anomaly detection |
+| Access level                      | Inversion risk | Mechanism                                                              | Mitigation                                            |
+| --------------------------------- | -------------- | ---------------------------------------------------------------------- | ----------------------------------------------------- |
+| **White-box** (weights/gradients) | Critical       | Direct gradient-based inversion; membership inference from loss        | No gradient access in production; DP training         |
+| **Gray-box** (logits/confidence)  | High           | Confidence-threshold membership inference; score-guided reconstruction | Return labels only; truncate/round scores; rate limit |
+| **Black-box** (text only)         | Low–Moderate   | Extraction via memorized-completion prompting; high query volume       | Output filtering; volume anomaly detection            |
 
 The single highest-leverage control is usually the cheapest: **stop returning raw confidence scores and logprobs**. Most product surfaces never needed them, and they are the primary channel for membership inference.
 

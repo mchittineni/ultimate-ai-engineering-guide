@@ -39,7 +39,7 @@ The classification hinges on **what the system is used for**, not how it was bui
 
 ### Your Role Determines Your Obligations
 
-The tier sets *which* rules apply; your role sets *whose* they are. **Providers** (who develop and place a system on the market, or rebrand someone else's) carry the heavy compliance burden. **Deployers** (who use a system in a professional capacity) carry a lighter but real set — human oversight, using it per instructions, monitoring, and in some cases a fundamental rights impact assessment.
+The tier sets _which_ rules apply; your role sets _whose_ they are. **Providers** (who develop and place a system on the market, or rebrand someone else's) carry the heavy compliance burden. **Deployers** (who use a system in a professional capacity) carry a lighter but real set — human oversight, using it per instructions, monitoring, and in some cases a fundamental rights impact assessment.
 
 The trap: a deployer who puts their own name on a high-risk system, or substantially modifies it, or repurposes a non-high-risk system into a high-risk use, **becomes a provider** and inherits the full obligation set. Building a hiring feature on a vendor's API does not keep you a deployer.
 

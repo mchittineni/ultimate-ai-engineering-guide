@@ -34,12 +34,12 @@ The AI RMF is voluntary and carries no penalties, which leads people to dismiss 
 
 ### The Four Functions
 
-| Function | The question it answers | Engineering artifacts |
-| --- | --- | --- |
-| **GOVERN** | Who is accountable, and what are our policies? | Named owners, model risk policy, review gates, escalation path, third-party model policy |
-| **MAP** | What is the context, and what could go wrong? | Intended use and misuse cases, affected populations, dependency inventory, model cards |
-| **MEASURE** | How bad is it, quantitatively? | Eval sets, error/hallucination rates by subgroup, red-team results, drift monitoring, uncertainty |
-| **MANAGE** | What do we do about it, in what order? | Risk register with priorities, mitigations, guardrails, incident response, decommissioning plan |
+| Function    | The question it answers                        | Engineering artifacts                                                                             |
+| ----------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **GOVERN**  | Who is accountable, and what are our policies? | Named owners, model risk policy, review gates, escalation path, third-party model policy          |
+| **MAP**     | What is the context, and what could go wrong?  | Intended use and misuse cases, affected populations, dependency inventory, model cards            |
+| **MEASURE** | How bad is it, quantitatively?                 | Eval sets, error/hallucination rates by subgroup, red-team results, drift monitoring, uncertainty |
+| **MANAGE**  | What do we do about it, in what order?         | Risk register with priorities, mitigations, guardrails, incident response, decommissioning plan   |
 
 GOVERN is drawn wrapping the others deliberately — it is not step one of four. Standing up evals without a named owner who can block a launch produces measurement that changes nothing.
 

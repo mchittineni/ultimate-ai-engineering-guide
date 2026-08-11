@@ -29,17 +29,17 @@ A model repo                 ──►    Optional custom modules, executed when
 
 ### Why the Legacy Checkpoint Format Executes Code
 
-The classic `.bin` / `.pt` checkpoint is produced by Python's object serialization protocol. That format is not a passive data container — it encodes *instructions for reconstructing objects*, including a hook that names a callable to invoke during loading. A crafted checkpoint can therefore run a command the instant you call `torch.load`, before a single inference happens. There is no "safe parse" of the format, because execution is the format's designed behavior.
+The classic `.bin` / `.pt` checkpoint is produced by Python's object serialization protocol. That format is not a passive data container — it encodes _instructions for reconstructing objects_, including a hook that names a callable to invoke during loading. A crafted checkpoint can therefore run a command the instant you call `torch.load`, before a single inference happens. There is no "safe parse" of the format, because execution is the format's designed behavior.
 
 This is why **safetensors** exists. It stores only tensor data plus a JSON header of shapes and dtypes, with no mechanism to express executable objects. Loading is a bounded parse, and the format is zero-copy, so the safe option is usually also the faster one.
 
 ### The Three Distinct Risks
 
-| Risk | Vector | Control |
-| --- | --- | --- |
-| **Code execution on load** | Legacy serialized checkpoints | Require safetensors; refuse legacy formats from untrusted sources |
-| **Remote code execution by design** | `trust_remote_code=True` runs repo-authored Python | Default off; vendor and review the code if genuinely required |
-| **Model substitution / tampering** | Typosquatted repo, compromised account, MITM | Pin exact revision hashes, verify checksums, mirror internally |
+| Risk                                | Vector                                             | Control                                                           |
+| ----------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------- |
+| **Code execution on load**          | Legacy serialized checkpoints                      | Require safetensors; refuse legacy formats from untrusted sources |
+| **Remote code execution by design** | `trust_remote_code=True` runs repo-authored Python | Default off; vendor and review the code if genuinely required     |
+| **Model substitution / tampering**  | Typosquatted repo, compromised account, MITM       | Pin exact revision hashes, verify checksums, mirror internally    |
 
 `trust_remote_code=True` deserves separate emphasis because it is not an exploit — it is a documented feature that runs arbitrary repository code, and it appears throughout tutorials and Stack Overflow answers as a fix for load errors. Enabling it to make an error go away is the single most common way this risk enters a codebase.
 
