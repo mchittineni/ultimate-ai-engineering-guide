@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Engineering Knowledge Graph</title>
+<script>
+  (function () {
+    var mode;
+    try { mode = localStorage.getItem('ai-eng-graph-theme'); } catch (e) { /* private mode */ }
+    if (mode !== 'light' && mode !== 'dark' && mode !== 'system') mode = 'system';
+    var effective = mode === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : mode;
+    document.documentElement.setAttribute('data-theme-mode', mode);
+    document.documentElement.setAttribute('data-theme', effective);
+  })();
+</script>
+<style>
+/* ---------------------------------------------------------------------------
+   Tokens. The bare :root carries the complete LIGHT palette. Dark is redefined
+   twice: behind prefers-color-scheme (guarded so an explicit light choice still
+   wins) and behind [data-theme="dark"] so the toggle wins too. Components read
+   tokens only -- a colour defined only inside a theme block would vanish in the
+   un-stamped state, which is the classic unreadable-page bug.
+   --------------------------------------------------------------------------- */
+:root {
+  --ground: #edf1f5;
+  --surface: #ffffff;
+  --surface-2: #e4ebf1;
+  --ink: #0f1620;
+  --ink-soft: #43535f;
+  --ink-faint: #6b7c8a;
+  --rule: #cbd6df;
+  --rule-soft: #dde5ec;
+  --accent: #1f5c8b;
+  --accent-ink: #17486d;
+  --accent-wash: rgba(31, 92, 139, 0.10);
+  --wire: rgba(23, 37, 51, 0.13);
+  --wire-hot: rgba(23, 72, 109, 0.85);
+  --shadow: 0 18px 40px -24px rgba(15, 22, 32, 0.45);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0e141b;
+    --surface: #151d26;
+    --surface-2: #1c2733;
+    --ink: #e6edf4;
+    --ink-soft: #a7b6c4;
+    --ink-faint: #7c8d9c;
+    --rule: #2a3744;
+    --rule-soft: #212c38;
+    --accent: #58a6d8;
+    --accent-ink: #8cc6ec;
+    --accent-wash: rgba(88, 166, 216, 0.14);
+    --wire: rgba(167, 182, 196, 0.18);
+    --wire-hot: rgba(140, 198, 236, 0.9);
+    --shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0e141b;
+  --surface: #151d26;
+  --surface-2: #1c2733;
+  --ink: #e6edf4;
+  --ink-soft: #a7b6c4;
+  --ink-faint: #7c8d9c;
+  --rule: #2a3744;
+  --rule-soft: #212c38;
+  --accent: #58a6d8;
+  --accent-ink: #8cc6ec;
+  --accent-wash: rgba(88, 166, 216, 0.14);
+  --wire: rgba(167, 182, 196, 0.18);
+  --wire-hot: rgba(140, 198, 236, 0.9);
+  --shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+
+.label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+#shell { display: flex; flex-direction: column; height: 100vh; }
+
+/* --------------------------------- Header -------------------------------- */
+header {
+  flex: none;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.masthead { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+
+h1 {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.masthead .stats { color: var(--ink-faint); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+#theme-switch { margin-left: auto; display: flex; gap: 2px; }
+
+.theme-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+.theme-btn:first-child { border-radius: 999px 0 0 999px; }
+.theme-btn:last-child { border-radius: 0 999px 999px 0; }
+.theme-btn + .theme-btn { border-left: 0; }
+.theme-btn:hover { background: var(--surface-2); }
+.theme-btn[aria-checked="true"] { background: var(--accent-wash); border-color: var(--accent); color: var(--ink); }
+
+.controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+#search {
+  flex: 0 1 260px;
+  min-width: 180px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--ground);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 6px 11px;
+}
+#search::placeholder { color: var(--ink-faint); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  background: var(--ground);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip:hover { background: var(--surface-2); }
+.chip[aria-pressed="false"] { opacity: 0.42; }
+.chip[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.chip .ct { font-family: ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; color: var(--ink-faint); }
+
+#reset {
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: none;
+  border: 0;
+  color: var(--accent-ink);
+  cursor: pointer;
+  padding: 5px 4px;
+}
+
+#match { font-size: 11.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; margin-left: auto; }
+
+/* --------------------------------- Stage --------------------------------- */
+#stage { flex: 1; display: grid; grid-template-columns: 1fr 300px; min-height: 0; }
+
+#canvas-wrap { position: relative; min-width: 0; overflow: hidden; }
+svg { display: block; width: 100%; height: 100%; touch-action: none; }
+#scene { cursor: grab; }
+#scene.dragging { cursor: grabbing; }
+
+.node { cursor: pointer; }
+
+#hint {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  pointer-events: none;
+}
+
+#zoom {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.zoom-btn {
+  width: 30px;
+  height: 30px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.zoom-btn:hover { background: var(--surface-2); }
+
+/* -------------------------------- Detail --------------------------------- */
+#detail {
+  border-left: 1px solid var(--rule);
+  background: var(--surface);
+  padding: 16px;
+  overflow-y: auto;
+  min-height: 0;
+}
+#detail .empty-state { color: var(--ink-faint); font-size: 13px; }
+#detail h2 { margin: 8px 0 10px; font-size: 15px; line-height: 1.3; text-wrap: balance; }
+
+.pill {
+  display: inline-flex;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.meta { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0 0 14px; font-size: 12.5px; }
+.meta dt {
+  color: var(--ink-faint);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  align-self: center;
+}
+.meta dd { margin: 0; }
+
+.conn { border-top: 1px solid var(--rule-soft); padding-top: 10px; }
+.conn ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; }
+.conn button {
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  width: 100%;
+  color: var(--accent-ink);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  padding: 3px 5px;
+  cursor: pointer;
+}
+.conn button:hover { background: var(--accent-wash); }
+
+.source-link { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--accent-ink); }
+
+#results { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+#results button {
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  width: 100%;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+#results button:hover { background: var(--surface-2); color: var(--ink); }
+
+@media (max-width: 900px) {
+  #stage { grid-template-columns: 1fr; }
+  #detail { position: absolute; inset: auto 0 0 0; max-height: 52%; border-top: 1px solid var(--rule); border-left: 0; display: none; }
+  #detail.open { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header>
+    <div class="masthead">
+      <h1>AI ENGINEERING KNOWLEDGE GRAPH</h1>
+      <span class="stats">205 questions · 10 topics · 213 cross-links</span>
+      <div id="theme-switch" role="radiogroup" aria-label="Colour theme">
+        <button type="button" class="theme-btn" role="radio" aria-checked="false" data-theme-choice="light" title="Light">☀</button>
+        <button type="button" class="theme-btn" role="radio" aria-checked="false" data-theme-choice="dark" title="Dark">☾</button>
+        <button type="button" class="theme-btn" role="radio" aria-checked="false" data-theme-choice="system" title="Match system">◐</button>
+      </div>
+    </div>
+    <div class="controls">
+      <input type="search" id="search" placeholder="Search questions…" aria-label="Search questions">
+      <div id="section-chips" style="display:flex;gap:6px;flex-wrap:wrap" role="group" aria-label="Filter by section"></div>
+      <div id="difficulty-chips" style="display:flex;gap:6px;flex-wrap:wrap" role="group" aria-label="Filter by difficulty"></div>
+      <button type="button" id="reset">Reset</button>
+      <span id="match" role="status" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <div id="stage">
+    <div id="canvas-wrap">
+      <svg id="graph" role="img" aria-label="Circular knowledge graph: questions grouped by topic, cross-links drawn as bundled curves"></svg>
+      <p id="hint" class="label">Drag to pan · scroll to zoom · / to search</p>
+      <div id="zoom" role="group" aria-label="Zoom">
+        <button type="button" class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
+        <button type="button" class="zoom-btn" id="zoom-out" aria-label="Zoom out">−</button>
+        <button type="button" class="zoom-btn" id="zoom-reset" aria-label="Reset view" title="Reset view">⤾</button>
+      </div>
+    </div>
+    <aside id="detail" aria-live="polite">
+      <p class="empty-state">Select a question on the rim to see its topic, difficulty and cross-links.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+const DATA = {"questions": [{"id": "q:1", "num": 1, "title": "What is KV Cache and how does it speed up inference?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llm-fundamentals/what-is-kv-cache-and-how-does-it-speed-up-inference.md", "tags": ["llm-fundamentals"], "links": []}, {"id": "q:2", "num": 2, "title": "How does Grouped-Query Attention (GQA) differ from Multi-Head Attention (MHA)?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llm-fundamentals/how-does-grouped-query-attention-gqa-differ-from-multi-head-attention-mha.md", "tags": ["llm-fundamentals"], "links": []}, {"id": "q:3", "num": 3, "title": "How does ReAct (Reasoning and Acting) prompting work?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./prompt-engineering/how-does-react-reasoning-and-acting-prompting-work.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:4", "num": 4, "title": "What is the difference between HNSW and IVFFlat vector indexes?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./rag-and-vector-databases/what-is-the-difference-between-hnsw-and-ivfflat-vector-indexes.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:5", "num": 5, "title": "What is the Model Context Protocol (MCP) and how does it work?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-agents-and-mcp/what-is-the-model-context-protocol-mcp-and-how-does-it-work.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:6", "num": 6, "title": "What is LoRA and QLoRA for efficient fine-tuning?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./fine-tuning-and-adaptation/what-is-lora-and-qlora-for-efficient-fine-tuning.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:7", "num": 7, "title": "How do you optimize Time to First Token (TTFT) vs Time Per Output Token (TPOT)?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-system-design/how-do-you-optimize-time-to-first-token-ttft-vs-time-per-output-token-tpot.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:8", "num": 8, "title": "How do you implement distributed tracing for multi-step LLM pipelines?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llmops-and-production-ai/how-do-you-implement-distributed-tracing-for-multi-step-llm-pipelines.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:9", "num": 9, "title": "How do Faithfulness, Context Recall, and Answer Relevance differ in Ragas?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./evaluation-and-testing/how-do-faithfulness-context-recall-and-answer-relevance-differ-in-ragas.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:10", "num": 10, "title": "How do input and output guardrails prevent jailbreaks and data leaks?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/how-do-input-and-output-guardrails-prevent-jailbreaks-and-data-leaks.md", "tags": ["ai-safety-and-governance"], "links": []}, {"id": "q:11", "num": 11, "title": "What are the key differences between AI Engineer, ML Engineer, and FDE roles?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./interview-experience/what-are-the-key-differences-between-ai-engineer-ml-engineer-and-fde-roles.md", "tags": ["interview-experience"], "links": []}, {"id": "q:12", "num": 12, "title": "What is the difference between encoder-only, decoder-only, and encoder-decoder LLMs?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-the-difference-between-encoder-only-decoder-only-and-encoder-decoder-llms.md", "tags": ["llm-fundamentals"], "links": ["q:102"]}, {"id": "q:13", "num": 13, "title": "How does Byte-Pair Encoding (BPE) tokenization work?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/how-does-byte-pair-encoding-bpe-tokenization-work.md", "tags": ["llm-fundamentals"], "links": ["q:101"]}, {"id": "q:14", "num": 14, "title": "How do Rotary Position Embeddings (RoPE) and RoPE scaling work?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./llm-fundamentals/how-do-rotary-position-embeddings-rope-and-rope-scaling-work.md", "tags": ["llm-fundamentals"], "links": ["q:105"]}, {"id": "q:15", "num": 15, "title": "What is the difference between zero-shot and few-shot prompting?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/what-is-the-difference-between-zero-shot-and-few-shot-prompting.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:16", "num": 16, "title": "How does Chain-of-Thought (CoT) prompting improve LLM reasoning?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/how-does-chain-of-thought-cot-prompting-improve-llm-reasoning.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:17", "num": 17, "title": "How do you enforce structured JSON outputs from an LLM?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./prompt-engineering/how-do-you-enforce-structured-json-outputs-from-an-llm.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:18", "num": 18, "title": "How does Tree-of-Thoughts (ToT) prompting differ from Chain-of-Thought?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./prompt-engineering/how-does-tree-of-thoughts-tot-prompting-differ-from-chain-of-thought.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:19", "num": 19, "title": "What is Retrieval-Augmented Generation (RAG) and why is it used?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-retrieval-augmented-generation-rag-and-why-is-it-used.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:20", "num": 20, "title": "How do dense and sparse vector embeddings differ?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/how-do-dense-and-sparse-vector-embeddings-differ.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:21", "num": 21, "title": "How does hybrid search combine BM25 and vector embeddings?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./rag-and-vector-databases/how-does-hybrid-search-combine-bm25-and-vector-embeddings.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:22", "num": 22, "title": "How do cross-encoder rerankers and late-interaction (ColBERT) models work?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./rag-and-vector-databases/how-do-cross-encoder-rerankers-and-late-interaction-colbert-models-work.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:23", "num": 23, "title": "What is an AI agent and how does it differ from a standard LLM?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-an-ai-agent-and-how-does-it-differ-from-a-standard-llm.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:24", "num": 24, "title": "How does LLM tool use and function calling work?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/how-does-llm-tool-use-and-function-calling-work.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:25", "num": 25, "title": "How do you manage short-term and long-term memory in AI agents?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-agents-and-mcp/how-do-you-manage-short-term-and-long-term-memory-in-ai-agents.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:26", "num": 26, "title": "How do multi-agent architectures and hierarchical delegation work?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-agents-and-mcp/how-do-multi-agent-architectures-and-hierarchical-delegation-work.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:27", "num": 27, "title": "What is the difference between pre-training, fine-tuning, and in-context learning?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-the-difference-between-pre-training-fine-tuning-and-in-context-learning.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:28", "num": 28, "title": "What is quantization and how do INT8 and INT4 reduce LLM footprint?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-quantization-and-how-do-int8-and-int4-reduce-llm-footprint.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:29", "num": 29, "title": "How does Direct Preference Optimization (DPO) differ from RLHF?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./fine-tuning-and-adaptation/how-does-direct-preference-optimization-dpo-differ-from-rlhf.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:30", "num": 30, "title": "How does Group Relative Policy Optimization (GRPO) work in DeepSeek R1?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./fine-tuning-and-adaptation/how-does-group-relative-policy-optimization-grpo-work-in-deepseek-r1.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:31", "num": 31, "title": "What is Server-Sent Events (SSE) streaming for LLM responses?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-server-sent-events-sse-streaming-for-llm-responses.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:32", "num": 32, "title": "How does semantic caching reduce LLM API latency and cost?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/how-does-semantic-caching-reduce-llm-api-latency-and-cost.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:33", "num": 33, "title": "How does PagedAttention in vLLM solve memory fragmentation?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-system-design/how-does-pagedattention-in-vllm-solve-memory-fragmentation.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:34", "num": 34, "title": "How does speculative decoding speed up LLM inference?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-system-design/how-does-speculative-decoding-speed-up-llm-inference.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:35", "num": 35, "title": "What is LLMOps and how does it differ from traditional MLOps?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-llmops-and-how-does-it-differ-from-traditional-mlops.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:36", "num": 36, "title": "How do you monitor LLM token usage, latency, and costs in production?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/how-do-you-monitor-llm-token-usage-latency-and-costs-in-production.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:37", "num": 37, "title": "How do you implement fallback routing and rate limiting for LLM APIs?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llmops-and-production-ai/how-do-you-implement-fallback-routing-and-rate-limiting-for-llm-apis.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:38", "num": 38, "title": "How do you detect and mitigate data and concept drift in production LLMs?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./llmops-and-production-ai/how-do-you-detect-and-mitigate-data-and-concept-drift-in-production-llms.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:39", "num": 39, "title": "What is LLM-as-a-Judge and how is it used for automated evaluations?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-llm-as-a-judge-and-how-is-it-used-for-automated-evaluations.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:40", "num": 40, "title": "What are standard LLM benchmarks like MMLU, GSM8K, and HumanEval?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-are-standard-llm-benchmarks-like-mmlu-gsm8k-and-humaneval.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:41", "num": 41, "title": "How do you build a CI/CD prompt regression testing suite?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./evaluation-and-testing/how-do-you-build-a-ci-cd-prompt-regression-testing-suite.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:42", "num": 42, "title": "How do you mitigate positional bias and self-preference in LLM-as-a-Judge?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./evaluation-and-testing/how-do-you-mitigate-positional-bias-and-self-preference-in-llm-as-a-judge.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:43", "num": 43, "title": "What is prompt injection and how does it differ from SQL injection?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-prompt-injection-and-how-does-it-differ-from-sql-injection.md", "tags": ["ai-safety-and-governance"], "links": []}, {"id": "q:44", "num": 44, "title": "How do you redact PII (Personally Identifiable Information) before sending prompts to LLMs?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/how-do-you-redact-pii-personally-identifiable-information-before-sending-prompts-to-llms.md", "tags": ["ai-safety-and-governance"], "links": ["q:182"]}, {"id": "q:45", "num": 45, "title": "How does Llama Guard classify unsafe inputs and outputs?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/how-does-llama-guard-classify-unsafe-inputs-and-outputs.md", "tags": ["ai-safety-and-governance"], "links": ["q:187"]}, {"id": "q:46", "num": 46, "title": "What is the alignment tax and how does it impact model reasoning?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-safety-and-governance/what-is-the-alignment-tax-and-how-does-it-impact-model-reasoning.md", "tags": ["ai-safety-and-governance"], "links": []}, {"id": "q:47", "num": 47, "title": "How do you prepare for an AI engineering coding interview?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-do-you-prepare-for-an-ai-engineering-coding-interview.md", "tags": ["interview-experience"], "links": []}, {"id": "q:48", "num": 48, "title": "How should you present an AI portfolio project to hiring managers?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-should-you-present-an-ai-portfolio-project-to-hiring-managers.md", "tags": ["interview-experience"], "links": []}, {"id": "q:49", "num": 49, "title": "How do you structure a system design interview response for an LLM application?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./interview-experience/how-do-you-structure-a-system-design-interview-response-for-an-llm-application.md", "tags": ["interview-experience"], "links": []}, {"id": "q:50", "num": 50, "title": "How do you handle scenario-based trade-off questions in senior AI engineering interviews?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./interview-experience/how-do-you-handle-scenario-based-trade-off-questions-in-senior-ai-engineering-interviews.md", "tags": ["interview-experience"], "links": []}, {"id": "q:51", "num": 51, "title": "What is Temperature, Top-p, and Top-k sampling?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-temperature-top-p-and-top-k-sampling.md", "tags": ["llm-fundamentals"], "links": ["q:103"]}, {"id": "q:52", "num": 52, "title": "What is the difference between greedy decoding and beam search?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-the-difference-between-greedy-decoding-and-beam-search.md", "tags": ["llm-fundamentals"], "links": []}, {"id": "q:53", "num": 53, "title": "What is a context window and how does it limit LLM processing?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-a-context-window-and-how-does-it-limit-llm-processing.md", "tags": ["llm-fundamentals"], "links": []}, {"id": "q:54", "num": 54, "title": "How does Multi-Query Attention (MQA) differ from Multi-Head Attention?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llm-fundamentals/how-does-multi-query-attention-mqa-differ-from-multi-head-attention.md", "tags": ["llm-fundamentals"], "links": []}, {"id": "q:55", "num": 55, "title": "How does FlashAttention optimize memory and speed via tiling?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./llm-fundamentals/how-does-flashattention-optimize-memory-and-speed-via-tiling.md", "tags": ["llm-fundamentals"], "links": []}, {"id": "q:56", "num": 56, "title": "What is a system prompt and how does it steer model behavior?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/what-is-a-system-prompt-and-how-does-it-steer-model-behavior.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:57", "num": 57, "title": "What is prompt leaking and how do you prevent it?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/what-is-prompt-leaking-and-how-do-you-prevent-it.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:58", "num": 58, "title": "How do role prompting and persona framing affect LLM outputs?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/how-do-role-prompting-and-persona-framing-affect-llm-outputs.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:59", "num": 59, "title": "How do you design few-shot examples to prevent label bias?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./prompt-engineering/how-do-you-design-few-shot-examples-to-prevent-label-bias.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:60", "num": 60, "title": "How does Skeleton-of-Thought (SoT) speed up generation via parallel decoding?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./prompt-engineering/how-does-skeleton-of-thought-sot-speed-up-generation-via-parallel-decoding.md", "tags": ["prompt-engineering"], "links": []}, {"id": "q:61", "num": 61, "title": "What is chunk size and chunk overlap in text splitting?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-chunk-size-and-chunk-overlap-in-text-splitting.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:62", "num": 62, "title": "What is Cosine Similarity vs Euclidean Distance in vector search?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-cosine-similarity-vs-euclidean-distance-in-vector-search.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:63", "num": 63, "title": "What is the 'Lost in the Middle' phenomenon in LLM retrieval?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-the-lost-in-the-middle-phenomenon-in-llm-retrieval.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:64", "num": 64, "title": "How does query rewriting and Hypothetical Document Embeddings (HyDE) work?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./rag-and-vector-databases/how-does-query-rewriting-and-hypothetical-document-embeddings-hyde-work.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:65", "num": 65, "title": "How do GraphRAG and Knowledge Graphs enhance vector retrieval?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./rag-and-vector-databases/how-do-graphrag-and-knowledge-graphs-enhance-vector-retrieval.md", "tags": ["rag-and-vector-databases"], "links": []}, {"id": "q:66", "num": 66, "title": "What is the ReAct loop (Thought, Action, Observation)?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-the-react-loop-thought-action-observation.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:67", "num": 67, "title": "What is an MCP Tool vs an MCP Resource in Model Context Protocol?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-an-mcp-tool-vs-an-mcp-resource-in-model-context-protocol.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:68", "num": 68, "title": "How do you handle tool execution errors in agentic loops?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/how-do-you-handle-tool-execution-errors-in-agentic-loops.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:69", "num": 69, "title": "How does MCP server-client architecture standardize context connections?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-agents-and-mcp/how-does-mcp-server-client-architecture-standardize-context-connections.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:70", "num": 70, "title": "How do you prevent infinite agentic loops and runaway execution?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-agents-and-mcp/how-do-you-prevent-infinite-agentic-loops-and-runaway-execution.md", "tags": ["ai-agents-and-mcp"], "links": []}, {"id": "q:71", "num": 71, "title": "What is Supervised Fine-Tuning (SFT) and when is it required?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-supervised-fine-tuning-sft-and-when-is-it-required.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:72", "num": 72, "title": "What is catastrophic forgetting during LLM fine-tuning?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-catastrophic-forgetting-during-llm-fine-tuning.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:73", "num": 73, "title": "What is LoRA rank r and alpha scaling factor?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-lora-rank-r-and-alpha-scaling-factor.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:74", "num": 74, "title": "How does model distillation transfer knowledge from teacher to student?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./fine-tuning-and-adaptation/how-does-model-distillation-transfer-knowledge-from-teacher-to-student.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:75", "num": 75, "title": "How does Kahneman-Tversky Optimization (KTO) differ from DPO?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./fine-tuning-and-adaptation/how-does-kahneman-tversky-optimization-kto-differ-from-dpo.md", "tags": ["fine-tuning-and-adaptation"], "links": []}, {"id": "q:76", "num": 76, "title": "What is continuous batching and how does it improve GPU utilization?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-continuous-batching-and-how-does-it-improve-gpu-utilization.md", "tags": ["ai-system-design"], "links": ["q:78"]}, {"id": "q:77", "num": 77, "title": "What is the difference between prefill phase and decoding phase?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-the-difference-between-prefill-phase-and-decoding-phase.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:78", "num": 78, "title": "What is GPU VRAM bandwidth and why is decoding memory-bound?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-gpu-vram-bandwidth-and-why-is-decoding-memory-bound.md", "tags": ["ai-system-design"], "links": ["q:76"]}, {"id": "q:79", "num": 79, "title": "How do you design a multi-tenant LLM gateway with rate limits?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-system-design/how-do-you-design-a-multi-tenant-llm-gateway-with-rate-limits.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:80", "num": 80, "title": "How does chunked prefill disaggregate prefill and decoding nodes?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-system-design/how-does-chunked-prefill-disaggregate-prefill-and-decoding-nodes.md", "tags": ["ai-system-design"], "links": []}, {"id": "q:81", "num": 81, "title": "What is prompt versioning and why is it essential?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-prompt-versioning-and-why-is-it-essential.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:82", "num": 82, "title": "What is an OpenTelemetry span in LLM tracing?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-an-opentelemetry-span-in-llm-tracing.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:83", "num": 83, "title": "How do you budget and cap monthly LLM API costs?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/how-do-you-budget-and-cap-monthly-llm-api-costs.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:84", "num": 84, "title": "How do you build a canary deployment pipeline for prompt updates?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llmops-and-production-ai/how-do-you-build-a-canary-deployment-pipeline-for-prompt-updates.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:85", "num": 85, "title": "How do you architect real-time anomaly detection for rogue agent spends?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./llmops-and-production-ai/how-do-you-architect-real-time-anomaly-detection-for-rogue-agent-spends.md", "tags": ["llmops-and-production-ai"], "links": []}, {"id": "q:86", "num": 86, "title": "What is context precision vs context recall in RAG?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-context-precision-vs-context-recall-in-rag.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:87", "num": 87, "title": "What is faithfulness vs answer relevance in LLM evals?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-faithfulness-vs-answer-relevance-in-llm-evals.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:88", "num": 88, "title": "What is ground-truth reference data in evaluation harnesses?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-ground-truth-reference-data-in-evaluation-harnesses.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:89", "num": 89, "title": "How do you measure inter-annotator agreement (Cohen's Kappa) with LLM judges?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./evaluation-and-testing/how-do-you-measure-inter-annotator-agreement-cohens-kappa-with-llm-judges.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:90", "num": 90, "title": "How do you build an automated red teaming harness against jailbreaks?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./evaluation-and-testing/how-do-you-build-an-automated-red-teaming-harness-against-jailbreaks.md", "tags": ["evaluation-and-testing"], "links": []}, {"id": "q:91", "num": 91, "title": "What is system prompt exfiltration and how to prevent it?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-system-prompt-exfiltration-and-how-to-prevent-it.md", "tags": ["ai-safety-and-governance"], "links": ["q:201"]}, {"id": "q:92", "num": 92, "title": "What is data exfiltration via LLM tool calls?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-data-exfiltration-via-llm-tool-calls.md", "tags": ["ai-safety-and-governance"], "links": []}, {"id": "q:93", "num": 93, "title": "What is hallucination and what are its primary causes?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-hallucination-and-what-are-its-primary-causes.md", "tags": ["ai-safety-and-governance"], "links": ["q:205"]}, {"id": "q:94", "num": 94, "title": "How do NeMo Guardrails enforce programmable rails using Colang?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/how-do-nemo-guardrails-enforce-programmable-rails-using-colang.md", "tags": ["ai-safety-and-governance"], "links": ["q:189"]}, {"id": "q:95", "num": 95, "title": "How do you enforce strict RBAC and data isolation in enterprise RAG?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-safety-and-governance/how-do-you-enforce-strict-rbac-and-data-isolation-in-enterprise-rag.md", "tags": ["ai-safety-and-governance"], "links": ["q:188"]}, {"id": "q:96", "num": 96, "title": "What are the most common pitfalls in AI engineering coding interviews?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/what-are-the-most-common-pitfalls-in-ai-engineering-coding-interviews.md", "tags": ["interview-experience"], "links": []}, {"id": "q:97", "num": 97, "title": "How do you explain LLM hallucination mitigation to interviewers?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-do-you-explain-llm-hallucination-mitigation-to-interviewers.md", "tags": ["interview-experience"], "links": []}, {"id": "q:98", "num": 98, "title": "How do you demonstrate production readiness in a take-home AI project?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-do-you-demonstrate-production-readiness-in-a-take-home-ai-project.md", "tags": ["interview-experience"], "links": []}, {"id": "q:99", "num": 99, "title": "How do you answer 'What is your favorite paper or technique in AI'?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./interview-experience/how-do-you-answer-what-is-your-favorite-paper-or-technique-in-ai.md", "tags": ["interview-experience"], "links": []}, {"id": "q:100", "num": 100, "title": "How do you lead an AI system architecture deep dive under ambiguity?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./interview-experience/how-do-you-lead-an-ai-system-architecture-deep-dive-under-ambiguity.md", "tags": ["interview-experience"], "links": []}, {"id": "q:101", "num": 101, "title": "What is tokenization and why can't LLMs process raw string characters directly?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-tokenization-and-why-cant-llms-process-raw-string-characters-directly.md", "tags": ["llm-fundamentals"], "links": ["q:121", "q:13", "q:144"]}, {"id": "q:102", "num": 102, "title": "What is the difference between causal and bidirectional self-attention?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-the-difference-between-causal-and-bidirectional-self-attention.md", "tags": ["llm-fundamentals"], "links": ["q:105", "q:114", "q:12"]}, {"id": "q:103", "num": 103, "title": "What is a logit and how is it converted to token probabilities via Softmax?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-a-logit-and-how-is-it-converted-to-token-probabilities-via-softmax.md", "tags": ["llm-fundamentals"], "links": ["q:142", "q:163", "q:51"]}, {"id": "q:104", "num": 104, "title": "What is an attention mask and why is it needed during batch processing?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-an-attention-mask-and-why-is-it-needed-during-batch-processing.md", "tags": ["llm-fundamentals"], "links": ["q:107", "q:143", "q:156"]}, {"id": "q:105", "num": 105, "title": "What is positional encoding and why do Transformers need it?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./llm-fundamentals/what-is-positional-encoding-and-why-do-transformers-need-it.md", "tags": ["llm-fundamentals"], "links": ["q:102", "q:108", "q:14"]}, {"id": "q:106", "num": 106, "title": "How do Mixture of Experts (MoE) architectures scale parameter count efficiently?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llm-fundamentals/how-do-mixture-of-experts-moe-architectures-scale-parameter-count-efficiently.md", "tags": ["llm-fundamentals"], "links": ["q:147", "q:150", "q:157"]}, {"id": "q:107", "num": 107, "title": "What is linear attention and how does it attempt to solve quadratic complexity?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llm-fundamentals/what-is-linear-attention-and-how-does-it-attempt-to-solve-quadratic-complexity.md", "tags": ["llm-fundamentals"], "links": ["q:104", "q:109", "q:159"]}, {"id": "q:108", "num": 108, "title": "How does sliding window attention (SWA) reduce memory usage in long-context models?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llm-fundamentals/how-does-sliding-window-attention-swa-reduce-memory-usage-in-long-context-models.md", "tags": ["llm-fundamentals"], "links": ["q:105", "q:128", "q:152", "q:156"]}, {"id": "q:109", "num": 109, "title": "How do state space models (SSMs) like Mamba compare to Transformer self-attention?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./llm-fundamentals/how-do-state-space-models-ssms-like-mamba-compare-to-transformer-self-attention.md", "tags": ["llm-fundamentals"], "links": ["q:107", "q:157", "q:159"]}, {"id": "q:110", "num": 110, "title": "How does Differential Attention work to suppress noise and improve long-context focus?", "topic": "LLM Fundamentals", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./llm-fundamentals/how-does-differential-attention-work-to-suppress-noise-and-improve-long-context-focus.md", "tags": ["llm-fundamentals"], "links": ["q:128", "q:176", "q:178"]}, {"id": "q:111", "num": 111, "title": "What is prompt priming and how does it set expectations for LLM responses?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/what-is-prompt-priming-and-how-does-it-set-expectations-for-llm-responses.md", "tags": ["prompt-engineering"], "links": ["q:135", "q:164", "q:191"]}, {"id": "q:112", "num": 112, "title": "What is negative prompting and how do you instruct models what not to do?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/what-is-negative-prompting-and-how-do-you-instruct-models-what-not-to-do.md", "tags": ["prompt-engineering"], "links": ["q:173", "q:184", "q:195"]}, {"id": "q:113", "num": 113, "title": "What is meta-prompting and how can an LLM generate or optimize its own prompts?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/what-is-meta-prompting-and-how-can-an-llm-generate-or-optimize-its-own-prompts.md", "tags": ["prompt-engineering"], "links": ["q:118", "q:136", "q:174"]}, {"id": "q:114", "num": 114, "title": "How do you format multi-turn dialogue histories for chat models?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/how-do-you-format-multi-turn-dialogue-histories-for-chat-models.md", "tags": ["prompt-engineering"], "links": ["q:102", "q:132", "q:138", "q:154"]}, {"id": "q:115", "num": 115, "title": "What is context window truncation and how do you handle overflow gracefully?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Beginner", "color": "#10b981", "url": "./prompt-engineering/what-is-context-window-truncation-and-how-do-you-handle-overflow-gracefully.md", "tags": ["prompt-engineering"], "links": ["q:128", "q:152", "q:156"]}, {"id": "q:116", "num": 116, "title": "How does Directional Stimulus Prompting guide LLMs toward specific output aspects?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./prompt-engineering/how-does-directional-stimulus-prompting-guide-llms-toward-specific-output-aspects.md", "tags": ["prompt-engineering"], "links": ["q:122", "q:127", "q:153"]}, {"id": "q:117", "num": 117, "title": "How does Active Prompting dynamically select the best exemplars for few-shot learning?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./prompt-engineering/how-does-active-prompting-dynamically-select-the-best-exemplars-for-few-shot-learning.md", "tags": ["prompt-engineering"], "links": ["q:118", "q:168", "q:175"]}, {"id": "q:118", "num": 118, "title": "How does Automatic Prompt Engineer (APE) optimize prompt selection using search?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./prompt-engineering/how-does-automatic-prompt-engineer-ape-optimize-prompt-selection-using-search.md", "tags": ["prompt-engineering"], "links": ["q:113", "q:117", "q:166", "q:177"]}, {"id": "q:119", "num": 119, "title": "How does Graph-of-Thoughts (GoT) extend Tree-of-Thoughts for arbitrary network reasoning?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./prompt-engineering/how-does-graph-of-thoughts-got-extend-tree-of-thoughts-for-arbitrary-network-reasoning.md", "tags": ["prompt-engineering"], "links": ["q:129", "q:136", "q:139", "q:200"]}, {"id": "q:120", "num": 120, "title": "How do soft prompts and prompt tuning differ from discrete text prompts?", "topic": "Prompt Engineering", "section": "Foundations \u0026 Models", "difficulty": "Advanced", "color": "#ef4444", "url": "./prompt-engineering/how-do-soft-prompts-and-prompt-tuning-differ-from-discrete-text-prompts.md", "tags": ["prompt-engineering"], "links": ["q:145", "q:146", "q:194"]}, {"id": "q:121", "num": 121, "title": "What is an embedding model and how does vector dimension affect search quality?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-an-embedding-model-and-how-does-vector-dimension-affect-search-quality.md", "tags": ["rag-and-vector-databases"], "links": ["q:101", "q:147", "q:167"]}, {"id": "q:122", "num": 122, "title": "What is semantic search and how does it differ from traditional keyword search?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-semantic-search-and-how-does-it-differ-from-traditional-keyword-search.md", "tags": ["rag-and-vector-databases"], "links": ["q:116", "q:127", "q:188", "q:194"]}, {"id": "q:123", "num": 123, "title": "What is document metadata filtering in vector databases?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-document-metadata-filtering-in-vector-databases.md", "tags": ["rag-and-vector-databases"], "links": ["q:169", "q:185", "q:188", "q:199"]}, {"id": "q:124", "num": 124, "title": "What is single-representation vs multi-representation document retrieval?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-single-representation-vs-multi-representation-document-retrieval.md", "tags": ["rag-and-vector-databases"], "links": ["q:125", "q:126", "q:129", "q:178"]}, {"id": "q:125", "num": 125, "title": "What is document parsing and why do table formats break standard text splitters?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./rag-and-vector-databases/what-is-document-parsing-and-why-do-table-formats-break-standard-text-splitters.md", "tags": ["rag-and-vector-databases"], "links": ["q:124", "q:181", "q:199"]}, {"id": "q:126", "num": 126, "title": "How does Parent-Document Retrieval link fine-grained vector chunks back to full parent context?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./rag-and-vector-databases/how-does-parent-document-retrieval-link-fine-grained-vector-chunks-back-to-full-parent-context.md", "tags": ["rag-and-vector-databases"], "links": ["q:124", "q:152", "q:178"]}, {"id": "q:127", "num": 127, "title": "How does Reciprocal Rank Fusion (RRF) combine scores from sparse and dense retrievers?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./rag-and-vector-databases/how-does-reciprocal-rank-fusion-rrf-combine-scores-from-sparse-and-dense-retrievers.md", "tags": ["rag-and-vector-databases"], "links": ["q:116", "q:122", "q:137", "q:178", "q:199"]}, {"id": "q:128", "num": 128, "title": "How does contextual compression reduce context window token usage during RAG?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./rag-and-vector-databases/how-does-contextual-compression-reduce-context-window-token-usage-during-rag.md", "tags": ["rag-and-vector-databases"], "links": ["q:108", "q:110", "q:115", "q:152", "q:178"]}, {"id": "q:129", "num": 129, "title": "How does RAPTOR perform hierarchical tree-organized retrieval?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./rag-and-vector-databases/how-does-raptor-perform-hierarchical-tree-organized-retrieval.md", "tags": ["rag-and-vector-databases"], "links": ["q:119", "q:124", "q:199"]}, {"id": "q:130", "num": 130, "title": "How does Self-RAG train models to dynamically decide when to retrieve, evaluate, and critique documents?", "topic": "RAG and Vector Databases", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./rag-and-vector-databases/how-does-self-rag-train-models-to-dynamically-decide-when-to-retrieve-evaluate-and-critique-documents.md", "tags": ["rag-and-vector-databases"], "links": ["q:136", "q:176", "q:178"]}, {"id": "q:131", "num": 131, "title": "What is an agent tool schema and how do parameters get validated before invocation?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-an-agent-tool-schema-and-how-do-parameters-get-validated-before-invocation.md", "tags": ["ai-agents-and-mcp"], "links": ["q:135", "q:140", "q:190"]}, {"id": "q:132", "num": 132, "title": "What is an agent state machine and how does state persist across multi-step execution?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-an-agent-state-machine-and-how-does-state-persist-across-multi-step-execution.md", "tags": ["ai-agents-and-mcp"], "links": ["q:114", "q:139", "q:169", "q:189", "q:200"]}, {"id": "q:133", "num": 133, "title": "What is human-in-the-loop (HITL) approval in autonomous agent workflows?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-human-in-the-loop-hitl-approval-in-autonomous-agent-workflows.md", "tags": ["ai-agents-and-mcp"], "links": ["q:184", "q:190", "q:200"]}, {"id": "q:134", "num": 134, "title": "What is synchronous vs asynchronous tool execution in AI agents?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-synchronous-vs-asynchronous-tool-execution-in-ai-agents.md", "tags": ["ai-agents-and-mcp"], "links": ["q:138", "q:154", "q:163"]}, {"id": "q:135", "num": 135, "title": "What is an agent system prompt and how does it define tool availability?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-agents-and-mcp/what-is-an-agent-system-prompt-and-how-does-it-define-tool-availability.md", "tags": ["ai-agents-and-mcp"], "links": ["q:111", "q:131", "q:164", "q:191"]}, {"id": "q:136", "num": 136, "title": "How does Plan-and-Solve prompting decompose complex tasks into explicit execution sub-goals?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-agents-and-mcp/how-does-plan-and-solve-prompting-decompose-complex-tasks-into-explicit-execution-sub-goals.md", "tags": ["ai-agents-and-mcp"], "links": ["q:113", "q:119", "q:130", "q:139", "q:200"]}, {"id": "q:137", "num": 137, "title": "How does Agentic Search handle real-time pagination and query refinement?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-agents-and-mcp/how-does-agentic-search-handle-real-time-pagination-and-query-refinement.md", "tags": ["ai-agents-and-mcp"], "links": ["q:127", "q:181", "q:199"]}, {"id": "q:138", "num": 138, "title": "How does MCP handle streaming updates and progress reporting from long-running tools?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-agents-and-mcp/how-does-mcp-handle-streaming-updates-and-progress-reporting-from-long-running-tools.md", "tags": ["ai-agents-and-mcp"], "links": ["q:114", "q:134", "q:154", "q:190"]}, {"id": "q:139", "num": 139, "title": "How do DAG-based Multi-Agent Orchestrators prevent state deadlocks?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-agents-and-mcp/how-do-dag-based-multi-agent-orchestrators-prevent-state-deadlocks.md", "tags": ["ai-agents-and-mcp"], "links": ["q:119", "q:132", "q:136", "q:189", "q:200"]}, {"id": "q:140", "num": 140, "title": "How do sandbox execution environments secure Code Interpreter tools?", "topic": "AI Agents and MCP", "section": "Retrieval \u0026 Agentic Systems", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-agents-and-mcp/how-do-sandbox-execution-environments-secure-code-interpreter-tools.md", "tags": ["ai-agents-and-mcp"], "links": ["q:131", "q:190", "q:200", "q:203"]}, {"id": "q:141", "num": 141, "title": "What is dataset formatting for instruction tuning (Alpaca vs ShareGPT formats)?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-dataset-formatting-for-instruction-tuning-alpaca-vs-sharegpt-formats.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:145", "q:149", "q:194"]}, {"id": "q:142", "num": 142, "title": "What is learning rate scheduling (cosine decay) during LLM fine-tuning?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-learning-rate-scheduling-cosine-decay-during-llm-fine-tuning.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:103", "q:143", "q:150"]}, {"id": "q:143", "num": 143, "title": "What is gradient accumulation and how does it simulate larger batch sizes on small GPUs?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-gradient-accumulation-and-how-does-it-simulate-larger-batch-sizes-on-small-gpus.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:104", "q:142", "q:144", "q:150"]}, {"id": "q:144", "num": 144, "title": "What is mixed precision training (FP16 vs BF16) and why is BF16 preferred on modern GPUs?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-mixed-precision-training-fp16-vs-bf16-and-why-is-bf16-preferred-on-modern-gpus.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:101", "q:143", "q:147"]}, {"id": "q:145", "num": 145, "title": "What is weight merging in LoRA and why does it eliminate inference latency penalties?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./fine-tuning-and-adaptation/what-is-weight-merging-in-lora-and-why-does-it-eliminate-inference-latency-penalties.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:120", "q:141", "q:146", "q:194"]}, {"id": "q:146", "num": 146, "title": "How does DoRA (Weight-Decomposed Low-Rank Adaptation) improve directional weight updates over LoRA?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./fine-tuning-and-adaptation/how-does-dora-weight-decomposed-low-rank-adaptation-improve-directional-weight-updates-over-lora.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:120", "q:145", "q:149", "q:150"]}, {"id": "q:147", "num": 147, "title": "How does GGUF format enable quantization and CPU/GPU offloading in llama.cpp?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./fine-tuning-and-adaptation/how-does-gguf-format-enable-quantization-and-cpu-gpu-offloading-in-llama-cpp.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:106", "q:121", "q:144", "q:148"]}, {"id": "q:148", "num": 148, "title": "How does AWQ (Activation-aware Weight Quantization) preserve critical weights compared to GPTQ?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./fine-tuning-and-adaptation/how-does-awq-activation-aware-weight-quantization-preserve-critical-weights-compared-to-gptq.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:147", "q:157", "q:159"]}, {"id": "q:149", "num": 149, "title": "How does ORPO perform SFT and alignment in a single step without reference models?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./fine-tuning-and-adaptation/how-does-orpo-perform-sft-and-alignment-in-a-single-step-without-reference-models.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:141", "q:146", "q:175"]}, {"id": "q:150", "num": 150, "title": "How does DeepSpeed ZeRO stage 1, 2, and 3 partition optimizer states, gradients, and parameters?", "topic": "Fine-Tuning and Adaptation", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./fine-tuning-and-adaptation/how-does-deepspeed-zero-stage-1-2-and-3-partition-optimizer-states-gradients-and-parameters.md", "tags": ["fine-tuning-and-adaptation"], "links": ["q:106", "q:142", "q:143", "q:146", "q:157"]}, {"id": "q:151", "num": 151, "title": "What is load balancing for LLM inference clusters across multi-region GPU pools?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-load-balancing-for-llm-inference-clusters-across-multi-region-gpu-pools.md", "tags": ["ai-system-design"], "links": ["q:153", "q:154", "q:169", "q:196"]}, {"id": "q:152", "num": 152, "title": "What is prefix caching (prompt caching) and how does it eliminate redundant KV computation?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-prefix-caching-prompt-caching-and-how-does-it-eliminate-redundant-kv-computation.md", "tags": ["ai-system-design"], "links": ["q:108", "q:115", "q:126", "q:128", "q:159", "q:160"]}, {"id": "q:153", "num": 153, "title": "What is an LLM router and how does it dynamically direct queries based on complexity?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-an-llm-router-and-how-does-it-dynamically-direct-queries-based-on-complexity.md", "tags": ["ai-system-design"], "links": ["q:116", "q:151", "q:162", "q:169"]}, {"id": "q:154", "num": 154, "title": "What is connection pooling and keep-alive strategy for high-throughput LLM streaming APIs?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-connection-pooling-and-keep-alive-strategy-for-high-throughput-llm-streaming-apis.md", "tags": ["ai-system-design"], "links": ["q:114", "q:134", "q:138", "q:151", "q:163"]}, {"id": "q:155", "num": 155, "title": "What is graceful degradation in AI services when model providers experience downtime?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-system-design/what-is-graceful-degradation-in-ai-services-when-model-providers-experience-downtime.md", "tags": ["ai-system-design"], "links": ["q:165", "q:169", "q:196"]}, {"id": "q:156", "num": 156, "title": "How does Chunked Prefill prevent decoding latency spikes during concurrent batch processing?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-system-design/how-does-chunked-prefill-prevent-decoding-latency-spikes-during-concurrent-batch-processing.md", "tags": ["ai-system-design"], "links": ["q:104", "q:108", "q:115", "q:159"]}, {"id": "q:157", "num": 157, "title": "How do tensor parallelism (TP) and pipeline parallelism (PP) split large model weights across multi-GPU nodes?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-system-design/how-do-tensor-parallelism-tp-and-pipeline-parallelism-pp-split-large-model-weights-across-multi-gpu-nodes.md", "tags": ["ai-system-design"], "links": ["q:106", "q:109", "q:148", "q:150", "q:196"]}, {"id": "q:158", "num": 158, "title": "How does Medusa multi-head decoding accelerate inference without a separate draft model?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-system-design/how-does-medusa-multi-head-decoding-accelerate-inference-without-a-separate-draft-model.md", "tags": ["ai-system-design"], "links": ["q:159", "q:196"]}, {"id": "q:159", "num": 159, "title": "How does vLLM PagedAttention manage Virtual Memory Pages to eliminate KV cache fragmentation?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-system-design/how-does-vllm-pagedattention-manage-virtual-memory-pages-to-eliminate-kv-cache-fragmentation.md", "tags": ["ai-system-design"], "links": ["q:107", "q:109", "q:148", "q:152", "q:156", "q:158", "q:160", "q:199"]}, {"id": "q:160", "num": 160, "title": "How to design a global multi-region AI inference architecture with sub-100ms TTFT SLAs?", "topic": "AI System Design", "section": "Adaptation \u0026 System Design", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-system-design/how-to-design-a-global-multi-region-ai-inference-architecture-with-sub-100ms-ttft-slas.md", "tags": ["ai-system-design"], "links": ["q:152", "q:159", "q:199"]}, {"id": "q:161", "num": 161, "title": "What is structured logging for LLM prompts, completions, and token metrics?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-structured-logging-for-llm-prompts-completions-and-token-metrics.md", "tags": ["llmops-and-production-ai"], "links": ["q:162", "q:163", "q:170", "q:182"]}, {"id": "q:162", "num": 162, "title": "What is cost attribution modeling per user, team, and organization in LLM applications?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-cost-attribution-modeling-per-user-team-and-organization-in-llm-applications.md", "tags": ["llmops-and-production-ai"], "links": ["q:153", "q:161", "q:169"]}, {"id": "q:163", "num": 163, "title": "What is SLA/SLO monitoring for Time-to-First-Token (TTFT) and throughput (Tokens/sec)?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-sla-slo-monitoring-for-time-to-first-token-ttft-and-throughput-tokens-sec.md", "tags": ["llmops-and-production-ai"], "links": ["q:103", "q:134", "q:154", "q:161"]}, {"id": "q:164", "num": 164, "title": "What is semantic versioning for prompts and model configurations in production deployments?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-semantic-versioning-for-prompts-and-model-configurations-in-production-deployments.md", "tags": ["llmops-and-production-ai"], "links": ["q:111", "q:135", "q:166"]}, {"id": "q:165", "num": 165, "title": "What is fallback configuration when primary LLM providers return 5xx errors?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./llmops-and-production-ai/what-is-fallback-configuration-when-primary-llm-providers-return-5xx-errors.md", "tags": ["llmops-and-production-ai"], "links": ["q:155", "q:169", "q:196"]}, {"id": "q:166", "num": 166, "title": "How do you set up automated prompt regression pipelines in GitHub Actions CI/CD?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llmops-and-production-ai/how-do-you-set-up-automated-prompt-regression-pipelines-in-github-actions-ci-cd.md", "tags": ["llmops-and-production-ai"], "links": ["q:118", "q:164", "q:173", "q:192", "q:198"]}, {"id": "q:167", "num": 167, "title": "How to detect semantic drift in user queries using embedding clustering over time?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llmops-and-production-ai/how-to-detect-semantic-drift-in-user-queries-using-embedding-clustering-over-time.md", "tags": ["llmops-and-production-ai"], "links": ["q:121", "q:168", "q:178"]}, {"id": "q:168", "num": 168, "title": "How to build a continuous evaluation pipeline sampling production traces for human review?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./llmops-and-production-ai/how-to-build-a-continuous-evaluation-pipeline-sampling-production-traces-for-human-review.md", "tags": ["llmops-and-production-ai"], "links": ["q:117", "q:167", "q:174", "q:175"]}, {"id": "q:169", "num": 169, "title": "How to design an enterprise-grade LLM Gateway with dynamic fallback, tenant rate limiting, and cost allocation?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./llmops-and-production-ai/how-to-design-an-enterprise-grade-llm-gateway-with-dynamic-fallback-tenant-rate-limiting-and-cost-allocation.md", "tags": ["llmops-and-production-ai"], "links": ["q:123", "q:132", "q:151", "q:153", "q:155", "q:162", "q:165"]}, {"id": "q:170", "num": 170, "title": "How to handle confidential enterprise telemetry and PII sanitization in compliance-heavy industries?", "topic": "LLMOps and Production AI", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./llmops-and-production-ai/how-to-handle-confidential-enterprise-telemetry-and-pii-sanitization-in-compliance-heavy-industries.md", "tags": ["llmops-and-production-ai"], "links": ["q:161", "q:182", "q:185", "q:188"]}, {"id": "q:171", "num": 171, "title": "What is exact match (EM) vs F1 score in extraction and classification evals?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-exact-match-em-vs-f1-score-in-extraction-and-classification-evals.md", "tags": ["evaluation-and-testing"], "links": ["q:172", "q:173", "q:178"]}, {"id": "q:172", "num": 172, "title": "What is BLEU and ROUGE scoring and why are they inadequate for modern LLM evaluation?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-bleu-and-rouge-scoring-and-why-are-they-inadequate-for-modern-llm-evaluation.md", "tags": ["evaluation-and-testing"], "links": ["q:171", "q:176", "q:178"]}, {"id": "q:173", "num": 173, "title": "What is assertion testing in LLM unit tests?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-assertion-testing-in-llm-unit-tests.md", "tags": ["evaluation-and-testing"], "links": ["q:112", "q:166", "q:171", "q:197"]}, {"id": "q:174", "num": 174, "title": "What is synthetic evaluation dataset generation and when should you use it?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-synthetic-evaluation-dataset-generation-and-when-should-you-use-it.md", "tags": ["evaluation-and-testing"], "links": ["q:113", "q:168", "q:178"]}, {"id": "q:175", "num": 175, "title": "What is human evaluation (RLHF human rating) and how do you design annotation rubrics?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Beginner", "color": "#10b981", "url": "./evaluation-and-testing/what-is-human-evaluation-rlhf-human-rating-and-how-do-you-design-annotation-rubrics.md", "tags": ["evaluation-and-testing"], "links": ["q:117", "q:149", "q:168", "q:177", "q:179"]}, {"id": "q:176", "num": 176, "title": "How to measure model hallucination rate using NLI (Natural Language Inference) entailment models?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./evaluation-and-testing/how-to-measure-model-hallucination-rate-using-nli-natural-language-inference-entailment-models.md", "tags": ["evaluation-and-testing"], "links": ["q:110", "q:130", "q:172", "q:178", "q:195"]}, {"id": "q:177", "num": 177, "title": "How to mitigate Verbosity Bias and Position Bias in LLM-as-a-Judge evaluations?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./evaluation-and-testing/how-to-mitigate-verbosity-bias-and-position-bias-in-llm-as-a-judge-evaluations.md", "tags": ["evaluation-and-testing"], "links": ["q:118", "q:175", "q:179"]}, {"id": "q:178", "num": 178, "title": "How to build an automated RAG evaluation harness measuring Context Precision and Recall?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./evaluation-and-testing/how-to-build-an-automated-rag-evaluation-harness-measuring-context-precision-and-recall.md", "tags": ["evaluation-and-testing"], "links": ["q:110", "q:124", "q:126", "q:127", "q:128", "q:130", "q:167", "q:171", "q:172", "q:174", "q:176", "q:192", "q:195"]}, {"id": "q:179", "num": 179, "title": "How to implement Elo rating systems to benchmark model performance?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./evaluation-and-testing/how-to-implement-elo-rating-systems-to-benchmark-model-performance.md", "tags": ["evaluation-and-testing"], "links": ["q:175", "q:177", "q:192"]}, {"id": "q:180", "num": 180, "title": "How to build automated adversarial red teaming engines to discover safety guardrail bypasses?", "topic": "Evaluation and Testing", "section": "Operations \u0026 Quality", "difficulty": "Advanced", "color": "#ef4444", "url": "./evaluation-and-testing/how-to-build-automated-adversarial-red-teaming-engines-to-discover-safety-guardrail-bypasses.md", "tags": ["evaluation-and-testing"], "links": ["q:181", "q:184", "q:197"]}, {"id": "q:181", "num": 181, "title": "What is indirect prompt injection and how does it occur when parsing web pages/documents?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-indirect-prompt-injection-and-how-does-it-occur-when-parsing-web-pages-documents.md", "tags": ["ai-safety-and-governance"], "links": ["q:125", "q:137", "q:180", "q:183", "q:186"]}, {"id": "q:182", "num": 182, "title": "What is PII masking (pseudonymization) and how do Presidio/Regex filters protect user privacy?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-pii-masking-pseudonymization-and-how-do-presidio-regex-filters-protect-user-privacy.md", "tags": ["ai-safety-and-governance"], "links": ["q:161", "q:170", "q:188", "q:44"]}, {"id": "q:183", "num": 183, "title": "What is copyright infringement risk in RAG and fine-tuning datasets?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-copyright-infringement-risk-in-rag-and-fine-tuning-datasets.md", "tags": ["ai-safety-and-governance"], "links": ["q:181", "q:185", "q:186", "q:204"]}, {"id": "q:184", "num": 184, "title": "What is model jailbreaking and how do safety classifiers block it?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-model-jailbreaking-and-how-do-safety-classifiers-block-it.md", "tags": ["ai-safety-and-governance"], "links": ["q:112", "q:133", "q:180", "q:187"]}, {"id": "q:185", "num": 185, "title": "What is data lineage tracking for RAG documents and enterprise vector stores?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-data-lineage-tracking-for-rag-documents-and-enterprise-vector-stores.md", "tags": ["ai-safety-and-governance"], "links": ["q:123", "q:170", "q:183", "q:188", "q:201", "q:202", "q:203", "q:204"]}, {"id": "q:186", "num": 186, "title": "How to prevent Data Exfiltration via Markdown image tags and hidden web beacons in LLM outputs?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/how-to-prevent-data-exfiltration-via-markdown-image-tags-and-hidden-web-beacons-in-llm-outputs.md", "tags": ["ai-safety-and-governance"], "links": ["q:181", "q:183", "q:190"]}, {"id": "q:187", "num": 187, "title": "How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/how-does-llama-guard-taxonomy-classify-unsafe-inputs-and-outputs-across-safety-categories.md", "tags": ["ai-safety-and-governance"], "links": ["q:184", "q:188", "q:189", "q:45"]}, {"id": "q:188", "num": 188, "title": "How to enforce Role-Based Access Control (RBAC) filtering in multi-tenant RAG vector search?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/how-to-enforce-role-based-access-control-rbac-filtering-in-multi-tenant-rag-vector-search.md", "tags": ["ai-safety-and-governance"], "links": ["q:122", "q:123", "q:170", "q:182", "q:185", "q:187", "q:95"]}, {"id": "q:189", "num": 189, "title": "How do NeMo Guardrails use Colang state flows to strictly control conversation trajectories?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-safety-and-governance/how-do-nemo-guardrails-use-colang-state-flows-to-strictly-control-conversation-trajectories.md", "tags": ["ai-safety-and-governance"], "links": ["q:132", "q:139", "q:187", "q:94"]}, {"id": "q:190", "num": 190, "title": "How to audit and secure Model Context Protocol (MCP) servers against unauthorized tool invocation?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-safety-and-governance/how-to-audit-and-secure-model-context-protocol-mcp-servers-against-unauthorized-tool-invocation.md", "tags": ["ai-safety-and-governance"], "links": ["q:131", "q:133", "q:138", "q:140", "q:186"]}, {"id": "q:191", "num": 191, "title": "How to prepare for an AI Engineer coding interview (raw SDK vs frameworks)?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-to-prepare-for-an-ai-engineer-coding-interview-raw-sdk-vs-frameworks.md", "tags": ["interview-experience"], "links": ["q:111", "q:135", "q:193", "q:197"]}, {"id": "q:192", "num": 192, "title": "How to structure an AI portfolio project to catch the eye of hiring managers?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-to-structure-an-ai-portfolio-project-to-catch-the-eye-of-hiring-managers.md", "tags": ["interview-experience"], "links": ["q:166", "q:178", "q:179", "q:198"]}, {"id": "q:193", "num": 193, "title": "What are the core differences between AI Engineer, ML Engineer, and FDE roles?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/what-are-the-core-differences-between-ai-engineer-ml-engineer-and-fde-roles.md", "tags": ["interview-experience"], "links": ["q:191", "q:194", "q:198"]}, {"id": "q:194", "num": 194, "title": "How to answer scenario questions about trade-offs between RAG and Fine-Tuning?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-to-answer-scenario-questions-about-trade-offs-between-rag-and-fine-tuning.md", "tags": ["interview-experience"], "links": ["q:120", "q:122", "q:141", "q:145", "q:193"]}, {"id": "q:195", "num": 195, "title": "How to explain LLM hallucination mitigation in a system design interview?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./interview-experience/how-to-explain-llm-hallucination-mitigation-in-a-system-design-interview.md", "tags": ["interview-experience"], "links": ["q:112", "q:176", "q:178"]}, {"id": "q:196", "num": 196, "title": "How to lead an ambiguous AI system design interview from requirements to architecture?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./interview-experience/how-to-lead-an-ambiguous-ai-system-design-interview-from-requirements-to-architecture.md", "tags": ["interview-experience"], "links": ["q:151", "q:155", "q:157", "q:158", "q:165", "q:199"]}, {"id": "q:197", "num": 197, "title": "How to handle live coding failures and non-deterministic model outputs during interviews?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./interview-experience/how-to-handle-live-coding-failures-and-non-deterministic-model-outputs-during-interviews.md", "tags": ["interview-experience"], "links": ["q:173", "q:180", "q:191"]}, {"id": "q:198", "num": 198, "title": "How to demonstrate production-grade AI engineering rigor over toy notebook demos?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./interview-experience/how-to-demonstrate-production-grade-ai-engineering-rigor-over-toy-notebook-demos.md", "tags": ["interview-experience"], "links": ["q:166", "q:192", "q:193"]}, {"id": "q:199", "num": 199, "title": "How to conduct a complete system design interview for a multi-tenant enterprise RAG search platform?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./interview-experience/how-to-conduct-a-complete-system-design-interview-for-a-multi-tenant-enterprise-rag-search-platform.md", "tags": ["interview-experience"], "links": ["q:123", "q:125", "q:127", "q:129", "q:137", "q:159", "q:160", "q:196"]}, {"id": "q:200", "num": 200, "title": "How to design an autonomous multi-agent software engineering system in a staff-level interview?", "topic": "Interview Experience", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./interview-experience/how-to-design-an-autonomous-multi-agent-software-engineering-system-in-a-staff-level-interview.md", "tags": ["interview-experience"], "links": ["q:119", "q:132", "q:133", "q:136", "q:139", "q:140"]}, {"id": "q:201", "num": 201, "title": "What is model inversion and membership inference, and how do you defend against them?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-safety-and-governance/what-is-model-inversion-and-membership-inference-and-how-do-you-defend-against-them.md", "tags": ["ai-safety-and-governance"], "links": ["q:185", "q:202", "q:205", "q:91"]}, {"id": "q:202", "num": 202, "title": "What is training data poisoning and how do backdoor triggers survive fine-tuning?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Advanced", "color": "#ef4444", "url": "./ai-safety-and-governance/what-is-training-data-poisoning-and-how-do-backdoor-triggers-survive-fine-tuning.md", "tags": ["ai-safety-and-governance"], "links": ["q:185", "q:201", "q:203"]}, {"id": "q:203", "num": 203, "title": "What is model supply chain security and why are serialized model weights dangerous?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/what-is-model-supply-chain-security-and-why-are-serialized-model-weights-dangerous.md", "tags": ["ai-safety-and-governance"], "links": ["q:140", "q:185", "q:202"]}, {"id": "q:204", "num": 204, "title": "How does the EU AI Act classify AI systems into risk tiers?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Intermediate", "color": "#f59e0b", "url": "./ai-safety-and-governance/how-does-the-eu-ai-act-classify-ai-systems-into-risk-tiers.md", "tags": ["ai-safety-and-governance"], "links": ["q:183", "q:185", "q:205"]}, {"id": "q:205", "num": 205, "title": "What is the NIST AI Risk Management Framework and how do its four functions structure AI governance?", "topic": "AI Safety and Governance", "section": "Governance \u0026 Career Track", "difficulty": "Beginner", "color": "#10b981", "url": "./ai-safety-and-governance/what-is-the-nist-ai-risk-management-framework-and-how-do-its-four-functions-structure-ai-governance.md", "tags": ["ai-safety-and-governance"], "links": ["q:201", "q:204", "q:93"]}], "topics": {"LLM Fundamentals": {"section": "Foundations \u0026 Models", "color": "#3b82f6", "url": "./llm-fundamentals/README.md"}, "Prompt Engineering": {"section": "Foundations \u0026 Models", "color": "#3b82f6", "url": "./prompt-engineering/README.md"}, "RAG and Vector Databases": {"section": "Retrieval \u0026 Agentic Systems", "color": "#8b5cf6", "url": "./rag-and-vector-databases/README.md"}, "AI Agents and MCP": {"section": "Retrieval \u0026 Agentic Systems", "color": "#8b5cf6", "url": "./ai-agents-and-mcp/README.md"}, "Fine-Tuning and Adaptation": {"section": "Adaptation \u0026 System Design", "color": "#f59e0b", "url": "./fine-tuning-and-adaptation/README.md"}, "AI System Design": {"section": "Adaptation \u0026 System Design", "color": "#f59e0b", "url": "./ai-system-design/README.md"}, "LLMOps and Production AI": {"section": "Operations \u0026 Quality", "color": "#10b981", "url": "./llmops-and-production-ai/README.md"}, "Evaluation and Testing": {"section": "Operations \u0026 Quality", "color": "#10b981", "url": "./evaluation-and-testing/README.md"}, "AI Safety and Governance": {"section": "Governance \u0026 Career Track", "color": "#ef4444", "url": "./ai-safety-and-governance/README.md"}, "Interview Experience": {"section": "Governance \u0026 Career Track", "color": "#ef4444", "url": "./interview-experience/README.md"}}, "topicOrder": ["LLM Fundamentals", "Prompt Engineering", "RAG and Vector Databases", "AI Agents and MCP", "Fine-Tuning and Adaptation", "AI System Design", "LLMOps and Production AI", "Evaluation and Testing", "AI Safety and Governance", "Interview Experience"], "sectionOrder": ["Foundations \u0026 Models", "Retrieval \u0026 Agentic Systems", "Adaptation \u0026 System Design", "Operations \u0026 Quality", "Governance \u0026 Career Track"], "crossLinks": 213, "repoBlob": "https://github.com/mchittineni/ultimate-ai-engineering-guide/blob/main/"};
+const Q = DATA.questions;
+const BY_ID = new Map(Q.map(q => [q.id, q]));
+const TAU = Math.PI * 2;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/* The data's colours were chosen against a dark ground. On a light ground some
+   of them fall under the 3:1 floor WCAG 1.4.11 sets for non-text graphics --
+   amber at 1.89:1, emerald at 2.23:1 -- and read as washed out.
+
+   Darkening the whole palette to fix those two turns the page muddy, so this
+   adjusts each colour only as far as it needs to go: anything already clearing
+   the floor is left exactly as-is, and the rest are mixed toward the ink in
+   small steps until they just clear it. Blue, violet and rose come through
+   untouched; only amber and emerald move. */
+const INK_RGB = [15, 22, 32];
+const LIGHT_GROUND = [237, 241, 245];
+const MIN_CONTRAST = 3.2;
+const toneCache = new Map();
+
+const isLight = () => document.documentElement.getAttribute('data-theme') !== 'dark';
+
+const channel = c => {
+  const v = c / 255;
+  return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+};
+const luminance = rgb => 0.2126 * channel(rgb[0]) + 0.7152 * channel(rgb[1]) + 0.0722 * channel(rgb[2]);
+
+function contrast(a, b) {
+  const la = luminance(a), lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+function tone(hex) {
+  if (!isLight()) return hex;
+  if (toneCache.has(hex)) return toneCache.get(hex);
+
+  const h = hex.replace('#', '');
+  const rgb = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
+
+  let out = hex;
+  if (contrast(rgb, LIGHT_GROUND) < MIN_CONTRAST) {
+    for (let mix = 0.05; mix <= 0.6; mix += 0.05) {
+      const shifted = rgb.map((c, i) => Math.round(c + (INK_RGB[i] - c) * mix));
+      if (contrast(shifted, LIGHT_GROUND) >= MIN_CONTRAST) {
+        out = '#' + shifted.map(v => v.toString(16).padStart(2, '0')).join('');
+        break;
+      }
+    }
+  }
+  toneCache.set(hex, out);
+  return out;
+}
+
+const el = (name, attrs) => {
+  const node = document.createElementNS(SVG_NS, name);
+  for (const k in attrs) node.setAttribute(k, attrs[k]);
+  return node;
+};
+
+/* Rim order is the repo's own reading order: topics in registered sequence,
+   questions by id within each. Neighbouring topics therefore sit together,
+   which is what lets the bundled curves read as topic-to-topic traffic. */
+const ORDER = [];
+for (const topic of DATA.topicOrder) {
+  for (const q of Q) if (q.topic === topic) ORDER.push(q);
+}
+
+const SECTIONS = DATA.sectionOrder;
+const LEVELS = ['Beginner', 'Intermediate', 'Advanced'].filter(l => Q.some(q => q.difficulty === l));
+const SECTION_COLOR = new Map();
+for (const t of DATA.topicOrder) {
+  const meta = DATA.topics[t];
+  if (meta && !SECTION_COLOR.has(meta.section)) SECTION_COLOR.set(meta.section, meta.color);
+}
+const LEVEL_COLOR = new Map(LEVELS.map(l => [l, (Q.find(q => q.difficulty === l) || {}).color]));
+
+const activeSections = new Set(SECTIONS);
+const activeLevels = new Set(LEVELS);
+let query = '';
+let selected = null;
+
+/* ------------------------------- Filtering ------------------------------- */
+function inScope(q) {
+  if (!activeSections.has(q.section)) return false;
+  if (!activeLevels.has(q.difficulty)) return false;
+  if (query) {
+    const hay = (q.title + ' ' + q.topic + ' ' + q.section + ' ' + q.difficulty + ' ' + q.tags.join(' ')).toLowerCase();
+    if (!hay.includes(query)) return false;
+  }
+  return true;
+}
+const wideOpen = () => activeSections.size === SECTIONS.length && activeLevels.size === LEVELS.length && !query;
+
+/* -------------------------------- Chips ---------------------------------- */
+function chip(label, count, color, onToggle) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'chip';
+  b.setAttribute('aria-pressed', 'true');
+  if (color) {
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.dataset.baseColor = color;
+    dot.style.background = tone(color);
+    b.appendChild(dot);
+  }
+  b.appendChild(document.createTextNode(label));
+  const ct = document.createElement('span');
+  ct.className = 'ct';
+  ct.textContent = count;
+  b.appendChild(ct);
+  b.addEventListener('click', () => {
+    const next = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(next));
+    onToggle(next);
+    paint();
+  });
+  return b;
+}
+
+const sectionChips = document.getElementById('section-chips');
+for (const s of SECTIONS) {
+  sectionChips.appendChild(chip(s, Q.filter(q => q.section === s).length, SECTION_COLOR.get(s), on => {
+    on ? activeSections.add(s) : activeSections.delete(s);
+  }));
+}
+const levelChips = document.getElementById('difficulty-chips');
+for (const l of LEVELS) {
+  levelChips.appendChild(chip(l, Q.filter(q => q.difficulty === l).length, LEVEL_COLOR.get(l), on => {
+    on ? activeLevels.add(l) : activeLevels.delete(l);
+  }));
+}
+
+/* ------------------------------- The weave -------------------------------- */
+const svg = document.getElementById('graph');
+let scene = null;
+let dots = [];
+let wires = [];
+let bands = [];
+let glowBlur = null;
+let angleOf = new Map();
+
+function build() {
+  const box = svg.getBoundingClientRect();
+  const w = Math.max(320, box.width), h = Math.max(320, box.height);
+  const cx = w / 2, cy = h / 2;
+  const R = Math.max(90, Math.min(w, h) / 2 - 104);
+
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.replaceChildren();
+  dots = []; wires = []; bands = []; angleOf = new Map();
+
+  const defs = el('defs', {});
+  const glow = el('filter', { id: 'glow', x: '-30%', y: '-30%', width: '160%', height: '160%' });
+  glowBlur = el('feGaussianBlur', { stdDeviation: isLight() ? '1.1' : '2.2', result: 'b' });
+  glow.appendChild(glowBlur);
+  const merge = el('feMerge', {});
+  merge.appendChild(el('feMergeNode', { in: 'b' }));
+  merge.appendChild(el('feMergeNode', { in: 'SourceGraphic' }));
+  glow.appendChild(merge);
+  defs.appendChild(glow);
+  svg.appendChild(defs);
+
+  scene = el('g', { id: 'scene' });
+  svg.appendChild(scene);
+
+  const wireLayer = el('g', {});
+  const pulseLayer = el('g', { filter: 'url(#glow)' });
+  const rimLayer = el('g', {});
+  scene.append(wireLayer, pulseLayer, rimLayer);
+
+  // Place every question on the rim, grouped by topic with a gap between groups.
+  const gap = 0.05;
+  const usable = TAU - gap * DATA.topicOrder.length;
+  let a = -Math.PI / 2;
+  for (const topic of DATA.topicOrder) {
+    const qs = ORDER.filter(q => q.topic === topic);
+    const sweep = (qs.length / Q.length) * usable;
+    const step = sweep / qs.length;
+    qs.forEach((q, i) => angleOf.set(q.id, a + step * (i + 0.5)));
+
+    // Topic band + label, flipped on the left half so text never reads upside down.
+    const mid = a + sweep / 2;
+    const large = sweep > Math.PI ? 1 : 0;
+    const p = (r, ang) => [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+    const [ax, ay] = p(R + 10, a), [bx, by] = p(R + 10, a + sweep);
+    const band = el('path', {
+      d: `M${ax} ${ay}A${R + 10} ${R + 10} 0 ${large} 1 ${bx} ${by}`,
+      fill: 'none', stroke: tone(DATA.topics[topic].color), 'stroke-width': '4', 'stroke-linecap': 'round'
+    });
+    rimLayer.appendChild(band);
+    bands.push({ band, topic });
+
+    const lr = R + 26;
+    const [lx, ly] = p(lr, mid);
+    const flip = Math.cos(mid) < 0;
+    const label = el('text', {
+      x: lx, y: ly,
+      'text-anchor': flip ? 'end' : 'start',
+      'dominant-baseline': 'central',
+      transform: `rotate(${(mid * 180 / Math.PI) + (flip ? 180 : 0)} ${lx} ${ly})`,
+      fill: 'var(--ink-soft)', 'font-size': '9.5',
+      'font-family': 'ui-monospace, Menlo, monospace', 'letter-spacing': '0.07em'
+    });
+    label.textContent = topic;
+    rimLayer.appendChild(label);
+
+    a += sweep + gap;
+  }
+
+  const pt = (ang, r) => [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+
+  // One curve per unique cross-link, control points pulled toward the centre so
+  // links sharing endpoints fall into a common bundle.
+  const seen = new Set();
+  for (const q of ORDER) {
+    for (const id of q.links) {
+      const key = q.id < id ? q.id + '|' + id : id + '|' + q.id;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const a0 = angleOf.get(q.id), a1 = angleOf.get(id);
+      if (a0 === undefined || a1 === undefined) continue;
+      const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R);
+      const [c0x, c0y] = pt(a0, R * 0.28), [c1x, c1y] = pt(a1, R * 0.28);
+      const d = `M${x0} ${y0}C${c0x} ${c0y} ${c1x} ${c1y} ${x1} ${y1}`;
+
+      const wire = el('path', { d, fill: 'none', stroke: 'var(--wire)', 'stroke-width': '0.9' });
+      wireLayer.appendChild(wire);
+
+      const pulse = el('path', {
+        d, fill: 'none', stroke: tone(DATA.topics[q.topic].color),
+        'stroke-width': '2.2', 'stroke-linecap': 'round'
+      });
+      pulseLayer.appendChild(pulse);
+
+      wires.push({ wire, pulse, anim: null, a: q.id, b: id });
+    }
+  }
+
+  // Lengths are only measurable once the paths are in the document.
+  const BEAD = 7;
+  for (const link of wires) {
+    const len = link.pulse.getTotalLength();
+    link.pulse.setAttribute('stroke-dasharray', `${BEAD} ${len}`);
+    if (REDUCED) {
+      link.pulse.setAttribute('stroke-dashoffset', len / 2);
+      continue;
+    }
+    // Negative delay puts every bead mid-flight on frame one, so the field is
+    // already scattered instead of firing as a single volley.
+    const dur = 3600 + Math.random() * 3200;
+    link.anim = link.pulse.animate(
+      [{ strokeDashoffset: len + BEAD }, { strokeDashoffset: 0 }],
+      { duration: dur, delay: -Math.random() * dur, iterations: Infinity, easing: 'linear' }
+    );
+  }
+
+  for (const q of ORDER) {
+    const [x, y] = pt(angleOf.get(q.id), R);
+    const dot = el('circle', {
+      cx: x, cy: y, r: 3.4, fill: tone(q.color), class: 'node',
+      tabindex: '0', role: 'button', 'aria-label': `#${q.num} ${q.title}`
+    });
+    dot.addEventListener('click', () => select(q));
+    dot.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(q); }
+    });
+    dot.addEventListener('mouseenter', () => hover(q));
+    dot.addEventListener('mouseleave', () => hover(null));
+    rimLayer.appendChild(dot);
+    dots.push({ q, dot });
+  }
+
+  applyTransform();
+  paint();
+}
+
+/* --------------------------------- Paint --------------------------------- */
+let hovered = null;
+function hover(q) { hovered = q; paint(); }
+
+function paint() {
+  const focus = hovered || selected;
+  const focusId = focus && focus.id;
+  const related = focus ? new Set(focus.links) : null;
+
+  for (const { q, dot } of dots) {
+    const scoped = inScope(q);
+    const lit = focus ? (q.id === focusId || related.has(q.id)) : scoped;
+    dot.setAttribute('opacity', scoped ? (lit ? '1' : '0.22') : '0.07');
+    dot.setAttribute('r', q.id === focusId ? '6' : '3.4');
+  }
+
+  for (const { wire, pulse, anim, a, b } of wires) {
+    const qa = BY_ID.get(a), qb = BY_ID.get(b);
+    const scoped = inScope(qa) && inScope(qb);
+    const hot = focus ? (a === focusId || b === focusId) : false;
+
+    wire.setAttribute('stroke', hot ? 'var(--wire-hot)' : 'var(--wire)');
+    wire.setAttribute('stroke-width', hot ? '1.8' : '0.9');
+    wire.setAttribute('opacity', !scoped ? '0.04' : (focus && !hot ? '0.10' : '1'));
+
+    pulse.setAttribute('opacity', !scoped ? '0' : (focus ? (hot ? '1' : '0.05') : '0.85'));
+    pulse.setAttribute('stroke-width', hot ? '3' : '2.2');
+    // Focused traffic runs hot; the rest keeps drifting so the diagram stays
+    // alive rather than freezing around the selection.
+    if (anim) anim.playbackRate = hot ? 2.4 : 1;
+  }
+
+  const shown = Q.filter(inScope).length;
+  document.getElementById('match').textContent =
+    wideOpen() ? `All ${Q.length} questions` : `${shown} of ${Q.length} questions`;
+}
+
+/* --------------------------------- Detail -------------------------------- */
+const detail = document.getElementById('detail');
+
+function select(q) {
+  selected = q;
+  detail.replaceChildren();
+  detail.classList.add('open');
+
+  const pill = document.createElement('span');
+  pill.className = 'pill';
+  pill.style.color = tone(q.color);
+  pill.textContent = q.difficulty || 'QUESTION';
+  detail.appendChild(pill);
+
+  const h = document.createElement('h2');
+  h.textContent = q.title;
+  detail.appendChild(h);
+
+  const dl = document.createElement('dl');
+  dl.className = 'meta';
+  const rows = [['No.', '#' + q.num], ['Topic', q.topic], ['Section', q.section]];
+  if (q.tags.length) rows.push(['Tags', q.tags.join(', ')]);
+  for (const [term, value] of rows) {
+    if (!value) continue;
+    const dt = document.createElement('dt'); dt.textContent = term;
+    const dd = document.createElement('dd'); dd.textContent = value;
+    dl.append(dt, dd);
+  }
+  detail.appendChild(dl);
+
+  if (q.links.length) {
+    const box = document.createElement('div');
+    box.className = 'conn';
+    const lab = document.createElement('div');
+    lab.className = 'label';
+    lab.textContent = q.links.length + ' cross-links';
+    box.appendChild(lab);
+    const ul = document.createElement('ul');
+    for (const id of q.links) {
+      const other = BY_ID.get(id);
+      if (!other) continue;
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = other.title;
+      b.addEventListener('click', () => select(other));
+      li.appendChild(b);
+      ul.appendChild(li);
+    }
+    box.appendChild(ul);
+    detail.appendChild(box);
+  }
+
+  const a = document.createElement('a');
+  a.className = 'source-link';
+  a.href = DATA.repoBlob + q.url.replace('./', '');
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.textContent = 'Read the answer ↗';
+  detail.appendChild(a);
+
+  history.replaceState(null, '', '#' + q.id.replace(':', '-'));
+  paint();
+}
+
+function clearSelection() {
+  selected = null;
+  detail.classList.remove('open');
+  detail.replaceChildren();
+  const p = document.createElement('p');
+  p.className = 'empty-state';
+  p.textContent = 'Select a question on the rim to see its topic, difficulty and cross-links.';
+  detail.appendChild(p);
+  history.replaceState(null, '', location.pathname + location.search);
+  paint();
+}
+
+/* --------------------------------- Search -------------------------------- */
+const search = document.getElementById('search');
+search.addEventListener('input', e => {
+  query = e.target.value.toLowerCase().trim();
+  paint();
+
+  if (!query) { renderResults([]); return; }
+  renderResults(Q.filter(inScope).slice(0, 12));
+});
+
+function renderResults(list) {
+  if (!list.length) {
+    if (!selected) clearSelection();
+    return;
+  }
+  detail.replaceChildren();
+  detail.classList.add('open');
+  const lab = document.createElement('div');
+  lab.className = 'label';
+  lab.textContent = list.length + ' matches';
+  detail.appendChild(lab);
+  const ul = document.createElement('ul');
+  ul.id = 'results';
+  for (const q of list) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = '#' + q.num + '  ' + q.title;
+    b.addEventListener('click', () => select(q));
+    li.appendChild(b);
+    ul.appendChild(li);
+  }
+  detail.appendChild(ul);
+}
+
+document.getElementById('reset').addEventListener('click', () => {
+  SECTIONS.forEach(s => activeSections.add(s));
+  LEVELS.forEach(l => activeLevels.add(l));
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'true'));
+  search.value = '';
+  query = '';
+  clearSelection();
+  search.focus();
+});
+
+/* --------------------------- Pan, zoom, keyboard -------------------------- */
+let tx = 0, ty = 0, k = 1;
+function applyTransform() {
+  if (scene) scene.setAttribute('transform', `translate(${tx} ${ty}) scale(${k})`);
+}
+function zoomBy(factor, ox, oy) {
+  const box = svg.getBoundingClientRect();
+  const px = ox === undefined ? box.width / 2 : ox;
+  const py = oy === undefined ? box.height / 2 : oy;
+  const next = Math.min(6, Math.max(0.4, k * factor));
+  // Keep the point under the cursor fixed while scaling.
+  tx = px - (px - tx) * (next / k);
+  ty = py - (py - ty) * (next / k);
+  k = next;
+  applyTransform();
+}
+
+svg.addEventListener('wheel', e => {
+  e.preventDefault();
+  const box = svg.getBoundingClientRect();
+  zoomBy(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - box.left, e.clientY - box.top);
+}, { passive: false });
+
+let dragging = false, lastX = 0, lastY = 0;
+svg.addEventListener('pointerdown', e => {
+  if (e.target.classList.contains('node')) return;
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  scene && scene.classList.add('dragging');
+  svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  tx += e.clientX - lastX; ty += e.clientY - lastY;
+  lastX = e.clientX; lastY = e.clientY;
+  applyTransform();
+});
+svg.addEventListener('pointerup', e => {
+  dragging = false;
+  scene && scene.classList.remove('dragging');
+  try { svg.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+});
+
+document.getElementById('zoom-in').addEventListener('click', () => zoomBy(1.3));
+document.getElementById('zoom-out').addEventListener('click', () => zoomBy(1 / 1.3));
+document.getElementById('zoom-reset').addEventListener('click', () => { tx = 0; ty = 0; k = 1; applyTransform(); });
+
+document.addEventListener('keydown', e => {
+  const t = document.activeElement;
+  const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+  if (e.key === '/' && !typing) { e.preventDefault(); search.focus(); return; }
+  if (e.key === 'Escape') {
+    if (selected) { clearSelection(); return; }
+    if (search.value) { search.value = ''; query = ''; paint(); clearSelection(); }
+  }
+});
+
+/* --------------------------------- Theme --------------------------------- */
+const THEME_KEY = 'ai-eng-graph-theme';
+const systemDark = matchMedia('(prefers-color-scheme: dark)');
+const themeButtons = [...document.querySelectorAll('.theme-btn')];
+let themeMode = document.documentElement.getAttribute('data-theme-mode') || 'system';
+
+function applyTheme(mode, persist) {
+  themeMode = mode;
+  const effective = mode === 'system' ? (systemDark.matches ? 'dark' : 'light') : mode;
+  document.documentElement.setAttribute('data-theme-mode', mode);
+  document.documentElement.setAttribute('data-theme', effective);
+  if (persist) { try { localStorage.setItem(THEME_KEY, mode); } catch (e) { /* private mode */ } }
+  themeButtons.forEach(b => {
+    const on = b.dataset.themeChoice === mode;
+    b.setAttribute('aria-checked', String(on));
+    b.tabIndex = on ? 0 : -1;
+  });
+  restyle();
+}
+
+/* SVG cannot read CSS custom properties for fill/stroke values that came from
+   the data, so the scene keeps its own palette and is repainted on theme change.
+   The glow is also cut right down in light: a blurred bright bead on a near-white
+   ground reads as a smudge rather than a light. */
+function restyle() {
+  toneCache.clear();
+  if (glowBlur) glowBlur.setAttribute('stdDeviation', isLight() ? '1.1' : '2.2');
+  for (const { band, topic } of bands) band.setAttribute('stroke', tone(DATA.topics[topic].color));
+  for (const { q, dot } of dots) dot.setAttribute('fill', tone(q.color));
+  for (const link of wires) {
+    const src = BY_ID.get(link.a);
+    if (src) link.pulse.setAttribute('stroke', tone(DATA.topics[src.topic].color));
+  }
+  for (const b of document.querySelectorAll('.chip .dot')) {
+    if (b.dataset.baseColor) b.style.background = tone(b.dataset.baseColor);
+  }
+}
+themeButtons.forEach((b, i) => {
+  b.addEventListener('click', () => applyTheme(b.dataset.themeChoice, true));
+  b.addEventListener('keydown', e => {
+    const d = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1
+            : (e.key === 'ArrowLeft' || e.key === 'ArrowUp') ? -1 : 0;
+    if (!d) return;
+    e.preventDefault();
+    const next = themeButtons[(i + d + themeButtons.length) % themeButtons.length];
+    next.focus();
+    applyTheme(next.dataset.themeChoice, true);
+  });
+});
+systemDark.addEventListener('change', () => { if (themeMode === 'system') applyTheme('system', false); });
+applyTheme(themeMode, false);
+
+/* --------------------------------- Boot ---------------------------------- */
+let resizeTimer;
+addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(build, 150);
+});
+
+build();
+
+// Deep link: /#q-181 opens that question directly.
+const raw = location.hash.replace('#', '');
+if (raw) {
+  const node = BY_ID.get(raw.replace('-', ':'));
+  if (node) select(node);
+}
+</script>
+</body>
+</html>

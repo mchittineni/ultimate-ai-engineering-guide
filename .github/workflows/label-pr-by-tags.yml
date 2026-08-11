@@ -207,7 +207,7 @@ jobs:
             }
 
             const commentMarker = "<!-- auto-label-summary -->";
-            
+
             // Fix: Flushed left to prevent Markdown turning it into a <pre> block
             const commentBody = `${commentMarker}
 

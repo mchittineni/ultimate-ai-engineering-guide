@@ -54,3 +54,8 @@ ENV/
 /build/
 /site/
 /_site/
+
+# --- Generated output (rewritten by scripts/, never hand-formatted) ---
+# docs/index.html is emitted by build_knowledge_graph.py; reformatting it would
+# be undone on the next build and produce noisy, meaningless diffs.
+docs/

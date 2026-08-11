@@ -10,7 +10,15 @@
     {
       "files": "*.md",
       "options": {
-        "embeddedLanguageFormatting": "off"
+        "embeddedLanguageFormatting": "off",
+        "proseWrap": "preserve",
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": ["*.json", "*.jsonc"],
+      "options": {
+        "trailingComma": "none"
       }
     }
   ]

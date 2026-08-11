@@ -67,6 +67,7 @@ except SecurityError as exc:
 
 - Highlight that indirect prompt injection combined with tool access is listed as an OWASP Top 10 for LLM Applications vulnerability.
 - Emphasize strict URL whitelisting and egress monitoring for autonomous AI agents.
+- Acknowledge what an allowlist does not cover: data can still leave through an _allowed_ destination (a comment posted to your own issue tracker, a record written to a permitted CRM), and a permitted host can redirect or resolve to an attacker-controlled address. Follow redirects manually, re-validate every hop, block private/link-local IP ranges, and log outbound payload sizes — the allowlist bounds _where_ data goes, not _whether_ it leaves.
 
 ---
 

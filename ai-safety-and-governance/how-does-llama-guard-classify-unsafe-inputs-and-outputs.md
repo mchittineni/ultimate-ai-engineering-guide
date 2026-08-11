@@ -71,6 +71,7 @@ print(parse_guardrail_response("unsafe\nS11"))
 
 - Highlight latency overhead: running Llama Guard on both input and output adds two model passes; using quantized 8B models on dedicated GPU endpoints minimizes latency impact.
 - Compare LLM-based guardrails (Llama Guard) vs rule/regex guardrails (NeMo Guardrails).
+- For per-deployment taxonomy customization (subsetting categories, rewriting definitions, adding your own), see [How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?](./how-does-llama-guard-taxonomy-classify-unsafe-inputs-and-outputs-across-safety-categories.md) (`#187`).
 
 ---
 

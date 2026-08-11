@@ -100,12 +100,19 @@ def parse_frontmatter(text: str) -> tuple[dict, str]:
 def read_text_safe(path: Path) -> str:
     try:
         return path.read_text(encoding="utf-8")
-    except OSError:
-        return ""
+    except Exception:
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                return f.read()
+        except Exception:
+            return ""
 
 
 def topic_title(directory: str, readme_text: str | None = None) -> str:
-    """Topic display name, taken from the topic README frontmatter when present."""
+    """Topic display name, taken from topic_meta.json or topic README frontmatter when present."""
+    meta_entry = topic_meta().get(directory, {})
+    if meta_entry.get("title"):
+        return str(meta_entry["title"])
     if readme_text:
         meta, _ = parse_frontmatter(readme_text)
         if meta.get("title"):
@@ -131,7 +138,12 @@ def load_topics(root: Path = REPO_ROOT) -> list[Topic]:
                 directory, read_text_safe(readme) if readme.exists() else None
             ),
         )
-        for md in sorted(entry.glob("*.md")):
+        # The directory listing is the single source of truth. Deriving the
+        # question set from README links instead would be circular -- the README
+        # is generated from these questions -- and would silently drop any file
+        # that had not yet been linked.
+        md_files = sorted(entry.glob("*.md"))
+        for md in md_files:
             if md.name == "README.md":
                 continue
             file_match = QUESTION_FILE_RE.match(md.name)
@@ -143,7 +155,8 @@ def load_topics(root: Path = REPO_ROOT) -> list[Topic]:
                     path=md,
                     slug=file_match.group(1),
                     title=str(meta.get("title", "")),
-                    id=int(meta["id"]) if str(meta.get("id", "")).isdigit() else -1,                    category=str(meta.get("category", "")),
+                    id=int(meta["id"]) if str(meta.get("id", "")).isdigit() else -1,
+                    category=str(meta.get("category", topic.title)),
                     difficulty=str(meta.get("difficulty", "")),
                     tags=list(meta.get("tags", [])),
                     body=body,

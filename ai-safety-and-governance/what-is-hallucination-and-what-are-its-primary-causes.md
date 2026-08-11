@@ -19,15 +19,18 @@ LLMs are probabilistic token predictors, not factual search engines. Models calc
 
 ### Primary Root Causes
 
-1. **Probabilistic Sampling Dynamics:** High temperature ($T > 0.8$) or wide sampling distributions encourage sampling from lower-probability tail tokens.
-2. **Out-of-Distribution (OOD) Knowledge Cutoffs:** When asked about facts outside pre-training data, the model attempts to generate plausible completions matching prompt syntax rather than admitting ignorance.
+1. **Knowledge Gaps and Out-of-Distribution Prompts:** When asked about facts thinly represented in or absent from pre-training data, the model generates the most plausible-looking completion rather than abstaining. This is the dominant cause.
+2. **Training Objectives That Reward Confidence Over Abstention:** Both next-token pre-training and preference tuning reward fluent, committed answers. "I don't know" is rarely the highest-rated response, so models are optimized into confident guessing.
 3. **Noisy Pre-Training Data:** Contaminated or contradictory facts in web-scraped corpora.
-4. **Attention Degradation:** Context dilution in long prompts ("Lost in the Middle").
+4. **Attention Degradation:** Context dilution in long prompts ("Lost in the Middle") — grounding is present but not attended to.
+5. **Probabilistic Sampling Dynamics:** High temperature or wide sampling distributions draw from lower-probability tail tokens, which _amplifies_ the causes above.
+
+> **Do not claim temperature is the root cause.** Greedy decoding at `T=0` hallucinates freely — a model that does not know a fact has no correct token to rank first, so removing sampling randomness changes nothing about what it does not know. Temperature modulates hallucination rate; knowledge gaps and abstention-averse training create it. Candidates who lead with "just set temperature to 0" get pushed on precisely this.
 
 ### Mitigating Hallucinations in Production
 
 - **Retrieval-Augmented Generation (RAG):** Grounding generation in retrieved factual context snippets.
-- **Low Temperature Decoding:** Setting $T=0.0$ for factual Q&A.
+- **Low Temperature Decoding:** Setting $T=0.0$ for factual Q&A. Reduces variance; does not create knowledge.
 - **Constrained Decoding & Guardrails:** Validating outputs against external fact databases or schemas.
 
 ## Example
@@ -45,6 +48,8 @@ generated_output = "Revenue for Q3 was $9.8M"
 
 print("Is Hallucinated:", check_hallucination_claim(generated_output, facts))
 ```
+
+Exact substring matching is illustrative only — it flags any correct claim that has been reworded ("Q3 revenue came to $5.2 million") as a hallucination. Production groundedness checks use NLI entailment models or an LLM judge scoring each extracted claim against its retrieved evidence span, and they report a calibrated score rather than a boolean.
 
 ## Interview tips
 

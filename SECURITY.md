@@ -2,7 +2,13 @@
 
 ## Scope
 
-This policy covers security issues in the `ultimate-ai-engineering-guide` repository, including its content, scripts, and generated output.
+This policy covers security issues in the `ultimate-ai-engineering-guide` repository, including:
+
+- **Content** — the question answers, notably the AI security and governance material.
+- **Scripts** — the stdlib-only Python tooling in `scripts/` that validates content and generates indexes.
+- **Generated output** — the topic indexes, the root README, and the published knowledge graph at `docs/index.html` (served via GitHub Pages).
+
+This repository is documentation and build tooling. It ships no runtime service, no dependencies, and no user data.
 
 ## Reporting a Vulnerability
 
@@ -28,8 +34,10 @@ Alternatively, you may contact the maintainer directly:
 Examples of issues that should be reported under this policy include:
 
 - **Sensitive Data Exposure:** Accidental inclusion of PII, interview candidate details, company-specific private information, or credentials in the repository or generated outputs.
-- **Insecure Practices in Content:** Advice or code examples that could lead to security vulnerabilities if blindly followed in production.
-- **Supply Chain Risks:** Security issues in the Python scripts or their dependencies that could be exploited.
+- **Insecure Practices in Content:** Advice or code examples that could lead to security vulnerabilities if blindly followed in production. This matters most in the AI Safety and Governance topic, where answers demonstrate guardrails, sanitizers, and access-control filters — a defense that is subtly bypassable teaches a vulnerability. Reports that include a concrete bypass for a published example are especially welcome.
+- **Supply Chain Risks:** Security issues in the Python scripts that could be exploited. The scripts are stdlib-only and take no third-party dependencies, so the realistic surface is a script that writes outside the repository or mishandles untrusted file content.
+
+Note that the security examples in the content are **illustrative teaching code, not hardened libraries**. They are written to make a mechanism legible and are deliberately minimal. A simplification that is explicitly caveated in the surrounding prose is not a vulnerability; a defense presented as complete that does not hold is.
 
 ## What We Do Not Consider a Security Issue
 
