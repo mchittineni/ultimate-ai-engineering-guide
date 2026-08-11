@@ -17,10 +17,10 @@ tags:
 
 Instruction-tuned models are trained with RLHF to refuse harmful queries (cyberattacks, weapons, self-harm). Adversarial users attempt to bypass these guardrails using jailbreak prompts.
 
-```
+```text
 User Input ──► [Safety Classifier (Llama Guard)]
                     │
-                    ├─► Flagged UNSAFE (Category S1: Cyberattacks) ──► Block Request
+                    ├─► Flagged UNSAFE (e.g. S2: Non-Violent Crimes) ──► Block Request
                     │
                     └─► Flagged SAFE ──► Forward to Target Application LLM
 ```
@@ -37,13 +37,22 @@ Python concept illustrating safety classifier guardrail check:
 
 ```python
 def check_safety_guardrail(prompt_text: str, safety_classifier_fn) -> tuple[bool, str]:
-    # Llama Guard style taxonomy check
-    result = safety_classifier_fn(prompt_text) # Returns 'safe' or 'unsafe\nS1'
-    if "unsafe" in result:
-        category = result.split("\n")[1] if "\n" in result else "UNKNOWN"
-        return False, f"Request blocked due to safety violation category: {category}"
-    return True, "SAFE"
+    # Llama Guard style taxonomy check. Returns 'safe' or 'unsafe\nS2'.
+    try:
+        result = safety_classifier_fn(prompt_text)
+    except Exception:
+        # Fail closed: a classifier outage must not become an open door.
+        return False, "Request blocked: safety classifier unavailable."
+
+    lines = result.strip().splitlines()
+    if lines and lines[0].strip().lower() == "safe":
+        return True, "SAFE"
+
+    category = lines[1].strip() if len(lines) > 1 else "UNSPECIFIED"
+    return False, f"Request blocked due to safety violation category: {category}"
 ```
+
+Two details this glosses over that an interviewer will push on. First, matching the verdict line exactly (`lines[0] == "safe"`) rather than substring-searching for `"unsafe"` — substring checks on model output are fragile the moment the classifier prepends anything. Second, **fail closed**: if the guardrail errors or times out, block. Teams routinely wire the `except` branch to pass-through for availability, which converts every classifier outage into an unguarded model.
 
 ## Interview tips
 
@@ -54,7 +63,7 @@ def check_safety_guardrail(prompt_text: str, safety_classifier_fn) -> tuple[bool
 
 - [[What is negative prompting and how do you instruct models what not to do?]] (`#112`): [What is negative prompting and how do you instruct models what not to do?](../prompt-engineering/what-is-negative-prompting-and-how-do-you-instruct-models-what-not-to-do.md)
 - [[What is human-in-the-loop (HITL) approval in autonomous agent workflows?]] (`#133`): [What is human-in-the-loop (HITL) approval in autonomous agent workflows?](../ai-agents-and-mcp/what-is-human-in-the-loop-hitl-approval-in-autonomous-agent-workflows.md)
-- [[How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?]] (`#187`): [How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?](../ai-safety-and-governance/how-does-llama-guard-taxonomy-classify-unsafe-inputs-and-outputs.md)
+- [[How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?]] (`#187`): [How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?](../ai-safety-and-governance/how-does-llama-guard-taxonomy-classify-unsafe-inputs-and-outputs-across-safety-categories.md)
 
 ---
 

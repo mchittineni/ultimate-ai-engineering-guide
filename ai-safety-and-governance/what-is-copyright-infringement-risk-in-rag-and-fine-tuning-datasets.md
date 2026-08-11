@@ -15,9 +15,9 @@ tags:
 
 ## Detail
 
-LLM generations that reproduce verbatim copyrighted passages violate fair use limits.
+LLM generations that reproduce substantial verbatim passages from copyrighted sources create infringement exposure. Note the framing carefully: fair use is not a word count you stay under. In the US it is a four-factor defense (purpose and character of the use, nature of the work, amount and substantiality of the portion taken, and effect on the market for the original) that a court weighs after the fact. "Under 50 words is fine" is a rule of thumb engineers invent, not law. A short quote that captures the heart of a work can fail the analysis; a long quote in a genuinely transformative context can survive it. Verbatim-overlap filters are a risk-reduction control and an evidence trail, not a legal safe harbor.
 
-```
+```text
 Copyrighted Source ──► Ingested into RAG Vector DB ──► Model Outputs 200 Words Verbatim
                                                                  │
                                                                  ▼
@@ -27,7 +27,7 @@ Copyrighted Source ──► Ingested into RAG Vector DB ──► Model Outputs
 ### Mitigation Strategies
 
 1. **Licensing Audits:** Filtering training corpora for open-source / permissive licenses (Apache 2.0, MIT, CC0) and excluding non-commercial or proprietary licenses.
-2. **Verbatim Match Filtering:** Using suffix trees or n-gram overlap detectors to intercept and block model completions that reproduce $> 50$ consecutive words verbatim from source documents.
+2. **Verbatim Match Filtering:** Using suffix trees or n-gram overlap detectors to intercept and block model completions that reproduce long consecutive runs verbatim from source documents. Pick the threshold deliberately — a 20-word window is aggressive and will fire on boilerplate and common phrasing; 50 words is permissive and misses short-but-substantial takings. Tune it against your own corpus and log every near-miss.
 3. **Data Deduplication:** Removing redundant copyrighted text instances during pre-training dataset preparation.
 
 ## Example
@@ -35,14 +35,31 @@ Copyrighted Source ──► Ingested into RAG Vector DB ──► Model Outputs
 Python verbatim string match sanitizer concept:
 
 ```python
-def check_verbatim_copyright_overlap(model_output: str, copyrighted_corpus: list[str], max_verbatim_words: int = 20) -> bool:
+def check_verbatim_copyright_overlap(
+    model_output: str, copyrighted_corpus: list[str], window_words: int = 20
+) -> str | None:
+    """Return the first verbatim run of `window_words` shared with the corpus.
+
+    `range(..., + 1)` matters: without it the final window of the output is
+    never tested, so a completion that ends with the copied passage -- the
+    single most likely shape for a memorized quote -- slips through.
+    """
     output_words = model_output.split()
-    for i in range(len(output_words) - max_verbatim_words):
-        phrase = " ".join(output_words[i : i + max_verbatim_words])
-        for doc in copyrighted_corpus:
-            if phrase.lower() in doc.lower():
-                return True # High risk verbatim match detected!
-    return False
+    corpus_lower = [doc.lower() for doc in copyrighted_corpus]
+
+    for i in range(len(output_words) - window_words + 1):
+        phrase = " ".join(output_words[i : i + window_words]).lower()
+        if any(phrase in doc for doc in corpus_lower):
+            return phrase  # High-risk verbatim match detected
+    return None
+
+
+corpus = ["... it was the best of times, it was the worst of times, it was the age of wisdom ..."]
+# The copied run sits at the very end of the completion:
+tail_copy = "Here is the passage you asked about: it was the best of times, " \
+            "it was the worst of times, it was the age of wisdom"
+print(check_verbatim_copyright_overlap(tail_copy, corpus, window_words=10))
+# it was the best of times, it was the worst
 ```
 
 ## Interview tips

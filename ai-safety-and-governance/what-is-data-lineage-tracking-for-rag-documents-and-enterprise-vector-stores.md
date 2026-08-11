@@ -17,7 +17,7 @@ tags:
 
 In enterprise vector stores containing millions of embedded document chunks, failing to track data lineage creates severe audit and compliance hazards.
 
-```
+```text
 Source File: `Policy_v2.pdf` (Version: 2.1, Department: Legal, Access: Confidential)
      │
      ▼
@@ -46,7 +46,8 @@ Python metadata payload schema for vector lineage:
 
 ```python
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
+
 
 def create_lineage_metadata(source_path: str, content: str, doc_version: str) -> dict:
     content_hash = hashlib.sha256(content.encode()).hexdigest()
@@ -54,17 +55,26 @@ def create_lineage_metadata(source_path: str, content: str, doc_version: str) ->
         "source_path": source_path,
         "doc_version": doc_version,
         "content_hash": content_hash,
-        "ingested_at": datetime.utcnow().isoformat() + "Z",
-        "embedding_model": "text-embedding-3-small"
+        # `datetime.utcnow()` is deprecated (3.12+) and returns a *naive*
+        # datetime, so the old `+ "Z"` trick asserts a timezone the object does
+        # not carry -- and silently produces "...+00:00Z" the moment someone
+        # swaps in an aware datetime. Build it aware from the start.
+        "ingested_at": datetime.now(timezone.utc).isoformat(),
+        "embedding_model": "text-embedding-3-small",
     }
+
 
 meta = create_lineage_metadata("legal/privacy_policy.pdf", "Raw text content...", "v3.1")
 print("Data Lineage Payload:", meta)
+# {'source_path': 'legal/privacy_policy.pdf', 'doc_version': 'v3.1',
+#  'content_hash': '...', 'ingested_at': '2026-08-11T10:00:00+00:00',
+#  'embedding_model': 'text-embedding-3-small'}
 ```
 
 ## Interview tips
 
-- Discuss GDPR compliance: executing "Right to be Forgotten" deletion requests by purging all vector chunks matching a specific user ID or document hash.
+- Discuss GDPR compliance: executing "Right to be Forgotten" (Art. 17) deletion requests by purging all vector chunks matching a specific user ID or document hash. Lineage metadata is what makes that query possible at all — without it, erasure means re-embedding the corpus.
+- Know the two places erasure leaks. First, **the embedding is itself derived personal data**: vectors are partially invertible, so deleting the source text while keeping the vector does not discharge the obligation. Second, **many vector stores delete lazily** — the record is tombstoned and only removed at segment compaction, so "deleted" rows can persist on disk and in snapshots. Confirm your store's semantics and force compaction, or you will attest to an erasure that has not happened.
 - Connect data lineage tracking to automated vector store garbage collection.
 
 ## Related Concepts

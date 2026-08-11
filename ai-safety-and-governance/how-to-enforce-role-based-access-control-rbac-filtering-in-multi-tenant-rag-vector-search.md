@@ -17,7 +17,7 @@ tags:
 
 In enterprise multi-tenant systems, unauthorized context retrieval causes severe data leaks (e.g. an engineer accidentally retrieving confidential executive salary documents).
 
-```
+```text
 User Token: {user_id: "u123", tenant_id: "corp_42", roles: ["engineering"]}
                                     │
                                     ▼
@@ -30,29 +30,48 @@ Must Match: `tenant_id == "corp_42"` AND `allowed_roles CONTAINS "engineering"`
 
 ### Key Security Guarantee
 
-- **Pre-Filtering vs Prompt Instructions:** System prompt instructions (*"Do not reveal executive salary info"*) are soft constraints that prompt injection attacks can bypass. Metadata pre-filtering enforces strict access control at the infrastructure database level.
+- **Pre-Filtering vs Prompt Instructions:** System prompt instructions (_"Do not reveal executive salary info"_) are soft constraints that prompt injection attacks can bypass. Metadata pre-filtering enforces strict access control at the infrastructure database level.
+
+### Where This Actually Breaks: Permission Freshness
+
+Pre-filtering is sound. The failures in production are almost always about _when_ the permission data was written, not whether the filter ran:
+
+1. **Stale chunk ACLs.** `allowed_roles` is copied onto the chunk at ingestion time. Revoke someone's access in the source system — Sharepoint, Drive, the HRIS — and the vector store keeps serving them until re-indexing. Either re-sync ACLs on a schedule tight enough to satisfy your policy, or store a document ID and resolve permissions live at query time.
+2. **Role claims from a stale token.** A long-lived JWT carries the roles held at issuance. Pair short token lifetimes with server-side resolution of the current role set.
+3. **Deleted documents that outlive their deletion.** Most vector stores tombstone rather than erase, so a purged document can remain retrievable until compaction.
+4. **Filters derived from model output.** If the tenant or role values are parsed from anything the LLM generated, injection controls the filter and the whole scheme collapses. Build filters from the verified session server-side, always.
 
 ## Example
 
-Python Qdrant/Pinecone RBAC pre-filter constructor:
+RBAC pre-filter constructors — note that the filter syntax differs per vendor:
 
 ```python
-def build_rbac_vector_filter(user_tenant_id: str, user_roles: list[str]) -> dict:
+def build_rbac_vector_filter_qdrant(user_tenant_id: str, user_roles: list[str]) -> dict:
     return {
         "must": [
             {"key": "tenant_id", "match": {"value": user_tenant_id}},
-            {"key": "allowed_roles", "match": {"any": user_roles}}
+            {"key": "allowed_roles", "match": {"any": user_roles}},
         ]
     }
 
-rbac_filter = build_rbac_vector_filter("org_acme", ["sales_rep", "regional_manager"])
-print("RBAC Vector Pre-Filter Payload:\n", rbac_filter)
+
+def build_rbac_vector_filter_pinecone(user_tenant_id: str, user_roles: list[str]) -> dict:
+    # Pinecone uses MongoDB-style operators, not Qdrant's must/match shape.
+    return {"tenant_id": {"$eq": user_tenant_id}, "allowed_roles": {"$in": user_roles}}
+
+
+# Values come from the verified session, never from user or model input.
+session = {"tenant_id": "org_acme", "roles": ["sales_rep", "regional_manager"]}
+print(build_rbac_vector_filter_qdrant(session["tenant_id"], session["roles"]))
+print(build_rbac_vector_filter_pinecone(session["tenant_id"], session["roles"]))
 ```
 
 ## Interview tips
 
 - Highlight that pre-filtering inside vector index graph traversal prevents data leaks regardless of prompt injection attacks.
 - Discuss tenant isolation options: single shared vector collection with metadata pre-filtering vs dedicated per-tenant vector collections.
+- Bring up permission freshness unprompted. Everyone describes the filter; the senior answer is that the filter is only as current as the ACLs denormalized into the index, and names the re-sync or live-resolution strategy.
+- For the pre- vs post-filtering recall argument and the HNSW traversal detail, see [How do you enforce strict RBAC and data isolation in enterprise RAG?](./how-do-you-enforce-strict-rbac-and-data-isolation-in-enterprise-rag.md) (`#95`).
 
 ## Related Concepts
 
