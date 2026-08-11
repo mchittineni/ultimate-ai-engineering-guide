@@ -175,1341 +175,984 @@ def build_graph_data(repo_root: Path = REPO_ROOT) -> dict:
     return {"nodes": nodes, "links": edges}
 
 
-HTML_TEMPLATE = """<!DOCTYPE html>
+REPO_BLOB = "https://github.com/mchittineni/ultimate-ai-engineering-guide/blob/main/"
+
+
+def flatten(graph: dict) -> dict:
+    """Reshape the node/link graph into the flat form the Weave view renders.
+
+    The view needs each question once, with its topic, section, difficulty and
+    the ids it cross-links to -- plus the topic order the repo itself defines,
+    which is what puts related topics beside each other on the rim.
+    """
+    nodes, links = graph["nodes"], graph["links"]
+
+    topics = {
+        n["category"]: {
+            "section": n.get("section", ""),
+            "color": n.get("color", "#888888"),
+            "url": n["url"],
+        }
+        for n in nodes if n["type"] == "topic"
+    }
+
+    neighbours: dict[str, set[str]] = {n["id"]: set() for n in nodes}
+    for link in links:
+        if link["type"] == "cross-link":
+            neighbours[link["source"]].add(link["target"])
+            neighbours[link["target"]].add(link["source"])
+
+    questions = [
+        {
+            "id": n["id"],
+            "num": int(n["id"].split(":")[1]),
+            "title": n.get("title") or n["label"],
+            "topic": n["category"],
+            "section": n.get("section", ""),
+            "difficulty": n.get("difficulty", ""),
+            "color": n.get("color", "#888888"),
+            "url": n["url"],
+            "tags": [t for t in n.get("tags", []) if t not in {"ai-engineering", "interview-questions"}],
+            "links": sorted(neighbours[n["id"]]),
+        }
+        for n in nodes if n["type"] == "question"
+    ]
+    questions.sort(key=lambda q: q["num"])
+
+    topic_order = [n["category"] for n in nodes if n["type"] == "topic"]
+    section_order: list[str] = []
+    for n in nodes:
+        if n["type"] == "topic" and n.get("section") and n["section"] not in section_order:
+            section_order.append(n["section"])
+
+    cross_links = sum(1 for l in links if l["type"] == "cross-link")
+
+    return {
+        "questions": questions,
+        "topics": topics,
+        "topicOrder": topic_order,
+        "sectionOrder": section_order,
+        "crossLinks": cross_links,
+        "repoBlob": REPO_BLOB,
+    }
+
+
+# Placeholder substitution rather than str-formatting: the template is a large
+# body of CSS and JS whose every literal brace would otherwise need doubling,
+# which has silently broken this file before.
+HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Engineering Knowledge Graph</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Engineering Knowledge Graph</title>
+<script>
+  (function () {
+    var mode;
+    try { mode = localStorage.getItem('ai-eng-graph-theme'); } catch (e) { /* private mode */ }
+    if (mode !== 'light' && mode !== 'dark' && mode !== 'system') mode = 'system';
+    var effective = mode === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : mode;
+    document.documentElement.setAttribute('data-theme-mode', mode);
+    document.documentElement.setAttribute('data-theme', effective);
+  })();
+</script>
+<style>
+/* ---------------------------------------------------------------------------
+   Tokens. The bare :root carries the complete LIGHT palette. Dark is redefined
+   twice: behind prefers-color-scheme (guarded so an explicit light choice still
+   wins) and behind [data-theme="dark"] so the toggle wins too. Components read
+   tokens only -- a colour defined only inside a theme block would vanish in the
+   un-stamped state, which is the classic unreadable-page bug.
+   --------------------------------------------------------------------------- */
+:root {
+  --ground: #edf1f5;
+  --surface: #ffffff;
+  --surface-2: #e4ebf1;
+  --ink: #0f1620;
+  --ink-soft: #43535f;
+  --ink-faint: #6b7c8a;
+  --rule: #cbd6df;
+  --rule-soft: #dde5ec;
+  --accent: #1f5c8b;
+  --accent-ink: #17486d;
+  --accent-wash: rgba(31, 92, 139, 0.10);
+  --wire: rgba(23, 37, 51, 0.13);
+  --wire-hot: rgba(23, 72, 109, 0.85);
+  --shadow: 0 18px 40px -24px rgba(15, 22, 32, 0.45);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0e141b;
+    --surface: #151d26;
+    --surface-2: #1c2733;
+    --ink: #e6edf4;
+    --ink-soft: #a7b6c4;
+    --ink-faint: #7c8d9c;
+    --rule: #2a3744;
+    --rule-soft: #212c38;
+    --accent: #58a6d8;
+    --accent-ink: #8cc6ec;
+    --accent-wash: rgba(88, 166, 216, 0.14);
+    --wire: rgba(167, 182, 196, 0.18);
+    --wire-hot: rgba(140, 198, 236, 0.9);
+    --shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0e141b;
+  --surface: #151d26;
+  --surface-2: #1c2733;
+  --ink: #e6edf4;
+  --ink-soft: #a7b6c4;
+  --ink-faint: #7c8d9c;
+  --rule: #2a3744;
+  --rule-soft: #212c38;
+  --accent: #58a6d8;
+  --accent-ink: #8cc6ec;
+  --accent-wash: rgba(88, 166, 216, 0.14);
+  --wire: rgba(167, 182, 196, 0.18);
+  --wire-hot: rgba(140, 198, 236, 0.9);
+  --shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+}
 
-  <!-- Resolve the theme before first paint so the page never flashes the
-       wrong palette. Must stay inline and ahead of the stylesheet. -->
-  <script>
-    (function () {{
-      var mode;
-      try {{ mode = localStorage.getItem('ai-eng-graph-theme'); }} catch (e) {{ /* private mode */ }}
-      if (mode !== 'light' && mode !== 'dark' && mode !== 'system') mode = 'system';
-      var effective = mode === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : mode;
-      var root = document.documentElement;
-      root.setAttribute('data-theme-mode', mode);
-      root.setAttribute('data-theme', effective);
-    }})();
-  </script>
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
 
-  <link rel="preconnect" href="https://unpkg.com" crossorigin>
-  <script src="https://unpkg.com/3d-force-graph@1.73.3/dist/3d-force-graph.min.js" integrity="sha384-SIcVySj+Cd1g+cwoLNCdr/osXU15HLXCxfaSzFNkZICYeKS7I2YxhyggCijT8JHA" crossorigin="anonymous"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
 
-    /* ---------------------------------------------------------------
-       Theme tokens. Light is the bare :root default; dark is layered on
-       twice so both the "system" default and an explicit toggle win:
-         - @media (prefers-color-scheme: dark) for mode=system
-         - [data-theme="dark"] for an explicit choice
-       Every colour below is a token so the toggle needs no JS per rule.
-       --------------------------------------------------------------- */
-    :root {{
-      --bg: #eef2f7;
-      --panel-bg: rgba(255, 255, 255, 0.92);
-      --panel-border: #cbd5e1;
-      --panel-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.18), 0 0 15px rgba(8, 145, 178, 0.10);
-      --text-strong: #0f172a;
-      --text-body: #1e293b;
-      --text-muted: #475569;
-      --text-dim: #475569;
-      --text-legend: #334155;
-      --accent: #0891b2;
-      --accent-fg: #0e7490;
-      --accent-soft-bg: rgba(8, 145, 178, 0.12);
-      --accent-soft-border: rgba(8, 145, 178, 0.35);
-      --accent-hover-bg: rgba(8, 145, 178, 0.14);
-      --accent-ring: rgba(8, 145, 178, 0.25);
-      --input-bg: #ffffff;
-      --input-border: #cbd5e1;
-      --result-bg: #f8fafc;
-      --divider: rgba(100, 116, 139, 0.35);
-      --btn-bg: #0369a1;
-      --btn-bg-hover: #075985;
-      --btn-fg: #ffffff;
-      --ghost-hover-bg: #e2e8f0;
-      --tag-alpha: 0.10;
-      --tag-topic-fg: #0e7490;
-      --tag-question-fg: #1d4ed8;
-      --tag-beginner-fg: #047857;
-      --tag-intermediate-fg: #92400e;
-      --tag-advanced-fg: #b91c1c;
-      --tag-domain-fg: #6d28d9;
-      --tag-general-fg: #475569;
-    }}
+.mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
 
-    /* mode=system, OS is dark */
-    @media (prefers-color-scheme: dark) {{
-      :root:not([data-theme="light"]) {{
-        --bg: #0b0f19;
-        --panel-bg: rgba(15, 23, 42, 0.90);
-        --panel-border: #334155;
-        --panel-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.65), 0 0 18px rgba(6, 182, 212, 0.12);
-        --text-strong: #f8fafc;
-        --text-body: #e2e8f0;
-        --text-muted: #94a3b8;
-        --text-dim: #94a3b8;
-        --text-legend: #cbd5e1;
-        --accent: #06b6d4;
-        --accent-fg: #22d3ee;
-        --accent-soft-bg: rgba(6, 182, 212, 0.12);
-        --accent-soft-border: rgba(6, 182, 212, 0.3);
-        --accent-hover-bg: rgba(6, 182, 212, 0.2);
-        --accent-ring: rgba(6, 182, 212, 0.2);
-        --input-bg: rgba(30, 41, 59, 0.8);
-        --input-border: #334155;
-        --result-bg: rgba(30, 41, 59, 0.6);
-        --divider: rgba(51, 65, 85, 0.5);
-        --btn-bg: #0284c7;
-        --btn-bg-hover: #0369a1;
-        --btn-fg: #ffffff;
-        --ghost-hover-bg: #1e293b;
-        --tag-alpha: 0.15;
-        --tag-topic-fg: #22d3ee;
-        --tag-question-fg: #60a5fa;
-        --tag-beginner-fg: #34d399;
-        --tag-intermediate-fg: #fbbf24;
-        --tag-advanced-fg: #f87171;
-        --tag-domain-fg: #c084fc;
-        --tag-general-fg: #cbd5e1;
-      }}
-    }}
+.label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
 
-    /* explicit dark choice — must also win when the OS is light */
-    :root[data-theme="dark"] {{
-      --bg: #0b0f19;
-      --panel-bg: rgba(15, 23, 42, 0.90);
-      --panel-border: #334155;
-      --panel-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.65), 0 0 18px rgba(6, 182, 212, 0.12);
-      --text-strong: #f8fafc;
-      --text-body: #e2e8f0;
-      --text-muted: #94a3b8;
-      --text-dim: #94a3b8;
-      --text-legend: #cbd5e1;
-      --accent: #06b6d4;
-      --accent-fg: #22d3ee;
-      --accent-soft-bg: rgba(6, 182, 212, 0.12);
-      --accent-soft-border: rgba(6, 182, 212, 0.3);
-      --accent-hover-bg: rgba(6, 182, 212, 0.2);
-      --accent-ring: rgba(6, 182, 212, 0.2);
-      --input-bg: rgba(30, 41, 59, 0.8);
-      --input-border: #334155;
-      --result-bg: rgba(30, 41, 59, 0.6);
-      --divider: rgba(51, 65, 85, 0.5);
-      --btn-bg: #0284c7;
-      --btn-bg-hover: #0369a1;
-      --btn-fg: #ffffff;
-      --ghost-hover-bg: #1e293b;
-      --tag-alpha: 0.15;
-      --tag-topic-fg: #22d3ee;
-      --tag-question-fg: #60a5fa;
-      --tag-beginner-fg: #34d399;
-      --tag-intermediate-fg: #fbbf24;
-      --tag-advanced-fg: #f87171;
-      --tag-domain-fg: #c084fc;
-      --tag-general-fg: #cbd5e1;
-    }}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 
-    * {{
-      box-sizing: border-box;
-    }}
-    body {{
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg);
-      color: var(--text-body);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      overflow: hidden;
-      -webkit-text-size-adjust: 100%;
-    }}
-    
-    /* Header Panel */
-    #header {{
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 20;
-      background: var(--panel-bg);
-      padding: 18px 22px;
-      border-radius: 12px;
-      border: 1px solid var(--panel-border);
-      backdrop-filter: blur(12px);
-      max-width: 380px;
-      box-shadow: var(--panel-shadow);
-    }}
-    .header-top {{
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-    }}
-    .badge {{
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: var(--accent-soft-bg);
-      color: var(--accent-fg);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border: 1px solid var(--accent-soft-border);
-    }}
-    .badge-dot {{
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-    }}
-    h1 {{
-      margin: 0 0 8px 0;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-strong);
-      letter-spacing: -0.3px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }}
-    p {{
-      margin: 0 0 12px 0;
-      font-size: 0.84rem;
-      color: var(--text-muted);
-      line-height: 1.45;
-    }}
+#shell { display: flex; flex-direction: column; height: 100vh; }
 
-    /* Theme switcher (segmented radiogroup: light / dark / system) */
-    #theme-switch {{
-      display: flex;
-      gap: 2px;
-      padding: 2px;
-      border-radius: 8px;
-      background: var(--result-bg);
-      border: 1px solid var(--input-border);
-      flex-shrink: 0;
-    }}
-    .theme-btn {{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 26px;
-      padding: 0;
-      border: none;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      line-height: 1;
-      cursor: pointer;
-      transition: background 0.15s ease, color 0.15s ease;
-    }}
-    .theme-btn:hover {{
-      background: var(--accent-hover-bg);
-      color: var(--text-strong);
-    }}
-    .theme-btn[aria-checked="true"] {{
-      background: var(--accent-soft-bg);
-      color: var(--accent-fg);
-      box-shadow: inset 0 0 0 1px var(--accent-soft-border);
-    }}
-    .theme-btn:focus-visible {{
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }}
+/* --------------------------------- Header -------------------------------- */
+header {
+  flex: none;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-    /* Search Bar */
-    .search-box {{
-      position: relative;
-      margin-bottom: 12px;
-    }}
-    .search-box input {{
-      width: 100%;
-      padding: 8px 12px 8px 34px;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 8px;
-      color: var(--text-strong);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      outline: none;
-      transition: all 0.2s ease;
-    }}
-    .search-box input::placeholder {{
-      color: var(--text-dim);
-    }}
-    .search-box input:focus {{
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-ring);
-    }}
-    .search-icon {{
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-dim);
-      font-size: 0.85rem;
-    }}
+.masthead { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 
-    /* Search Results List */
-    #search-results {{
-      max-height: 200px;
-      overflow-y: auto;
-      margin-bottom: 12px;
-      display: none;
-    }}
-    #search-results.visible {{
-      display: block;
-    }}
-    #search-results ul {{
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }}
-    #search-results li {{
-      margin: 0;
-      padding: 0;
-    }}
-    #search-results button {{
-      width: 100%;
-      text-align: left;
-      background: var(--result-bg);
-      border: 1px solid var(--input-border);
-      color: var(--text-body);
-      padding: 6px 10px;
-      margin-bottom: 3px;
-      border-radius: 6px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }}
-    #search-results button:hover {{
-      background: var(--accent-hover-bg);
-      border-color: var(--accent);
-    }}
-    #search-results button:focus {{
-      outline: 2px solid var(--accent);
-      outline-offset: -1px;
-    }}
+h1 {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
 
-    /* Legend */
-    .legend {{
-      display: flex;
-      gap: 12px;
-      font-size: 0.78rem;
-      flex-wrap: wrap;
-      padding-top: 8px;
-      border-top: 1px solid var(--divider);
-    }}
-    .legend-item {{
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-legend);
-    }}
-    .dot {{
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      display: inline-block;
-    }}
+.masthead .stats { color: var(--ink-faint); font-size: 12.5px; font-variant-numeric: tabular-nums; }
 
-    /* Stats Bar */
-    .stats-bar {{
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding-top: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      border-top: 1px dashed var(--divider);
-    }}
+#theme-switch { margin-left: auto; display: flex; gap: 2px; }
 
-    #graph {{
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-    }}
+.theme-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+.theme-btn:first-child { border-radius: 999px 0 0 999px; }
+.theme-btn:last-child { border-radius: 0 999px 999px 0; }
+.theme-btn + .theme-btn { border-left: 0; }
+.theme-btn:hover { background: var(--surface-2); }
+.theme-btn[aria-checked="true"] { background: var(--accent-wash); border-color: var(--accent); color: var(--ink); }
 
-    /* ---------------------------------------------------------------
-       Bottom-right stack: inspector card above the zoom controls.
-       Both used to want the same corner, so they are flex siblings in
-       one positioned wrapper — flow guarantees they cannot overlap.
-       The wrapper is pointer-transparent so its empty area (the gap and
-       the strip beside the buttons) still rotates the graph.
-       --------------------------------------------------------------- */
-    #bottom-right {{
-      position: absolute;
-      bottom: 24px;
-      right: 24px;
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 12px;
-      pointer-events: none;
-    }}
-    #bottom-right > * {{
-      pointer-events: auto;
-    }}
+.controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-    /* Zoom controls */
-    #zoom-controls {{
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex-shrink: 0;
-    }}
-    .zoom-btn {{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      padding: 0;
-      border-radius: 10px;
-      border: 1px solid var(--panel-border);
-      background: var(--panel-bg);
-      color: var(--text-strong);
-      backdrop-filter: blur(12px);
-      box-shadow: var(--panel-shadow);
-      font-size: 1.35rem;
-      font-weight: 500;
-      line-height: 1;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease;
-    }}
-    .zoom-btn:hover {{
-      background: var(--accent-hover-bg);
-      border-color: var(--accent);
-    }}
-    .zoom-btn:focus-visible {{
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }}
+#search {
+  flex: 0 1 260px;
+  min-width: 180px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--ground);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 6px 11px;
+}
+#search::placeholder { color: var(--ink-faint); }
 
-    /* Floating Inspector Card */
-    #info-card {{
-      background: var(--panel-bg);
-      padding: 18px 22px;
-      border-radius: 14px;
-      border: 1px solid var(--panel-border);
-      display: none;
-      width: 360px;
-      box-shadow: var(--panel-shadow);
-      backdrop-filter: blur(12px);
-      animation: slideUp 0.25s ease-out;
-    }}
-    @keyframes slideUp {{
-      from {{ opacity: 0; transform: translateY(12px); }}
-      to {{ opacity: 1; transform: translateY(0); }}
-    }}
-    .card-meta {{
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
-    }}
-    /* Tag colours are driven by data attributes rather than inline styles
-       so each theme can set its own accessible foreground. */
-    .card-tag {{
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      color: var(--tag-general-fg);
-      background: var(--result-bg);
-      background: color-mix(in srgb, currentColor calc(var(--tag-alpha) * 100%), transparent);
-    }}
-    .card-tag[data-kind="topic"] {{ color: var(--tag-topic-fg); }}
-    .card-tag[data-kind="question"] {{ color: var(--tag-question-fg); }}
-    .card-tag[data-level="beginner"] {{ color: var(--tag-beginner-fg); }}
-    .card-tag[data-level="intermediate"] {{ color: var(--tag-intermediate-fg); }}
-    .card-tag[data-level="advanced"] {{ color: var(--tag-advanced-fg); }}
-    .card-tag[data-level="domain"] {{ color: var(--tag-domain-fg); }}
-    .card-tag[data-level="general"] {{ color: var(--tag-general-fg); }}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  background: var(--ground);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip:hover { background: var(--surface-2); }
+.chip[aria-pressed="false"] { opacity: 0.42; }
+.chip[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.chip .ct { font-family: ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; color: var(--ink-faint); }
 
-    #info-card h3 {{
-      margin: 0 0 8px 0;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text-strong);
-      line-height: 1.35;
-    }}
-    #info-card p {{
-      margin: 0 0 14px 0;
-      color: var(--text-legend);
-      font-size: 0.82rem;
-      line-height: 1.45;
-    }}
-    .card-actions {{
-      display: flex;
-      gap: 8px;
-    }}
-    #card-link {{
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--btn-bg);
-      color: var(--btn-fg);
-      padding: 8px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px var(--accent-ring);
-    }}
-    #card-link:hover {{
-      background: var(--btn-bg-hover);
-      transform: translateY(-1px);
-    }}
-    #card-link:focus-visible, .close-btn:focus-visible {{
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }}
-    .close-btn {{
-      background: transparent;
-      border: 1px solid var(--input-border);
-      color: var(--text-muted);
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 0.8rem;
-    }}
-    .close-btn:hover {{
-      background: var(--ghost-hover-bg);
-      color: var(--text-strong);
-    }}
+#reset {
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: none;
+  border: 0;
+  color: var(--accent-ink);
+  cursor: pointer;
+  padding: 5px 4px;
+}
 
-    /* ---------------------------------------------------------------
-       Mobile / narrow viewports.
+#match { font-size: 11.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; margin-left: auto; }
 
-       Both panels are fixed-position overlays on a full-bleed canvas,
-       so on a small screen they grow into each other: the header grows
-       downward as search results populate while the info card grows
-       upward from the bottom. Capping the header at 40dvh from the top
-       and the card at 45dvh from the bottom leaves a 15dvh gutter, so
-       they can never meet no matter how much content either holds.
-       --------------------------------------------------------------- */
-    @media (max-width: 768px) {{
-      #header {{
-        top: 10px;
-        left: 10px;
-        right: 10px;
-        max-width: none;
-        max-height: 40dvh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-        padding: 14px 16px;
-      }}
-      /* Decorative on a small screen; the graph itself is the explanation. */
-      #header > p {{
-        display: none;
-      }}
-      h1 {{
-        font-size: 1.05rem;
-      }}
-      /* Must be >= 16px or iOS Safari zooms the whole page on focus. */
-      .search-box input {{
-        font-size: 16px;
-        padding: 10px 12px 10px 34px;
-      }}
-      #search-results {{
-        max-height: 34vh;
-      }}
-      /* WCAG 2.2 target size (2.5.8) + comfortable thumb target. */
-      #search-results button {{
-        min-height: 44px;
-        font-size: 0.85rem;
-      }}
+/* --------------------------------- Stage --------------------------------- */
+#stage { flex: 1; display: grid; grid-template-columns: 1fr 300px; min-height: 0; }
 
-      #bottom-right {{
-        bottom: 10px;
-        left: 10px;
-        right: 10px;
-        max-height: 45dvh;
-      }}
-      #info-card {{
-        width: 100%;
-        min-height: 0;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-        padding: 16px;
-      }}
-      .card-actions {{
-        flex-wrap: wrap;
-      }}
-      #card-link, .close-btn {{
-        min-height: 44px;
-        align-items: center;
-        display: inline-flex;
-      }}
-    }}
+#canvas-wrap { position: relative; min-width: 0; overflow: hidden; }
+svg { display: block; width: 100%; height: 100%; touch-action: none; }
+#scene { cursor: grab; }
+#scene.dragging { cursor: grabbing; }
 
-    /* Landscape phones: vertical space is the binding constraint, so drop
-       everything non-essential rather than shrinking both panels further. */
-    @media (max-height: 500px) and (orientation: landscape) {{
-      #header {{
-        max-height: 60dvh;
-        max-width: 320px;
-        right: auto;
-      }}
-      #header > p, .legend, .stats-bar {{
-        display: none;
-      }}
-      #bottom-right {{
-        max-height: 62dvh;
-        left: auto;
-      }}
-      #info-card {{
-        width: 320px;
-      }}
-    }}
+.node { cursor: pointer; }
 
-    /* 3d-force-graph injects a "Left-click: rotate, Mouse-wheel: zoom" hint.
-       It describes controls that do not exist on a touch device, and it sits
-       under the info card at the bottom edge. Drop it where there is no mouse. */
-    @media (hover: none) and (pointer: coarse) {{
-      .scene-nav-info {{
-        display: none;
-      }}
-    }}
+#hint {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  pointer-events: none;
+}
 
-    @media (prefers-reduced-motion: reduce) {{
-      #info-card {{
-        animation: none;
-      }}
-      #card-link:hover {{
-        transform: none;
-      }}
-    }}
+#zoom {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.zoom-btn {
+  width: 30px;
+  height: 30px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.zoom-btn:hover { background: var(--surface-2); }
 
-    /* ------------------------------------------------------------------
-       Filters, metadata panel, and connection list.
-       Colours are tokens only -- both themes follow the switcher for free.
-       ------------------------------------------------------------------ */
-    .filter-group {{
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }}
+/* -------------------------------- Detail --------------------------------- */
+#detail {
+  border-left: 1px solid var(--rule);
+  background: var(--surface);
+  padding: 16px;
+  overflow-y: auto;
+  min-height: 0;
+}
+#detail .empty-state { color: var(--ink-faint); font-size: 13px; }
+#detail h2 { margin: 8px 0 10px; font-size: 15px; line-height: 1.3; text-wrap: balance; }
 
-    .filter-group-label {{
-      width: 100%;
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 2px;
-    }}
+.pill {
+  display: inline-flex;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
 
-    .chip {{
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      font: inherit;
-      font-size: 11px;
-      line-height: 1.4;
-      color: var(--text-legend);
-      background: transparent;
-      border: 1px solid var(--panel-border);
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 120ms ease, border-color 120ms ease, opacity 120ms ease;
-    }}
+.meta { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0 0 14px; font-size: 12.5px; }
+.meta dt {
+  color: var(--ink-faint);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  align-self: center;
+}
+.meta dd { margin: 0; }
 
-    .chip:hover {{ background: var(--ghost-hover-bg); }}
+.conn { border-top: 1px solid var(--rule-soft); padding-top: 10px; }
+.conn ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; }
+.conn button {
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  width: 100%;
+  color: var(--accent-ink);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  padding: 3px 5px;
+  cursor: pointer;
+}
+.conn button:hover { background: var(--accent-wash); }
 
-    .chip:focus-visible {{
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }}
+.source-link { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--accent-ink); }
 
-    /* Unselected reads as muted, not hidden: the set stays legible. */
-    .chip[aria-pressed="false"] {{ opacity: 0.45; }}
+#results { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+#results button {
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  width: 100%;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+#results button:hover { background: var(--surface-2); color: var(--ink); }
 
-    .chip[aria-pressed="true"] {{
-      background: var(--accent-soft-bg);
-      border-color: var(--accent-soft-border);
-      color: var(--text-strong);
-    }}
+@media (max-width: 900px) {
+  #stage { grid-template-columns: 1fr; }
+  #detail { position: absolute; inset: auto 0 0 0; max-height: 52%; border-top: 1px solid var(--rule); border-left: 0; display: none; }
+  #detail.open { display: block; }
+}
 
-    .chip .dot {{
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      flex: none;
-    }}
-
-    .chip .chip-count {{
-      font-variant-numeric: tabular-nums;
-      color: var(--text-dim);
-    }}
-
-    #filter-reset {{
-      margin-left: auto;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: none;
-      border: none;
-      color: var(--accent-fg);
-      cursor: pointer;
-      padding: 4px 2px;
-    }}
-
-    #filter-reset:focus-visible {{
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }}
-
-    #match-count {{
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 6px;
-      font-variant-numeric: tabular-nums;
-    }}
-
-    .card-meta-list {{
-      margin: 8px 0 0;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 3px 10px;
-      font-size: 11.5px;
-    }}
-
-    .card-meta-list dt {{
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-size: 10px;
-      align-self: center;
-    }}
-
-    .card-meta-list dd {{
-      margin: 0;
-      color: var(--text-body);
-    }}
-
-    .card-connections {{
-      margin-top: 10px;
-      border-top: 1px solid var(--divider);
-      padding-top: 8px;
-    }}
-
-    .card-connections h4 {{
-      margin: 0 0 5px;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      font-weight: 600;
-    }}
-
-    .card-connections ul {{
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      max-height: 132px;
-      overflow-y: auto;
-    }}
-
-    .card-connections button {{
-      display: block;
-      width: 100%;
-      text-align: left;
-      font: inherit;
-      font-size: 11.5px;
-      line-height: 1.35;
-      color: var(--accent-fg);
-      background: none;
-      border: none;
-      border-radius: 4px;
-      padding: 3px 4px;
-      cursor: pointer;
-    }}
-
-    .card-connections button:hover {{ background: var(--ghost-hover-bg); }}
-
-    .card-connections button:focus-visible {{
-      outline: 2px solid var(--accent);
-      outline-offset: -2px;
-    }}
-
-    .kbd {{
-      display: inline-block;
-      padding: 1px 5px;
-      font-size: 10px;
-      font-family: inherit;
-      color: var(--text-dim);
-      background: var(--result-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: 4px;
-    }}
-
-    /* Respect the OS setting: the camera flights and particle streams are the
-       motion-heavy parts, so they are cut rather than merely shortened. */
-    @media (prefers-reduced-motion: reduce) {{
-      .chip {{ transition: none; }}
-    }}
-  </style>
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
 </head>
 <body>
-  <div id="header">
-    <div class="header-top">
-      <div class="badge"><span class="badge-dot"></span> Live Telemetry Topology</div>
+<div id="shell">
+  <header>
+    <div class="masthead">
+      <h1>AI ENGINEERING KNOWLEDGE GRAPH</h1>
+      <span class="stats">__QUESTION_COUNT__ questions · __TOPIC_COUNT__ topics · __LINK_COUNT__ cross-links</span>
       <div id="theme-switch" role="radiogroup" aria-label="Colour theme">
-        <button type="button" class="theme-btn" role="radio" aria-checked="false"
-                data-theme-choice="light" aria-label="Light theme" title="Light theme">☀</button>
-        <button type="button" class="theme-btn" role="radio" aria-checked="false"
-                data-theme-choice="dark" aria-label="Dark theme" title="Dark theme">☾</button>
-        <button type="button" class="theme-btn" role="radio" aria-checked="false"
-                data-theme-choice="system" aria-label="Match system theme" title="Match system theme">◐</button>
+        <button type="button" class="theme-btn" role="radio" aria-checked="false" data-theme-choice="light" title="Light">☀</button>
+        <button type="button" class="theme-btn" role="radio" aria-checked="false" data-theme-choice="dark" title="Dark">☾</button>
+        <button type="button" class="theme-btn" role="radio" aria-checked="false" data-theme-choice="system" title="Match system">◐</button>
       </div>
     </div>
-    <h1>⚡ AI Engineering Knowledge Graph</h1>
-    <p>Interactive 3D map linking {question_count} AI engineering interview questions across {topic_count} topics, wired by explicit cross-links and [[wikilinks]].</p>
-    
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" placeholder="Filter questions or topics (e.g. RAG, prompt injection, LoRA)...">
+    <div class="controls">
+      <input type="search" id="search" placeholder="Search questions…" aria-label="Search questions">
+      <div id="section-chips" style="display:flex;gap:6px;flex-wrap:wrap" role="group" aria-label="Filter by section"></div>
+      <div id="difficulty-chips" style="display:flex;gap:6px;flex-wrap:wrap" role="group" aria-label="Filter by difficulty"></div>
+      <button type="button" id="reset">Reset</button>
+      <span id="match" role="status" aria-live="polite"></span>
     </div>
+  </header>
 
-    <div id="search-results" role="region" aria-label="Search results">
-      <ul id="search-results-list"></ul>
+  <div id="stage">
+    <div id="canvas-wrap">
+      <svg id="graph" role="img" aria-label="Circular knowledge graph: questions grouped by topic, cross-links drawn as bundled curves"></svg>
+      <p id="hint" class="label">Drag to pan · scroll to zoom · / to search</p>
+      <div id="zoom" role="group" aria-label="Zoom">
+        <button type="button" class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
+        <button type="button" class="zoom-btn" id="zoom-out" aria-label="Zoom out">−</button>
+        <button type="button" class="zoom-btn" id="zoom-reset" aria-label="Reset view" title="Reset view">⤾</button>
+      </div>
     </div>
-
-    <div class="filter-group" id="section-filters" role="group" aria-label="Filter by section">
-      <span class="filter-group-label">Sections</span>
-    </div>
-
-    <div class="filter-group" id="difficulty-filters" role="group" aria-label="Filter by difficulty">
-      <span class="filter-group-label">Difficulty</span>
-      <button type="button" id="filter-reset">Reset</button>
-    </div>
-
-    <p id="match-count" role="status" aria-live="polite"></p>
-
-    <div class="stats-bar">
-      <span>NODES: <strong id="node-count">0</strong></span>
-      <span>EDGES: <strong id="edge-count">0</strong></span>
-      <span>TOPICS: <strong id="topic-count">0</strong></span>
-      <span class="kbd-hint"><span class="kbd">/</span> search · <span class="kbd">Esc</span> clear</span>
-    </div>
+    <aside id="detail" aria-live="polite">
+      <p class="empty-state">Select a question on the rim to see its topic, difficulty and cross-links.</p>
+    </aside>
   </div>
+</div>
 
-  <div id="bottom-right">
-    <div id="info-card">
-      <div class="card-meta">
-        <span id="card-type" class="card-tag" data-kind="question">QUESTION</span>
-        <span id="card-difficulty" class="card-tag" data-level="beginner">BEGINNER</span>
-      </div>
-      <h3 id="card-title">Node Info</h3>
-      <dl class="card-meta-list" id="card-meta-list"></dl>
-      <div class="card-connections" id="card-connections" hidden>
-        <h4 id="card-connections-heading">Connected questions</h4>
-        <ul id="card-connections-list" aria-labelledby="card-connections-heading"></ul>
-      </div>
-      <div class="card-actions">
-        <a id="card-link" href="#" target="_blank" rel="noopener">View Markdown Source ↗</a>
-        <button type="button" class="close-btn" id="card-dismiss">Dismiss</button>
-      </div>
-    </div>
+<script>
+const DATA = __DATA__;
+const Q = DATA.questions;
+const BY_ID = new Map(Q.map(q => [q.id, q]));
+const TAU = Math.PI * 2;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
-    <div id="zoom-controls" role="group" aria-label="Zoom controls">
-      <button type="button" class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
-      <button type="button" class="zoom-btn" id="zoom-out" aria-label="Zoom out">−</button>
-    </div>
-  </div>
+/* The data's colours were chosen against a dark ground. On a light ground some
+   of them fall under the 3:1 floor WCAG 1.4.11 sets for non-text graphics --
+   amber at 1.89:1, emerald at 2.23:1 -- and read as washed out.
 
-  <div id="graph"></div>
+   Darkening the whole palette to fix those two turns the page muddy, so this
+   adjusts each colour only as far as it needs to go: anything already clearing
+   the floor is left exactly as-is, and the rest are mixed toward the ink in
+   small steps until they just clear it. Blue, violet and rose come through
+   untouched; only amber and emerald move. */
+const INK_RGB = [15, 22, 32];
+const LIGHT_GROUND = [237, 241, 245];
+const MIN_CONTRAST = 3.2;
+const toneCache = new Map();
 
-  <script>
-    const gData = {graph_json};
+const isLight = () => document.documentElement.getAttribute('data-theme') !== 'dark';
 
-    const QUESTION_NODES = gData.nodes.filter(n => n.type === 'question');
-    const TOPIC_NODES = gData.nodes.filter(n => n.type === 'topic');
+const channel = c => {
+  const v = c / 255;
+  return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+};
+const luminance = rgb => 0.2126 * channel(rgb[0]) + 0.7152 * channel(rgb[1]) + 0.0722 * channel(rgb[2]);
 
-    document.getElementById('node-count').innerText = gData.nodes.length;
-    document.getElementById('edge-count').innerText = gData.links.length;
-    document.getElementById('topic-count').innerText = TOPIC_NODES.length;
+function contrast(a, b) {
+  const la = luminance(a), lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
 
-    const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tone(hex) {
+  if (!isLight()) return hex;
+  if (toneCache.has(hex)) return toneCache.get(hex);
 
-    // Adjacency, built once. Powers the "connected questions" list in the
-    // detail panel -- the cross-links are the point of the graph, so they
-    // belong in the panel rather than only as edges you have to trace by eye.
-    const NODE_BY_ID = new Map(gData.nodes.map(n => [n.id, n]));
-    const NEIGHBOURS = new Map(gData.nodes.map(n => [n.id, new Set()]));
-    for (const link of gData.links) {{
-      const src = typeof link.source === 'object' ? link.source.id : link.source;
-      const tgt = typeof link.target === 'object' ? link.target.id : link.target;
-      if (link.type !== 'cross-link') continue;
-      NEIGHBOURS.get(src) && NEIGHBOURS.get(src).add(tgt);
-      NEIGHBOURS.get(tgt) && NEIGHBOURS.get(tgt).add(src);
-    }}
+  const h = hex.replace('#', '');
+  const rgb = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
 
-    // Section and difficulty facets are DERIVED FROM THE DATA, never hardcoded.
-    // A new topic group or difficulty in the repo shows up here on the next
-    // build with no edit to this template -- which is exactly how the old
-    // "TOPICS: 40" and the DevOps colour keys silently went stale.
-    const SECTIONS = [...new Set(gData.nodes.map(n => n.section).filter(Boolean))].sort();
-    const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced']
-      .filter(d => QUESTION_NODES.some(n => n.difficulty === d));
+  let out = hex;
+  if (contrast(rgb, LIGHT_GROUND) < MIN_CONTRAST) {
+    for (let mix = 0.05; mix <= 0.6; mix += 0.05) {
+      const shifted = rgb.map((c, i) => Math.round(c + (INK_RGB[i] - c) * mix));
+      if (contrast(shifted, LIGHT_GROUND) >= MIN_CONTRAST) {
+        out = '#' + shifted.map(v => v.toString(16).padStart(2, '0')).join('');
+        break;
+      }
+    }
+  }
+  toneCache.set(hex, out);
+  return out;
+}
 
-    const SECTION_COLOR = new Map();
-    for (const t of TOPIC_NODES) {{
-      if (t.section && !SECTION_COLOR.has(t.section)) SECTION_COLOR.set(t.section, t.color);
-    }}
-    const DIFFICULTY_COLOR = new Map();
-    for (const q of QUESTION_NODES) {{
-      if (q.difficulty && !DIFFICULTY_COLOR.has(q.difficulty)) DIFFICULTY_COLOR.set(q.difficulty, q.color);
-    }}
+const el = (name, attrs) => {
+  const node = document.createElementNS(SVG_NS, name);
+  for (const k in attrs) node.setAttribute(k, attrs[k]);
+  return node;
+};
 
-    const activeSections = new Set(SECTIONS);
-    const activeDifficulties = new Set(DIFFICULTIES);
+/* Rim order is the repo's own reading order: topics in registered sequence,
+   questions by id within each. Neighbouring topics therefore sit together,
+   which is what lets the bundled curves read as topic-to-topic traffic. */
+const ORDER = [];
+for (const topic of DATA.topicOrder) {
+  for (const q of Q) if (q.topic === topic) ORDER.push(q);
+}
 
-    function buildChip(label, count, color, isOn, onToggle) {{
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'chip';
-      btn.setAttribute('aria-pressed', String(isOn));
-      if (color) {{
-        const dot = document.createElement('span');
-        dot.className = 'dot';
-        dot.style.background = color;
-        btn.appendChild(dot);
-      }}
-      btn.appendChild(document.createTextNode(label));
-      const tally = document.createElement('span');
-      tally.className = 'chip-count';
-      tally.textContent = String(count);
-      btn.appendChild(tally);
-      btn.addEventListener('click', () => {{
-        const next = btn.getAttribute('aria-pressed') !== 'true';
-        btn.setAttribute('aria-pressed', String(next));
-        onToggle(next);
-        applyFilters();
-      }});
-      return btn;
-    }}
+const SECTIONS = DATA.sectionOrder;
+const LEVELS = ['Beginner', 'Intermediate', 'Advanced'].filter(l => Q.some(q => q.difficulty === l));
+const SECTION_COLOR = new Map();
+for (const t of DATA.topicOrder) {
+  const meta = DATA.topics[t];
+  if (meta && !SECTION_COLOR.has(meta.section)) SECTION_COLOR.set(meta.section, meta.color);
+}
+const LEVEL_COLOR = new Map(LEVELS.map(l => [l, (Q.find(q => q.difficulty === l) || {}).color]));
 
-    const sectionRail = document.getElementById('section-filters');
-    for (const section of SECTIONS) {{
-      const count = QUESTION_NODES.filter(n => n.section === section).length;
-      sectionRail.appendChild(buildChip(section, count, SECTION_COLOR.get(section), true, on => {{
-        on ? activeSections.add(section) : activeSections.delete(section);
-      }}));
-    }}
+const activeSections = new Set(SECTIONS);
+const activeLevels = new Set(LEVELS);
+let query = '';
+let selected = null;
 
-    const difficultyRail = document.getElementById('difficulty-filters');
-    const resetBtn = document.getElementById('filter-reset');
-    for (const level of DIFFICULTIES) {{
-      const count = QUESTION_NODES.filter(n => n.difficulty === level).length;
-      difficultyRail.insertBefore(
-        buildChip(level, count, DIFFICULTY_COLOR.get(level), true, on => {{
-          on ? activeDifficulties.add(level) : activeDifficulties.delete(level);
-        }}),
-        resetBtn
-      );
-    }}
+/* ------------------------------- Filtering ------------------------------- */
+function inScope(q) {
+  if (!activeSections.has(q.section)) return false;
+  if (!activeLevels.has(q.difficulty)) return false;
+  if (query) {
+    const hay = (q.title + ' ' + q.topic + ' ' + q.section + ' ' + q.difficulty + ' ' + q.tags.join(' ')).toLowerCase();
+    if (!hay.includes(query)) return false;
+  }
+  return true;
+}
+const wideOpen = () => activeSections.size === SECTIONS.length && activeLevels.size === LEVELS.length && !query;
 
-    const card = document.getElementById('info-card');
-    const cardType = document.getElementById('card-type');
-    const cardDifficulty = document.getElementById('card-difficulty');
-    const cardTitle = document.getElementById('card-title');
-    const cardLink = document.getElementById('card-link');
-    const cardMetaList = document.getElementById('card-meta-list');
-    const cardConnections = document.getElementById('card-connections');
-    const cardConnectionsList = document.getElementById('card-connections-list');
-    const searchResults = document.getElementById('search-results');
-    const searchResultsList = document.getElementById('search-results-list');
+/* -------------------------------- Chips ---------------------------------- */
+function chip(label, count, color, onToggle) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'chip';
+  b.setAttribute('aria-pressed', 'true');
+  if (color) {
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.dataset.baseColor = color;
+    dot.style.background = tone(color);
+    b.appendChild(dot);
+  }
+  b.appendChild(document.createTextNode(label));
+  const ct = document.createElement('span');
+  ct.className = 'ct';
+  ct.textContent = count;
+  b.appendChild(ct);
+  b.addEventListener('click', () => {
+    const next = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(next));
+    onToggle(next);
+    paint();
+  });
+  return b;
+}
 
-    // Node click handler (shared for graph clicks and list item activation)
-    function handleNodeActivation(node) {{
-      if (!node) return;
+const sectionChips = document.getElementById('section-chips');
+for (const s of SECTIONS) {
+  sectionChips.appendChild(chip(s, Q.filter(q => q.section === s).length, SECTION_COLOR.get(s), on => {
+    on ? activeSections.add(s) : activeSections.delete(s);
+  }));
+}
+const levelChips = document.getElementById('difficulty-chips');
+for (const l of LEVELS) {
+  levelChips.appendChild(chip(l, Q.filter(q => q.difficulty === l).length, LEVEL_COLOR.get(l), on => {
+    on ? activeLevels.add(l) : activeLevels.delete(l);
+  }));
+}
 
-      const distance = 120;
-      const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
-      Graph.cameraPosition(
-        {{ x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }},
-        node,
-        REDUCED_MOTION ? 0 : 2000
-      );
+/* ------------------------------- The weave -------------------------------- */
+const svg = document.getElementById('graph');
+let scene = null;
+let dots = [];
+let wires = [];
+let bands = [];
+let glowBlur = null;
+let angleOf = new Map();
 
-      // Tag colours come from theme tokens keyed off these data attributes,
-      // so both light and dark get an accessible foreground automatically.
-      if (node.type === 'topic') {{
-        cardType.innerText = 'TOPIC HUB';
-        cardType.dataset.kind = 'topic';
-        cardDifficulty.innerText = node.section || 'DOMAIN';
-        cardDifficulty.dataset.level = 'domain';
-      }} else {{
-        cardType.innerText = 'QUESTION';
-        cardType.dataset.kind = 'question';
-        cardDifficulty.innerText = (node.difficulty || 'GENERAL').toUpperCase();
-        const levels = {{ Beginner: 'beginner', Intermediate: 'intermediate', Advanced: 'advanced' }};
-        cardDifficulty.dataset.level = levels[node.difficulty] || 'general';
-      }}
+function build() {
+  const box = svg.getBoundingClientRect();
+  const w = Math.max(320, box.width), h = Math.max(320, box.height);
+  const cx = w / 2, cy = h / 2;
+  const R = Math.max(90, Math.min(w, h) / 2 - 104);
 
-      cardTitle.innerText = node.title || node.label;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.replaceChildren();
+  dots = []; wires = []; bands = []; angleOf = new Map();
 
-      // Structured rows beat a newline-joined blob: screen readers get real
-      // term/definition pairs, and long values wrap instead of overflowing.
-      const rows = [
-        ['Section', node.section],
-        ['Topic', node.category],
-        ['Difficulty', node.type === 'question' ? node.difficulty : null],
-        ['Tags', Array.isArray(node.tags)
-          ? node.tags.filter(t => t !== 'ai-engineering' && t !== 'interview-questions').join(', ')
-          : null]
-      ].filter(([, value]) => value);
+  const defs = el('defs', {});
+  const glow = el('filter', { id: 'glow', x: '-30%', y: '-30%', width: '160%', height: '160%' });
+  glowBlur = el('feGaussianBlur', { stdDeviation: isLight() ? '1.1' : '2.2', result: 'b' });
+  glow.appendChild(glowBlur);
+  const merge = el('feMerge', {});
+  merge.appendChild(el('feMergeNode', { in: 'b' }));
+  merge.appendChild(el('feMergeNode', { in: 'SourceGraphic' }));
+  glow.appendChild(merge);
+  defs.appendChild(glow);
+  svg.appendChild(defs);
 
-      cardMetaList.replaceChildren();
-      for (const [term, value] of rows) {{
-        const dt = document.createElement('dt');
-        dt.textContent = term;
-        const dd = document.createElement('dd');
-        dd.textContent = value;
-        cardMetaList.append(dt, dd);
-      }}
+  scene = el('g', { id: 'scene' });
+  svg.appendChild(scene);
 
-      const neighbours = [...(NEIGHBOURS.get(node.id) || [])]
-        .map(id => NODE_BY_ID.get(id))
-        .filter(Boolean)
-        .sort((a, b) => (a.title || a.label).localeCompare(b.title || b.label));
+  const wireLayer = el('g', {});
+  const pulseLayer = el('g', { filter: 'url(#glow)' });
+  const rimLayer = el('g', {});
+  scene.append(wireLayer, pulseLayer, rimLayer);
 
-      cardConnectionsList.replaceChildren();
-      if (neighbours.length) {{
-        for (const neighbour of neighbours) {{
-          const li = document.createElement('li');
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.textContent = neighbour.title || neighbour.label;
-          btn.addEventListener('click', () => handleNodeActivation(neighbour));
-          li.appendChild(btn);
-          cardConnectionsList.appendChild(li);
-        }}
-        cardConnections.hidden = false;
-      }} else {{
-        cardConnections.hidden = true;
-      }}
+  // Place every question on the rim, grouped by topic with a gap between groups.
+  const gap = 0.05;
+  const usable = TAU - gap * DATA.topicOrder.length;
+  let a = -Math.PI / 2;
+  for (const topic of DATA.topicOrder) {
+    const qs = ORDER.filter(q => q.topic === topic);
+    const sweep = (qs.length / Q.length) * usable;
+    const step = sweep / qs.length;
+    qs.forEach((q, i) => angleOf.set(q.id, a + step * (i + 0.5)));
 
-      cardLink.href = `https://github.com/mchittineni/ultimate-ai-engineering-guide/blob/main/${{node.url.replace('./', '')}}`;
-      card.style.display = 'block';
-      card.focus();
-      if (node.type === 'question') {{
-        history.replaceState(null, '', `#${{node.id.replace(':', '-')}}`);
-      }}
-    }}
+    // Topic band + label, flipped on the left half so text never reads upside down.
+    const mid = a + sweep / 2;
+    const large = sweep > Math.PI ? 1 : 0;
+    const p = (r, ang) => [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+    const [ax, ay] = p(R + 10, a), [bx, by] = p(R + 10, a + sweep);
+    const band = el('path', {
+      d: `M${ax} ${ay}A${R + 10} ${R + 10} 0 ${large} 1 ${bx} ${by}`,
+      fill: 'none', stroke: tone(DATA.topics[topic].color), 'stroke-width': '4', 'stroke-linecap': 'round'
+    });
+    rimLayer.appendChild(band);
+    bands.push({ band, topic });
 
-    // The WebGL scene cannot read CSS variables, so the graph keeps its own
-    // parallel palette. Light needs more link opacity because the data-supplied
-    // link tints were picked against a near-black background.
-    const GRAPH_THEME = {{
-      dark: {{
-        bg: '#0b0f19',
-        link: 'rgba(148, 163, 184, 0.25)',
-        linkOpacity: 0.35,
-        dim: 'rgba(51, 65, 85, 0.30)',
-        hit: '#38bdf8'
-      }},
-      light: {{
-        bg: '#eef2f7',
-        link: 'rgba(51, 65, 85, 0.45)',
-        linkOpacity: 0.4,
-        dim: 'rgba(148, 163, 184, 0.55)',
-        hit: '#0369a1'
-      }}
-    }};
+    const lr = R + 26;
+    const [lx, ly] = p(lr, mid);
+    const flip = Math.cos(mid) < 0;
+    const label = el('text', {
+      x: lx, y: ly,
+      'text-anchor': flip ? 'end' : 'start',
+      'dominant-baseline': 'central',
+      transform: `rotate(${(mid * 180 / Math.PI) + (flip ? 180 : 0)} ${lx} ${ly})`,
+      fill: 'var(--ink-soft)', 'font-size': '9.5',
+      'font-family': 'ui-monospace, Menlo, monospace', 'letter-spacing': '0.07em'
+    });
+    label.textContent = topic;
+    rimLayer.appendChild(label);
 
-    let graphTheme = GRAPH_THEME[document.documentElement.getAttribute('data-theme')] || GRAPH_THEME.dark;
+    a += sweep + gap;
+  }
 
-    const Graph = ForceGraph3D()
-      (document.getElementById('graph'))
-        .graphData(gData)
-        .nodeId('id')
-        .nodeVal('val')
-        .nodeColor('color')
-        .nodeLabel('label')
-        .nodeResolution(16)
-        .backgroundColor(graphTheme.bg)
-        .linkOpacity(graphTheme.linkOpacity)
-        .linkWidth(link => link.type === 'topic-link' ? 1.8 : 0.8)
-        .linkColor(link => link.color || graphTheme.link)
-        .linkDirectionalParticles(link => link.type === 'cross-link' ? 3 : 0)
-        .linkDirectionalParticleWidth(2.0)
-        .linkDirectionalParticleSpeed(0.006)
-        .onNodeHover(node => {{
-          document.body.style.cursor = node ? 'pointer' : 'default';
-        }})
-        .onNodeClick(handleNodeActivation);
+  const pt = (ang, r) => [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
 
-    document.getElementById('card-dismiss').addEventListener('click', () => {{
-      card.style.display = 'none';
-    }});
+  // One curve per unique cross-link, control points pulled toward the centre so
+  // links sharing endpoints fall into a common bundle.
+  const seen = new Set();
+  for (const q of ORDER) {
+    for (const id of q.links) {
+      const key = q.id < id ? q.id + '|' + id : id + '|' + q.id;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const a0 = angleOf.get(q.id), a1 = angleOf.get(id);
+      if (a0 === undefined || a1 === undefined) continue;
+      const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R);
+      const [c0x, c0y] = pt(a0, R * 0.28), [c1x, c1y] = pt(a1, R * 0.28);
+      const d = `M${x0} ${y0}C${c0x} ${c0y} ${c1x} ${c1y} ${x1} ${y1}`;
 
-    /* ----------------------------- Theme ----------------------------- */
-    const THEME_KEY = 'ai-eng-graph-theme';
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
-    const themeButtons = Array.from(document.querySelectorAll('.theme-btn'));
-    let themeMode = document.documentElement.getAttribute('data-theme-mode') || 'system';
+      const wire = el('path', { d, fill: 'none', stroke: 'var(--wire)', 'stroke-width': '0.9' });
+      wireLayer.appendChild(wire);
 
-    function applyTheme(mode, persist) {{
-      themeMode = mode;
-      const effective = mode === 'system' ? (systemDark.matches ? 'dark' : 'light') : mode;
+      const pulse = el('path', {
+        d, fill: 'none', stroke: tone(DATA.topics[q.topic].color),
+        'stroke-width': '2.2', 'stroke-linecap': 'round'
+      });
+      pulseLayer.appendChild(pulse);
 
-      document.documentElement.setAttribute('data-theme-mode', mode);
-      document.documentElement.setAttribute('data-theme', effective);
+      wires.push({ wire, pulse, anim: null, a: q.id, b: id });
+    }
+  }
 
-      if (persist) {{
-        try {{ localStorage.setItem(THEME_KEY, mode); }} catch (e) {{ /* private mode */ }}
-      }}
+  // Lengths are only measurable once the paths are in the document.
+  const BEAD = 7;
+  for (const link of wires) {
+    const len = link.pulse.getTotalLength();
+    link.pulse.setAttribute('stroke-dasharray', `${BEAD} ${len}`);
+    if (REDUCED) {
+      link.pulse.setAttribute('stroke-dashoffset', len / 2);
+      continue;
+    }
+    // Negative delay puts every bead mid-flight on frame one, so the field is
+    // already scattered instead of firing as a single volley.
+    const dur = 3600 + Math.random() * 3200;
+    link.anim = link.pulse.animate(
+      [{ strokeDashoffset: len + BEAD }, { strokeDashoffset: 0 }],
+      { duration: dur, delay: -Math.random() * dur, iterations: Infinity, easing: 'linear' }
+    );
+  }
 
-      themeButtons.forEach(btn => {{
-        const on = btn.dataset.themeChoice === mode;
-        btn.setAttribute('aria-checked', String(on));
-        // Only the selected radio stays in the tab order.
-        btn.tabIndex = on ? 0 : -1;
-      }});
+  for (const q of ORDER) {
+    const [x, y] = pt(angleOf.get(q.id), R);
+    const dot = el('circle', {
+      cx: x, cy: y, r: 3.4, fill: tone(q.color), class: 'node',
+      tabindex: '0', role: 'button', 'aria-label': `#${q.num} ${q.title}`
+    });
+    dot.addEventListener('click', () => select(q));
+    dot.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(q); }
+    });
+    dot.addEventListener('mouseenter', () => hover(q));
+    dot.addEventListener('mouseleave', () => hover(null));
+    rimLayer.appendChild(dot);
+    dots.push({ q, dot });
+  }
 
-      graphTheme = GRAPH_THEME[effective];
-      Graph.backgroundColor(graphTheme.bg);
-      Graph.linkOpacity(graphTheme.linkOpacity);
-      Graph.linkColor(link => link.color || graphTheme.link);
-      paintNodes();
-    }}
+  applyTransform();
+  paint();
+}
 
-    themeButtons.forEach((btn, i) => {{
-      btn.addEventListener('click', () => applyTheme(btn.dataset.themeChoice, true));
-      // Arrow-key navigation, as expected of a radiogroup.
-      btn.addEventListener('keydown', (evt) => {{
-        const back = evt.key === 'ArrowLeft' || evt.key === 'ArrowUp';
-        const fwd = evt.key === 'ArrowRight' || evt.key === 'ArrowDown';
-        if (!back && !fwd) return;
-        evt.preventDefault();
-        const next = themeButtons[(i + (fwd ? 1 : -1) + themeButtons.length) % themeButtons.length];
-        next.focus();
-        applyTheme(next.dataset.themeChoice, true);
-      }});
-    }});
+/* --------------------------------- Paint --------------------------------- */
+let hovered = null;
+function hover(q) { hovered = q; paint(); }
 
-    // Follow the OS only while the user has chosen "system".
-    systemDark.addEventListener('change', () => {{
-      if (themeMode === 'system') applyTheme('system', false);
-    }});
+function paint() {
+  const focus = hovered || selected;
+  const focusId = focus && focus.id;
+  const related = focus ? new Set(focus.links) : null;
 
-    /* ----------------------------- Zoom ----------------------------- */
-    // Scale the camera's distance from the origin. Clamped so a long press
-    // cannot bury the camera inside the cluster or lose the graph entirely.
-    const ZOOM_STEP = 1.35;
-    const MIN_DIST = 40;
-    const MAX_DIST = 4000;
+  for (const { q, dot } of dots) {
+    const scoped = inScope(q);
+    const lit = focus ? (q.id === focusId || related.has(q.id)) : scoped;
+    dot.setAttribute('opacity', scoped ? (lit ? '1' : '0.22') : '0.07');
+    dot.setAttribute('r', q.id === focusId ? '6' : '3.4');
+  }
 
-    function zoomByFactor(factor) {{
-      const pos = Graph.cameraPosition();
-      const dist = Math.hypot(pos.x, pos.y, pos.z);
-      if (!dist) return;
-      const target = Math.min(MAX_DIST, Math.max(MIN_DIST, dist * factor));
-      const ratio = target / dist;
-      Graph.cameraPosition(
-        {{ x: pos.x * ratio, y: pos.y * ratio, z: pos.z * ratio }},
-        undefined,
-        220
-      );
-    }}
+  for (const { wire, pulse, anim, a, b } of wires) {
+    const qa = BY_ID.get(a), qb = BY_ID.get(b);
+    const scoped = inScope(qa) && inScope(qb);
+    const hot = focus ? (a === focusId || b === focusId) : false;
 
-    document.getElementById('zoom-in').addEventListener('click', () => zoomByFactor(1 / ZOOM_STEP));
-    document.getElementById('zoom-out').addEventListener('click', () => zoomByFactor(ZOOM_STEP));
+    wire.setAttribute('stroke', hot ? 'var(--wire-hot)' : 'var(--wire)');
+    wire.setAttribute('stroke-width', hot ? '1.8' : '0.9');
+    wire.setAttribute('opacity', !scoped ? '0.04' : (focus && !hot ? '0.10' : '1'));
 
-    // Helper function to check if node matches query
-    function nodeMatchesQuery(node, query) {{
-      const label = (node.label || '').toLowerCase();
-      const cat = (node.category || '').toLowerCase();
-      const sec = (node.section || '').toLowerCase();
-      const diff = (node.difficulty || '').toLowerCase();
+    pulse.setAttribute('opacity', !scoped ? '0' : (focus ? (hot ? '1' : '0.05') : '0.85'));
+    pulse.setAttribute('stroke-width', hot ? '3' : '2.2');
+    // Focused traffic runs hot; the rest keeps drifting so the diagram stays
+    // alive rather than freezing around the selection.
+    if (anim) anim.playbackRate = hot ? 2.4 : 1;
+  }
 
-      // Check tags array
-      let tagsMatch = false;
-      if (Array.isArray(node.tags)) {{
-        tagsMatch = node.tags.some(tag => (tag || '').toLowerCase().includes(query));
-      }} else if (typeof node.tags === 'string') {{
-        tagsMatch = node.tags.toLowerCase().includes(query);
-      }}
+  const shown = Q.filter(inScope).length;
+  document.getElementById('match').textContent =
+    wideOpen() ? `All ${Q.length} questions` : `${shown} of ${Q.length} questions`;
+}
 
-      return label.includes(query) || cat.includes(query) || sec.includes(query) || diff.includes(query) || tagsMatch;
-    }}
+/* --------------------------------- Detail -------------------------------- */
+const detail = document.getElementById('detail');
 
-    // Single owner of node colouring, so a theme switch mid-search repaints
-    // the highlight/dim colours instead of stranding the old palette.
-    let activeQuery = '';
+function select(q) {
+  selected = q;
+  detail.replaceChildren();
+  detail.classList.add('open');
 
-    // A node is in scope when it clears BOTH facets and the text query.
-    // Topic hubs follow their section only -- they have no difficulty.
-    function nodeInScope(node) {{
-      if (node.section && !activeSections.has(node.section)) return false;
-      if (node.type === 'question' && node.difficulty && !activeDifficulties.has(node.difficulty)) return false;
-      if (activeQuery && !nodeMatchesQuery(node, activeQuery)) return false;
-      return true;
-    }}
+  const pill = document.createElement('span');
+  pill.className = 'pill';
+  pill.style.color = tone(q.color);
+  pill.textContent = q.difficulty || 'QUESTION';
+  detail.appendChild(pill);
 
-    const facetsWideOpen = () =>
-      activeSections.size === SECTIONS.length && activeDifficulties.size === DIFFICULTIES.length;
+  const h = document.createElement('h2');
+  h.textContent = q.title;
+  detail.appendChild(h);
 
-    function paintNodes() {{
-      if (!activeQuery && facetsWideOpen()) {{
-        Graph.nodeColor(node => node.color);
-        Graph.linkColor(link => link.color || graphTheme.link);
-        return;
-      }}
-      // Out-of-scope nodes are dimmed rather than removed, so the shape of the
-      // whole vault stays visible and the selection reads as a subset of it.
-      Graph.nodeColor(node => {{
-        if (!nodeInScope(node)) return graphTheme.dim;
-        return activeQuery ? graphTheme.hit : node.color;
-      }});
-      Graph.linkColor(link => {{
-        const src = typeof link.source === 'object' ? link.source : NODE_BY_ID.get(link.source);
-        const tgt = typeof link.target === 'object' ? link.target : NODE_BY_ID.get(link.target);
-        const lit = src && tgt && nodeInScope(src) && nodeInScope(tgt);
-        return lit ? (link.color || graphTheme.link) : graphTheme.dim;
-      }});
-    }}
+  const dl = document.createElement('dl');
+  dl.className = 'meta';
+  const rows = [['No.', '#' + q.num], ['Topic', q.topic], ['Section', q.section]];
+  if (q.tags.length) rows.push(['Tags', q.tags.join(', ')]);
+  for (const [term, value] of rows) {
+    if (!value) continue;
+    const dt = document.createElement('dt'); dt.textContent = term;
+    const dd = document.createElement('dd'); dd.textContent = value;
+    dl.append(dt, dd);
+  }
+  detail.appendChild(dl);
 
-    const matchCount = document.getElementById('match-count');
+  if (q.links.length) {
+    const box = document.createElement('div');
+    box.className = 'conn';
+    const lab = document.createElement('div');
+    lab.className = 'label';
+    lab.textContent = q.links.length + ' cross-links';
+    box.appendChild(lab);
+    const ul = document.createElement('ul');
+    for (const id of q.links) {
+      const other = BY_ID.get(id);
+      if (!other) continue;
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = other.title;
+      b.addEventListener('click', () => select(other));
+      li.appendChild(b);
+      ul.appendChild(li);
+    }
+    box.appendChild(ul);
+    detail.appendChild(box);
+  }
 
-    function applyFilters() {{
-      paintNodes();
-      const shown = QUESTION_NODES.filter(nodeInScope).length;
-      matchCount.textContent = (shown === QUESTION_NODES.length && !activeQuery)
-        ? `Showing all ${{QUESTION_NODES.length}} questions`
-        : `Showing ${{shown}} of ${{QUESTION_NODES.length}} questions`;
-    }}
+  const a = document.createElement('a');
+  a.className = 'source-link';
+  a.href = DATA.repoBlob + q.url.replace('./', '');
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.textContent = 'Read the answer ↗';
+  detail.appendChild(a);
 
-    resetBtn.addEventListener('click', () => {{
-      SECTIONS.forEach(sec => activeSections.add(sec));
-      DIFFICULTIES.forEach(d => activeDifficulties.add(d));
-      document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'true'));
-      const input = document.getElementById('search-input');
-      input.value = '';
-      activeQuery = '';
-      searchResults.classList.remove('visible');
-      searchResultsList.replaceChildren();
-      applyFilters();
-      input.focus();
-    }});
+  history.replaceState(null, '', '#' + q.id.replace(':', '-'));
+  paint();
+}
 
-    // Live search filter
-    document.getElementById('search-input').addEventListener('input', (e) => {{
-      const query = e.target.value.toLowerCase().trim();
-      activeQuery = query;
-      if (!query) {{
-        applyFilters();
-        searchResults.classList.remove('visible');
-        searchResultsList.replaceChildren();
-        return;
-      }}
+function clearSelection() {
+  selected = null;
+  detail.classList.remove('open');
+  detail.replaceChildren();
+  const p = document.createElement('p');
+  p.className = 'empty-state';
+  p.textContent = 'Select a question on the rim to see its topic, difficulty and cross-links.';
+  detail.appendChild(p);
+  history.replaceState(null, '', location.pathname + location.search);
+  paint();
+}
 
-      // Filter matching nodes
-      const matchingNodes = gData.nodes.filter(nodeInScope);
+/* --------------------------------- Search -------------------------------- */
+const search = document.getElementById('search');
+search.addEventListener('input', e => {
+  query = e.target.value.toLowerCase().trim();
+  paint();
 
-      applyFilters();
+  if (!query) { renderResults([]); return; }
+  renderResults(Q.filter(inScope).slice(0, 12));
+});
 
-      // Populate accessible search results list
-      searchResultsList.replaceChildren();
-      if (matchingNodes.length > 0) {{
-        matchingNodes.slice(0, 20).forEach(node => {{
-          const li = document.createElement('li');
-          const btn = document.createElement('button');
-          btn.textContent = node.label;
-          btn.setAttribute('type', 'button');
-          btn.addEventListener('click', () => handleNodeActivation(node));
-          btn.addEventListener('keydown', (evt) => {{
-            if (evt.key === 'Enter' || evt.key === ' ') {{
-              evt.preventDefault();
-              handleNodeActivation(node);
-            }}
-          }});
-          li.appendChild(btn);
-          searchResultsList.appendChild(li);
-        }});
-        searchResults.classList.add('visible');
-      }} else {{
-        searchResults.classList.remove('visible');
-      }}
-    }});
+function renderResults(list) {
+  if (!list.length) {
+    if (!selected) clearSelection();
+    return;
+  }
+  detail.replaceChildren();
+  detail.classList.add('open');
+  const lab = document.createElement('div');
+  lab.className = 'label';
+  lab.textContent = list.length + ' matches';
+  detail.appendChild(lab);
+  const ul = document.createElement('ul');
+  ul.id = 'results';
+  for (const q of list) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = '#' + q.num + '  ' + q.title;
+    b.addEventListener('click', () => select(q));
+    li.appendChild(b);
+    ul.appendChild(li);
+  }
+  detail.appendChild(ul);
+}
 
-    /* -------------------------- Keyboard -------------------------- */
-    // "/" focuses search and Escape clears -- the two shortcuts advertised in
-    // the stats bar. Guarded so they never hijack typing in a field.
-    document.addEventListener('keydown', (evt) => {{
-      const el = document.activeElement;
-      const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+document.getElementById('reset').addEventListener('click', () => {
+  SECTIONS.forEach(s => activeSections.add(s));
+  LEVELS.forEach(l => activeLevels.add(l));
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'true'));
+  search.value = '';
+  query = '';
+  clearSelection();
+  search.focus();
+});
 
-      if (evt.key === '/' && !typing) {{
-        evt.preventDefault();
-        document.getElementById('search-input').focus();
-        return;
-      }}
+/* --------------------------- Pan, zoom, keyboard -------------------------- */
+let tx = 0, ty = 0, k = 1;
+function applyTransform() {
+  if (scene) scene.setAttribute('transform', `translate(${tx} ${ty}) scale(${k})`);
+}
+function zoomBy(factor, ox, oy) {
+  const box = svg.getBoundingClientRect();
+  const px = ox === undefined ? box.width / 2 : ox;
+  const py = oy === undefined ? box.height / 2 : oy;
+  const next = Math.min(6, Math.max(0.4, k * factor));
+  // Keep the point under the cursor fixed while scaling.
+  tx = px - (px - tx) * (next / k);
+  ty = py - (py - ty) * (next / k);
+  k = next;
+  applyTransform();
+}
 
-      if (evt.key === 'Escape') {{
-        if (card.style.display === 'block') {{
-          card.style.display = 'none';
-          history.replaceState(null, '', location.pathname + location.search);
-          return;
-        }}
-        const input = document.getElementById('search-input');
-        if (input.value) {{
-          input.value = '';
-          activeQuery = '';
-          searchResults.classList.remove('visible');
-          searchResultsList.replaceChildren();
-          applyFilters();
-        }}
-      }}
-    }});
+svg.addEventListener('wheel', e => {
+  e.preventDefault();
+  const box = svg.getBoundingClientRect();
+  zoomBy(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - box.left, e.clientY - box.top);
+}, { passive: false });
 
-    document.getElementById('card-dismiss').addEventListener('click', () => {{
-      history.replaceState(null, '', location.pathname + location.search);
-    }});
+let dragging = false, lastX = 0, lastY = 0;
+svg.addEventListener('pointerdown', e => {
+  if (e.target.classList.contains('node')) return;
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  scene && scene.classList.add('dragging');
+  svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  tx += e.clientX - lastX; ty += e.clientY - lastY;
+  lastX = e.clientX; lastY = e.clientY;
+  applyTransform();
+});
+svg.addEventListener('pointerup', e => {
+  dragging = false;
+  scene && scene.classList.remove('dragging');
+  try { svg.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+});
 
-    // Physics Tuning
-    Graph.d3Force('charge').strength(-130);
+document.getElementById('zoom-in').addEventListener('click', () => zoomBy(1.3));
+document.getElementById('zoom-out').addEventListener('click', () => zoomBy(1 / 1.3));
+document.getElementById('zoom-reset').addEventListener('click', () => { tx = 0; ty = 0; k = 1; applyTransform(); });
 
-    // Deep link: /#q-181 opens that question once the layout has settled, so a
-    // specific node can be shared or linked from a talk.
-    (function restoreFromHash() {{
-      const raw = location.hash.replace('#', '');
-      if (!raw) return;
-      const node = NODE_BY_ID.get(raw.replace('-', ':'));
-      if (node) setTimeout(() => handleNodeActivation(node), REDUCED_MOTION ? 0 : 900);
-    }})();
+document.addEventListener('keydown', e => {
+  const t = document.activeElement;
+  const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+  if (e.key === '/' && !typing) { e.preventDefault(); search.focus(); return; }
+  if (e.key === 'Escape') {
+    if (selected) { clearSelection(); return; }
+    if (search.value) { search.value = ''; query = ''; paint(); clearSelection(); }
+  }
+});
 
-    applyFilters();
+/* --------------------------------- Theme --------------------------------- */
+const THEME_KEY = 'ai-eng-graph-theme';
+const systemDark = matchMedia('(prefers-color-scheme: dark)');
+const themeButtons = [...document.querySelectorAll('.theme-btn')];
+let themeMode = document.documentElement.getAttribute('data-theme-mode') || 'system';
 
-    // Sync the switcher's checked state and the scene palette with the mode
-    // the pre-paint script already resolved. Not persisted: nothing changed yet.
-    applyTheme(themeMode, false);
-  </script>
+function applyTheme(mode, persist) {
+  themeMode = mode;
+  const effective = mode === 'system' ? (systemDark.matches ? 'dark' : 'light') : mode;
+  document.documentElement.setAttribute('data-theme-mode', mode);
+  document.documentElement.setAttribute('data-theme', effective);
+  if (persist) { try { localStorage.setItem(THEME_KEY, mode); } catch (e) { /* private mode */ } }
+  themeButtons.forEach(b => {
+    const on = b.dataset.themeChoice === mode;
+    b.setAttribute('aria-checked', String(on));
+    b.tabIndex = on ? 0 : -1;
+  });
+  restyle();
+}
+
+/* SVG cannot read CSS custom properties for fill/stroke values that came from
+   the data, so the scene keeps its own palette and is repainted on theme change.
+   The glow is also cut right down in light: a blurred bright bead on a near-white
+   ground reads as a smudge rather than a light. */
+function restyle() {
+  toneCache.clear();
+  if (glowBlur) glowBlur.setAttribute('stdDeviation', isLight() ? '1.1' : '2.2');
+  for (const { band, topic } of bands) band.setAttribute('stroke', tone(DATA.topics[topic].color));
+  for (const { q, dot } of dots) dot.setAttribute('fill', tone(q.color));
+  for (const link of wires) {
+    const src = BY_ID.get(link.a);
+    if (src) link.pulse.setAttribute('stroke', tone(DATA.topics[src.topic].color));
+  }
+  for (const b of document.querySelectorAll('.chip .dot')) {
+    if (b.dataset.baseColor) b.style.background = tone(b.dataset.baseColor);
+  }
+}
+themeButtons.forEach((b, i) => {
+  b.addEventListener('click', () => applyTheme(b.dataset.themeChoice, true));
+  b.addEventListener('keydown', e => {
+    const d = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1
+            : (e.key === 'ArrowLeft' || e.key === 'ArrowUp') ? -1 : 0;
+    if (!d) return;
+    e.preventDefault();
+    const next = themeButtons[(i + d + themeButtons.length) % themeButtons.length];
+    next.focus();
+    applyTheme(next.dataset.themeChoice, true);
+  });
+});
+systemDark.addEventListener('change', () => { if (themeMode === 'system') applyTheme('system', false); });
+applyTheme(themeMode, false);
+
+/* --------------------------------- Boot ---------------------------------- */
+let resizeTimer;
+addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(build, 150);
+});
+
+build();
+
+// Deep link: /#q-181 opens that question directly.
+const raw = location.hash.replace('#', '');
+if (raw) {
+  const node = BY_ID.get(raw.replace('-', ':'));
+  if (node) select(node);
+}
+</script>
 </body>
 </html>
 """
@@ -1520,27 +1163,27 @@ def main() -> int:
     parser.add_argument("--output", "-o", default="docs/index.html", help="Target output HTML file path")
     args = parser.parse_args()
 
-    graph_data = build_graph_data()
+    view = flatten(build_graph_data())
+
+    payload = json.dumps(view, indent=None)
+    # Neutralise HTML-significant characters so no string in the data can close
+    # the <script> element it is embedded in.
+    payload = (payload.replace("<", r"\u003c")
+                      .replace(">", r"\u003e")
+                      .replace("&", r"\u0026"))
+
+    html = (HTML_TEMPLATE
+            .replace("__DATA__", payload)
+            .replace("__QUESTION_COUNT__", str(len(view["questions"])))
+            .replace("__TOPIC_COUNT__", str(len(view["topicOrder"])))
+            .replace("__LINK_COUNT__", str(view["crossLinks"])))
 
     output_path = REPO_ROOT / args.output
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Escape HTML-significant characters in JSON to prevent script breakout
-    json_str = json.dumps(graph_data, indent=2)
-    json_str = json_str.replace('<', r'\u003c').replace('>', r'\u003e').replace('&', r'\u0026')
-
-    question_count = sum(1 for n in graph_data["nodes"] if n.get("type") == "question")
-    topic_count = sum(1 for n in graph_data["nodes"] if n.get("type") == "topic")
-
-    html_content = HTML_TEMPLATE.format(
-        graph_json=json_str,
-        question_count=question_count,
-        topic_count=topic_count,
-    )
-    output_path.write_text(html_content, encoding="utf-8")
+    output_path.write_text(html, encoding="utf-8")
 
     print(f"Successfully generated AI Engineering Knowledge Graph at: {output_path}")
-    print(f"Nodes: {len(graph_data['nodes'])}, Edges: {len(graph_data['links'])}")
+    print(f"Questions: {len(view['questions'])}, Topics: {len(view['topicOrder'])}, Cross-links: {view['crossLinks']}")
     return 0
 
 
