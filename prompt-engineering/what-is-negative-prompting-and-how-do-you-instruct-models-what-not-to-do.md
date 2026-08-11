@@ -15,16 +15,16 @@ tags:
 
 ## Detail
 
-LLMs process text by predicting tokens that align with prompt semantics. Naive negative instructions like *"Do NOT think of a pink elephant"* often inadvertently increase attention weight on the banned concept.
+LLMs process text by predicting tokens that align with prompt semantics. Naive negative instructions like _"Do NOT think of a pink elephant"_ often inadvertently increase attention weight on the banned concept.
 
-```
+```text
 Weak Negative Prompt:   "Don't generate conversational intros." (Model often outputs "Sure! Here is...")
 Strong Negative Prompt: "Respond strictly with the target JSON object. Zero conversational filler or introductory text."
 ```
 
 ### Best Practices for Negative Directives
 
-1. **Positive Replacement:** Instead of solely banning a behavior, instruct the model on the positive alternative (e.g. *"Instead of bullet points, use a single continuous paragraph"*).
+1. **Positive Replacement:** Instead of solely banning a behavior, instruct the model on the positive alternative (e.g. _"Instead of bullet points, use a single continuous paragraph"_).
 2. **XML Tag Isolation:** Wrap negative rules inside distinct structural blocks (`<disallowed_actions>`).
 3. **Structured Validation Guardrails:** Pair negative prompts with Pydantic output validation to catch edge-case violations.
 

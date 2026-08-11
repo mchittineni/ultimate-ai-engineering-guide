@@ -17,7 +17,7 @@ tags:
 
 Standard instruction prompts leave room for model generation ambiguity.
 
-```
+```text
 Standard Prompt: "Summarize this article on renewable energy."
 ──► Generates generic overview of solar, wind, and batteries
 
@@ -31,7 +31,7 @@ Directional Stimulus Prompt:
 
 In automated systems, a small tunable policy model (e.g. T5 or a small classification model) generates dynamic directional hints for a larger frozen LLM (e.g. GPT-4o):
 
-```
+```text
 User Input ──► [Small Policy Tuned LLM] ──► Generates Directional Hints ──┐
                                                                            ▼
 User Input + Hints ─────────────────────────────────────────────► [Large Foundation LLM]

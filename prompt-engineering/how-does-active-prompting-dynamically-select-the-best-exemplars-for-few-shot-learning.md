@@ -17,7 +17,7 @@ tags:
 
 Static few-shot prompting uses fixed, hardcoded examples that may not assist the model on hard edge cases.
 
-```
+```text
 [Unlabeled Pool of Inputs] ──► [LLM Uncertainty Sampler] ──► Select High Uncertainty Items
                                                                         │
                                                                         ▼

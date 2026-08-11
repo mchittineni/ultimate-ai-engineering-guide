@@ -17,7 +17,7 @@ tags:
 
 Exceeding model context window bounds causes API exceptions (`400 BadRequest: context_length_exceeded`).
 
-```
+```text
 Raw History (Over Limit):  [System Prompt] [Old Turn 1] [Old Turn 2] ... [Old Turn 50] [Latest Query]
 Truncated Safe History:   [System Prompt] ──► [Summarized Past History] ──► [Latest 3 Turns]
 ```
@@ -39,10 +39,10 @@ def truncate_chat_history(messages: list[dict], max_tokens: int = 4000, model: s
     tokenizer = tiktoken.encoding_for_model(model)
     system_msg = [m for m in messages if m["role"] == "system"]
     other_msgs = [m for m in messages if m["role"] != "system"]
-    
+
     selected_msgs = []
     current_tokens = sum(len(tokenizer.encode(m["content"])) for m in system_msg)
-    
+
     # Iterate from newest to oldest messages
     for msg in reversed(other_msgs):
         msg_tokens = len(tokenizer.encode(msg["content"]))
@@ -50,7 +50,7 @@ def truncate_chat_history(messages: list[dict], max_tokens: int = 4000, model: s
             break
         selected_msgs.insert(0, msg)
         current_tokens += msg_tokens
-        
+
     return system_msg + selected_msgs
 ```
 

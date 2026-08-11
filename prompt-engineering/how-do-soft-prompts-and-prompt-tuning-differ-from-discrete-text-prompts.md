@@ -17,19 +17,19 @@ tags:
 
 Discrete prompt engineering operates exclusively in human natural language space:
 
-```
+```text
 Discrete Prompt: "Summarize this text: " ──► Tokenizer ──► Embedding Lookup (Fixed Vectors)
 Soft Prompt:     [Trainable Tensor P_1, P_2, ... P_k] ──► Prepended directly to Transformer Hidden States
 ```
 
 ### Key Differences
 
-| Dimension | Discrete Text Prompts | Soft Prompts (Prompt Tuning) |
-| --- | --- | --- |
-| **Representation** | Human-readable strings ("You are an expert...") | Continuous un-interpretable vector tensors $\mathbb{R}^{K \times d}$ |
-| **Optimization** | Trial-and-error, manual edits, LLM-search | Backpropagation via loss gradient descent ($\nabla_\theta L$) |
-| **Model Weight State** | Frozen | Base model frozen; Soft prompt parameters trained |
-| **Deployment** | Passed as text tokens in API prompt | Injected into GPU tensor forward pass |
+| Dimension              | Discrete Text Prompts                           | Soft Prompts (Prompt Tuning)                                         |
+| ---------------------- | ----------------------------------------------- | -------------------------------------------------------------------- |
+| **Representation**     | Human-readable strings ("You are an expert...") | Continuous un-interpretable vector tensors $\mathbb{R}^{K \times d}$ |
+| **Optimization**       | Trial-and-error, manual edits, LLM-search       | Backpropagation via loss gradient descent ($\nabla_\theta L$)        |
+| **Model Weight State** | Frozen                                          | Base model frozen; Soft prompt parameters trained                    |
+| **Deployment**         | Passed as text tokens in API prompt             | Injected into GPU tensor forward pass                                |
 
 ## Example
 

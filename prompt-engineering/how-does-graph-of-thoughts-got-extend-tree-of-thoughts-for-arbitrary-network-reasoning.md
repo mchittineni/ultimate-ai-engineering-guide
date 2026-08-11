@@ -17,7 +17,7 @@ tags:
 
 Standard reasoning structures are strictly linear (Chain-of-Thought) or strictly hierarchical branching (Tree-of-Thoughts).
 
-```
+```text
 Chain-of-Thought (CoT):  Thought 1 ──► Thought 2 ──► Thought 3
 
 Tree-of-Thoughts (ToT):  Thought 1 ──┬──► Thought 2a ──► Thought 3a

@@ -19,14 +19,14 @@ Manually tuning prompt strings for complex tasks is time-consuming and prone to 
 
 Meta-prompting uses an LLM as a meta-reasoner:
 
-```
+```text
 [Draft Prompt] ──► [Meta-Prompt Optimizer LLM] ──► Evaluates Failure Cases ──► [Refined Production Prompt]
 ```
 
 ### Meta-Prompting Strategies
 
 1. **Self-Refinement Loop:** The LLM generates a candidate response, critiques its own output against criteria, and rewrites the underlying prompt.
-2. **Task Decomposition Meta-Prompts:** Asking the LLM to generate a step-by-step system prompt for a complex domain task (e.g. *"Generate a 5-step system prompt for auditing legal contracts"*).
+2. **Task Decomposition Meta-Prompts:** Asking the LLM to generate a step-by-step system prompt for a complex domain task (e.g. _"Generate a 5-step system prompt for auditing legal contracts"_).
 3. **Automated Few-Shot Generation:** Prompting an LLM to generate synthetic, high-quality few-shot exemplars for dynamic insertion.
 
 ## Example
@@ -41,7 +41,7 @@ Draft System Prompt: '{draft_prompt}'
 
 Analyze the draft system prompt for ambiguities, missing edge-case rules, and formatting gaps.
 Output an optimized, production-ready system prompt enclosed in <optimized_prompt> tags."""
-    
+
     # In practice, call LLM with meta_prompt
     return "Optimized system prompt string..."
 ```

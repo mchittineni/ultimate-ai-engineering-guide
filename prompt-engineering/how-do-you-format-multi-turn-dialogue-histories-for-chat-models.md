@@ -30,7 +30,7 @@ LLMs process a single flattened token stream during forward passes. Chat APIs re
 
 The tokenizer converts the JSON message list into special control tokens:
 
-```
+```text
 <|im_start|>system
 You are a customer support agent.<|im_end|>
 <|im_start|>user

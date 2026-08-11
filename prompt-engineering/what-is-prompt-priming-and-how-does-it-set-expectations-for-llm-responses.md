@@ -17,7 +17,7 @@ tags:
 
 Foundation models default to general web completion styles unless steered via explicit priming.
 
-```
+```text
 Unprimed Input: "Summarize this bug report."
 ──► Generic summary output ("The user reported a bug in login...")
 
@@ -27,8 +27,8 @@ Primed Input:   "You are an SRE on-call engineer. Output JSON with fields: [seve
 
 ### Core Components of Resilient Prompt Priming
 
-1. **Role & Identity Framing:** Establishing specialized authority (e.g. *"You are a Principal Security Auditor"*).
-2. **Contextual Constraints:** Specifying boundaries (e.g. *"Only cite provided documents; do not infer facts"*).
+1. **Role & Identity Framing:** Establishing specialized authority (e.g. _"You are a Principal Security Auditor"_).
+2. **Contextual Constraints:** Specifying boundaries (e.g. _"Only cite provided documents; do not infer facts"_).
 3. **Format Priming:** Providing sample output structure templates (JSON, Markdown tables, YAML).
 
 ## Example
@@ -39,7 +39,7 @@ Python prompt priming template builder:
 def build_primed_prompt(system_role: str, constraints: list[str], task_query: str) -> list[dict]:
     formatted_constraints = "\n".join(f"- {c}" for c in constraints)
     system_content = f"Role: {system_role}\n\nConstraints:\n{formatted_constraints}"
-    
+
     return [
         {"role": "system", "content": system_content},
         {"role": "user", "content": task_query}

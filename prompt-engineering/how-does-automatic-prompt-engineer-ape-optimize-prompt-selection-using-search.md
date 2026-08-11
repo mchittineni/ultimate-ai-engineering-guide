@@ -17,7 +17,7 @@ tags:
 
 Human-written prompts are rarely optimal for downstream accuracy. APE automates prompt discovery.
 
-```
+```text
 [Task Dataset (Inputs -> Target Answers)]
                  │
                  ▼
@@ -32,7 +32,7 @@ Human-written prompts are rarely optimal for downstream accuracy. APE automates 
 
 ### APE Algorithm Loop
 
-1. **Instruction Proposal:** Given exemplar input-output pairs, prompt a generator LLM: *"Generate a system prompt that maps these inputs to these outputs."*
+1. **Instruction Proposal:** Given exemplar input-output pairs, prompt a generator LLM: _"Generate a system prompt that maps these inputs to these outputs."_
 2. **Scoring:** Run candidate prompts across $N$ test cases and score accuracy using log-likelihood or LLM-as-a-Judge.
 3. **Resampling / Mutation:** Mutate high-scoring candidate strings by proposing semantic paraphrases until validation score converges.
 
@@ -44,7 +44,7 @@ Python concept illustrating APE search loop:
 def ape_search_loop(candidate_prompts: list[str], eval_dataset: list[dict]) -> tuple[str, float]:
     best_prompt = ""
     best_score = -1.0
-    
+
     for prompt in candidate_prompts:
         score = 0
         for item in eval_dataset:
@@ -52,12 +52,12 @@ def ape_search_loop(candidate_prompts: list[str], eval_dataset: list[dict]) -> t
             predicted = f"Simulated output for {item['input']}"
             if item['ground_truth'] in predicted:
                 score += 1
-                
+
         acc = score / len(eval_dataset)
         if acc > best_score:
             best_score = acc
             best_prompt = prompt
-            
+
     return best_prompt, best_score
 ```
 
