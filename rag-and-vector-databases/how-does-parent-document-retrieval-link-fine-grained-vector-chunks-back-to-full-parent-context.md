@@ -17,7 +17,7 @@ tags:
 
 Standard RAG faces a dilemma: small vector chunks excel at retrieval precision but lack context, while large vector chunks preserve context but dilute vector embedding precision.
 
-```
+```text
                    [Large Parent Document (1000 Tokens)] (Stored in KV Store)
                                      │
            ┌─────────────────────────┼─────────────────────────┐

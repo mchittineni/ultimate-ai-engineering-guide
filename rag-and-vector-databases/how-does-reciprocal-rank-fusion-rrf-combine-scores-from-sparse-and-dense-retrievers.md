@@ -22,11 +22,12 @@ Dense vector scores (cosine similarity $[0, 1]$) and BM25 sparse scores ($[0, \i
 $$\text{RRF\_Score}(d \in D) = \sum_{m \in M} \frac{1}{k + r_m(d)}$$
 
 Where:
+
 - $M$ is the set of retrieval algorithms (e.g. BM25, Vector Search).
 - $r_m(d)$ is the 1-based rank position of document $d$ in retriever $m$'s result list.
 - $k$ is a smoothing constant (standard default $k = 60$).
 
-```
+```text
 Document A: BM25 Rank 1, Vector Rank 5  ──► RRF = 1/(60+1) + 1/(60+5) = 0.01639 + 0.01538 = 0.03177
 Document B: BM25 Rank 20, Vector Rank 1 ──► RRF = 1/(60+20) + 1/(60+1) = 0.01250 + 0.01639 = 0.02889
 ```
@@ -43,7 +44,7 @@ def reciprocal_rank_fusion(results_list: list[list[str]], k: int = 60) -> list[t
             if doc_id not in rrf_scores:
                 rrf_scores[doc_id] = 0.0
             rrf_scores[doc_id] += 1.0 / (k + rank)
-            
+
     # Sort documents by combined RRF score descending
     sorted_docs = sorted(rrf_scores.items(), key=lambda item: item[1], reverse=True)
     return sorted_docs

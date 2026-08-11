@@ -17,18 +17,18 @@ tags:
 
 Embedding models place text chunks into an $N$-dimensional semantic vector space where semantically similar concepts reside physically close to each other.
 
-```
+```text
 "Machine learning algorithm" ──► Embedder ──► [0.012, -0.045, 0.891, ... 1536 Dimensions]
 "Artificial intelligence code" ──► Embedder ──► [0.015, -0.041, 0.885, ... 1536 Dimensions]
 ```
 
 ### Dimensionality Trade-Offs
 
-| Vector Dimensions ($d$) | Semantic Capacity | Storage / RAM per 1M Vectors | Query Latency | Typical Model Examples |
-| --- | --- | --- | --- | --- |
-| **384 / 512** | Moderate | ~1.5 GB | Ultra-fast | `all-MiniLM-L6-v2`, `bge-small-en` |
-| **768 / 1024** | High | ~3.0 - 4.0 GB | Fast | `bge-large-en-v1.5`, `gte-large` |
-| **1536 / 3072** | Very High | ~6.0 - 12.0 GB | Moderate | OpenAI `text-embedding-3-small` / `large` |
+| Vector Dimensions ($d$) | Semantic Capacity | Storage / RAM per 1M Vectors | Query Latency | Typical Model Examples                    |
+| ----------------------- | ----------------- | ---------------------------- | ------------- | ----------------------------------------- |
+| **384 / 512**           | Moderate          | ~1.5 GB                      | Ultra-fast    | `all-MiniLM-L6-v2`, `bge-small-en`        |
+| **768 / 1024**          | High              | ~3.0 - 4.0 GB                | Fast          | `bge-large-en-v1.5`, `gte-large`          |
+| **1536 / 3072**         | Very High         | ~6.0 - 12.0 GB               | Moderate      | OpenAI `text-embedding-3-small` / `large` |
 
 ### Matryoshka Representation Learning (MRL)
 

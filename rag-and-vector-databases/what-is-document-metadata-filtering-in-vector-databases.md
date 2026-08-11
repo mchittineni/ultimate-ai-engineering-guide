@@ -17,7 +17,7 @@ tags:
 
 Pure vector similarity search searches across all vectors in an index. In real-world enterprise applications, searches must be restricted by tenant boundaries or document tags.
 
-```
+```text
 Vector Entry:
 - ID: "doc_991"
 - Vector: [0.012, -0.451, ...]
@@ -26,7 +26,7 @@ Vector Entry:
 
 ### Pre-filtering vs Post-filtering
 
-```
+```text
 Post-Filtering (Slow / Low Recall):
 [ANN Vector Search top 100] ──► Filter out non-matching metadata ──► May return 0 items
 

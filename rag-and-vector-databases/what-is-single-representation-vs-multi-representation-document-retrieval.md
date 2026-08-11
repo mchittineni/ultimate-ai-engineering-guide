@@ -17,13 +17,13 @@ tags:
 
 In standard single-representation RAG, text chunks are embedded directly:
 
-```
+```text
 Single-Representation: [Raw 500-Word Chunk] ──► Embed ──► Single Vector in Index
 ```
 
 If a document chunk contains multiple dense ideas, a single vector embedding dilutes specific detail signals.
 
-```
+```text
 Multi-Representation:  [Raw 500-Word Chunk] ──┬──► Generate Summary ──► Vector A (Index)
                                               ├──► Generate Questions ──► Vector B (Index)
                                               └──► Raw Full Text (Retrieved for Prompt Context)

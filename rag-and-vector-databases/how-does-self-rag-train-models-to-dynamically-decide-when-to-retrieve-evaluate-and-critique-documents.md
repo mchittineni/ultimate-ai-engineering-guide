@@ -17,7 +17,7 @@ tags:
 
 Standard RAG pipelines follow fixed execution paths: ALWAYS retrieve $K$ documents for every user query, even if the query is a simple greeting or common knowledge.
 
-```
+```text
 Standard RAG: User Query ──► ALWAYS Retrieve ──► Generate Answer
 
 Self-RAG:     User Query ──► Generates Token: [Retrieve=Yes/No]

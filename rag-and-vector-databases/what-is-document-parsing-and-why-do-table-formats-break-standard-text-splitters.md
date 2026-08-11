@@ -17,7 +17,7 @@ tags:
 
 PDF documents store visual rendering instructions, not structured text grids.
 
-```
+```text
 PDF Raw Rendering Stream:  "Sales" (x=100, y=500), "$4.2M" (x=300, y=500)
 Naive Character Chunker:   Slices at character 500 ──► Separates "$4.2M" from "Sales" header
 ```

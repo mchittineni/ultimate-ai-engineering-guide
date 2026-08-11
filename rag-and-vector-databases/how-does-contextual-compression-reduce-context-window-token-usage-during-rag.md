@@ -17,7 +17,7 @@ tags:
 
 Vector search retrieves full document chunks (e.g. 500 tokens). Often, only a single 20-token sentence within a 500-token chunk directly answers the user's prompt.
 
-```
+```text
 Retrieved Raw Chunks: [500 Tokens Chunk A] + [500 Tokens Chunk B] = 1000 Prompt Tokens
                                          │
                                          ▼
@@ -40,13 +40,13 @@ Python concept illustrating embedding-based sentence compression:
 def compress_context_by_sentence(query_vec: list[float], chunk_text: str, embedder_fn, threshold: float = 0.6) -> str:
     sentences = [s.strip() for s in chunk_text.split(".") if s.strip()]
     relevant_sentences = []
-    
+
     for sent in sentences:
         sent_vec = embedder_fn(sent)
         sim = float(sum(q * s for q, s in zip(query_vec, sent_vec))) # Cosine sim
         if sim >= threshold:
             relevant_sentences.append(sent)
-            
+
     return ". ".join(relevant_sentences) + "."
 ```
 

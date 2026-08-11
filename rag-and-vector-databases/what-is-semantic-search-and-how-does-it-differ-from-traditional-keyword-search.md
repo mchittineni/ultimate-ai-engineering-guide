@@ -17,7 +17,7 @@ tags:
 
 Keyword search struggles when users ask queries using synonyms, misspellings, or alternative phrasing.
 
-```
+```text
 Query: "How to fix a leaky faucet?"
 Keyword Search (BM25): Looks for exact strings "fix", "leaky", "faucet". Misses "Repair dripping tap".
 Semantic Search:       Embeds query intent -> Retrieves "Guide to repairing a dripping water tap".
@@ -25,12 +25,12 @@ Semantic Search:       Embeds query intent -> Retrieves "Guide to repairing a dr
 
 ### Core Comparison
 
-| Metric | Lexical Keyword Search (BM25) | Semantic Vector Search |
-| --- | --- | --- |
-| **Matching Mechanism** | Exact token string overlap | Distance between vector embeddings |
-| **Synonym Awareness** | Poor (Requires manual synonym dictionaries) | High (Inherent in pre-trained embeddings) |
-| **Domain-Specific Terms** | High (Excels at exact part numbers / SKUs) | Moderate (Can miss rare exact codes without fine-tuning) |
-| **Index Type** | Inverted Index | HNSW / IVFFlat Graph Indexes |
+| Metric                    | Lexical Keyword Search (BM25)               | Semantic Vector Search                                   |
+| ------------------------- | ------------------------------------------- | -------------------------------------------------------- |
+| **Matching Mechanism**    | Exact token string overlap                  | Distance between vector embeddings                       |
+| **Synonym Awareness**     | Poor (Requires manual synonym dictionaries) | High (Inherent in pre-trained embeddings)                |
+| **Domain-Specific Terms** | High (Excels at exact part numbers / SKUs)  | Moderate (Can miss rare exact codes without fine-tuning) |
+| **Index Type**            | Inverted Index                              | HNSW / IVFFlat Graph Indexes                             |
 
 ## Example
 

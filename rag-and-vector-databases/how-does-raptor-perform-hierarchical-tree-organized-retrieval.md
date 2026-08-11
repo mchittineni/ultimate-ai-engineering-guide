@@ -15,9 +15,9 @@ tags:
 
 ## Detail
 
-Standard vector retrieval indexes isolated text chunks, failing on high-level thematic queries (e.g. *"What are the key overarching themes across the entire 300-page report?"*).
+Standard vector retrieval indexes isolated text chunks, failing on high-level thematic queries (e.g. _"What are the key overarching themes across the entire 300-page report?"_).
 
-```
+```text
 Level 2 (Global Summary):                  [ Root Summary Node ]
                                             /                  \
 Level 1 (Cluster Summaries):     [ Cluster Summary A ]    [ Cluster Summary B ]
