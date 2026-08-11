@@ -60,6 +60,12 @@ print("Sliding Window Mask (0.0 = Attend, -inf = Blocked):\n", create_sliding_wi
 - Discuss Mistral 7B as a prime example of Sliding Window Attention architecture.
 - Highlight rolling buffer KV cache implementations that overwrite old tokens outside window $W$ to keep KV VRAM footprint constant.
 
+## Related Concepts
+
+- [[What is prefix caching (prompt caching) and how does it eliminate redundant KV computation?]] (`#152`): [What is prefix caching (prompt caching) and how does it eliminate redundant KV computation?](../ai-system-design/what-is-prefix-caching-prompt-caching-and-how-does-it-eliminate-redundant-kv-computation.md)
+- [[How does Chunked Prefill prevent decoding latency spikes during concurrent batch processing?]] (`#156`): [How does Chunked Prefill prevent decoding latency spikes during concurrent batch processing?](../ai-system-design/how-does-chunked-prefill-prevent-decoding-latency-spikes-during-concurrent-batch-processing.md)
+- [[How does contextual compression reduce context window token usage during RAG?]] (`#128`): [How does contextual compression reduce context window token usage during RAG?](../rag-and-vector-databases/how-does-contextual-compression-reduce-context-window-token-usage-during-rag.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

@@ -58,6 +58,12 @@ print("Causal Attention Weights (Future tokens zeroed out):\n", attn_weights)
 - Emphasize why decoder-only models use causal attention: autoregressive generation predicts the next token $t+1$ without peeking at future targets.
 - Highlight Prefix LM attention variants that combine bidirectional attention on system prompts with causal attention on outputs.
 
+## Related Concepts
+
+- [[What is the difference between encoder-only, decoder-only, and encoder-decoder LLMs?]] (`#12`): [What is the difference between encoder-only, decoder-only, and encoder-decoder LLMs?](../llm-fundamentals/what-is-the-difference-between-encoder-only-decoder-only-and-encoder-decoder-llms.md)
+- [[How do you format multi-turn dialogue histories for chat models?]] (`#114`): [How do you format multi-turn dialogue histories for chat models?](../prompt-engineering/how-do-you-format-multi-turn-dialogue-histories-for-chat-models.md)
+- [[What is positional encoding and why do Transformers need it?]] (`#105`): [What is positional encoding and why do Transformers need it?](../llm-fundamentals/what-is-positional-encoding-and-why-do-transformers-need-it.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

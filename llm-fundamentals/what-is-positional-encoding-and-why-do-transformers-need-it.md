@@ -57,6 +57,12 @@ print("Positional Encoding Matrix Shape:", pe.shape)
 - Contrast Absolute Positional Embeddings with Rotary Position Embeddings (RoPE).
 - Discuss RoPE context extension techniques (YaRN, NTK-aware scaling).
 
+## Related Concepts
+
+- [[How do Rotary Position Embeddings (RoPE) and RoPE scaling work?]] (`#14`): [How do Rotary Position Embeddings (RoPE) and RoPE scaling work?](../llm-fundamentals/how-do-rotary-position-embeddings-rope-and-rope-scaling-work.md)
+- [[What is the difference between causal and bidirectional self-attention?]] (`#102`): [What is the difference between causal and bidirectional self-attention?](../llm-fundamentals/what-is-the-difference-between-causal-and-bidirectional-self-attention.md)
+- [[How does sliding window attention (SWA) reduce memory usage in long-context models?]] (`#108`): [How does sliding window attention (SWA) reduce memory usage in long-context models?](../llm-fundamentals/how-does-sliding-window-attention-swa-reduce-memory-usage-in-long-context-models.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

@@ -61,6 +61,12 @@ def transformer_step(x_t, kv_cache):
 - Emphasize Mamba's hardware-aware algorithm (fusing state updates directly inside GPU SRAM to avoid HBM bandwidth bottlenecks).
 - Discuss Hybrid Architectures (e.g. Jamba / Mamba-Transformer hybrids) that combine SSM throughput with Transformer retrieval precision.
 
+## Related Concepts
+
+- [[What is linear attention and how does it attempt to solve quadratic complexity?]] (`#107`): [What is linear attention and how does it attempt to solve quadratic complexity?](../llm-fundamentals/what-is-linear-attention-and-how-does-it-attempt-to-solve-quadratic-complexity.md)
+- [[How does vLLM PagedAttention manage Virtual Memory Pages to eliminate KV cache fragmentation?]] (`#159`): [How does vLLM PagedAttention manage Virtual Memory Pages to eliminate KV cache fragmentation?](../ai-system-design/how-does-vllm-pagedattention-manage-virtual-memory-pages-to-eliminate-kv-cache-fragmentation.md)
+- [[How do tensor parallelism (TP) and pipeline parallelism (PP) split large model weights across multi-GPU nodes?]] (`#157`): [How do tensor parallelism (TP) and pipeline parallelism (PP) split large model weights across multi-GPU nodes?](../ai-system-design/how-do-tensor-parallelism-tp-and-pipeline-parallelism-pp-split-large-model-weights-across-multi-gpu-nodes.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

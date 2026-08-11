@@ -57,6 +57,12 @@ print("Subword Chunks:", decoded_words)
 - Discuss Byte-Pair Encoding (BPE) merge rules and how byte-level fallback prevents out-of-vocabulary errors.
 - Explain tokenization quirks (e.g. why LLMs struggle with character-counting tasks like "How many r's in strawberry?").
 
+## Related Concepts
+
+- [[How does Byte-Pair Encoding (BPE) tokenization work?]] (`#13`): [How does Byte-Pair Encoding (BPE) tokenization work?](../llm-fundamentals/how-does-byte-pair-encoding-bpe-tokenization-work.md)
+- [[What is mixed precision training (FP16 vs BF16) and why is BF16 preferred on modern GPUs?]] (`#144`): [What is mixed precision training (FP16 vs BF16) and why is BF16 preferred on modern GPUs?](../fine-tuning-and-adaptation/what-is-mixed-precision-training-fp16-vs-bf16-and-why-is-bf16-preferred-on-modern-gpus.md)
+- [[What is an embedding model and how does vector dimension affect search quality?]] (`#121`): [What is an embedding model and how does vector dimension affect search quality?](../rag-and-vector-databases/what-is-an-embedding-model-and-how-does-vector-dimension-affect-search-quality.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

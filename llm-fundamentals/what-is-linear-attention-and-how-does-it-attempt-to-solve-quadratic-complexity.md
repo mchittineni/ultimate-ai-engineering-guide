@@ -62,6 +62,12 @@ class LinearAttention(nn.Module):
 - Highlight why pure linear attention is rarely used in flagship LLMs: removing non-linear Softmax degrades multi-hop retrieval and long-context needle-in-a-haystack recall.
 - Connect linear attention to modern State Space Models (Mamba) and Recurrent Transformers (RWKV).
 
+## Related Concepts
+
+- [[How do state space models (SSMs) like Mamba compare to Transformer self-attention?]] (`#109`): [How do state space models (SSMs) like Mamba compare to Transformer self-attention?](../llm-fundamentals/how-do-state-space-models-ssms-like-mamba-compare-to-transformer-self-attention.md)
+- [[How does vLLM PagedAttention manage Virtual Memory Pages to eliminate KV cache fragmentation?]] (`#159`): [How does vLLM PagedAttention manage Virtual Memory Pages to eliminate KV cache fragmentation?](../ai-system-design/how-does-vllm-pagedattention-manage-virtual-memory-pages-to-eliminate-kv-cache-fragmentation.md)
+- [[What is an attention mask and why is it needed during batch processing?]] (`#104`): [What is an attention mask and why is it needed during batch processing?](../llm-fundamentals/what-is-an-attention-mask-and-why-is-it-needed-during-batch-processing.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

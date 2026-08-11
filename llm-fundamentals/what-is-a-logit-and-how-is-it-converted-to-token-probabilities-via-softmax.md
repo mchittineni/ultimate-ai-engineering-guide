@@ -58,6 +58,12 @@ print("Sum of Probabilities:", round(probs.sum().item(), 4))
 - Discuss numerical stability trick in Softmax: subtracting $\max(z)$ from logits before exponentiating ($e^{z_i - \max(z)}$) to prevent floating-point overflow.
 - Connect logits to logit bias parameters in OpenAI/vLLM APIs.
 
+## Related Concepts
+
+- [[What is Temperature, Top-p, and Top-k sampling?]] (`#51`): [What is Temperature, Top-p, and Top-k sampling?](../llm-fundamentals/what-is-temperature-top-p-and-top-k-sampling.md)
+- [[What is learning rate scheduling (cosine decay) during LLM fine-tuning?]] (`#142`): [What is learning rate scheduling (cosine decay) during LLM fine-tuning?](../fine-tuning-and-adaptation/what-is-learning-rate-scheduling-cosine-decay-during-llm-fine-tuning.md)
+- [[What is SLA/SLO monitoring for Time-to-First-Token (TTFT) and throughput (Tokens/sec)?]] (`#163`): [What is SLA/SLO monitoring for Time-to-First-Token (TTFT) and throughput (Tokens/sec)?](../llmops-and-production-ai/what-is-sla-slo-monitoring-for-time-to-first-token-ttft-and-throughput-tokens-sec.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

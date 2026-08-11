@@ -64,6 +64,12 @@ class SparseMoEGating(nn.Module):
 - Discuss Aux Loss (Auxiliary Load Balancing Loss) used during training to prevent router collapse where 1-2 popular experts receive all token traffic while others remain untrained.
 - Explain VRAM memory footprint trade-offs: MoE models require hosting all 47B parameters in GPU memory despite only executing 13B FLOPs per token.
 
+## Related Concepts
+
+- [[How do tensor parallelism (TP) and pipeline parallelism (PP) split large model weights across multi-GPU nodes?]] (`#157`): [How do tensor parallelism (TP) and pipeline parallelism (PP) split large model weights across multi-GPU nodes?](../ai-system-design/how-do-tensor-parallelism-tp-and-pipeline-parallelism-pp-split-large-model-weights-across-multi-gpu-nodes.md)
+- [[How does DeepSpeed ZeRO stage 1, 2, and 3 partition optimizer states, gradients, and parameters?]] (`#150`): [How does DeepSpeed ZeRO stage 1, 2, and 3 partition optimizer states, gradients, and parameters?](../fine-tuning-and-adaptation/how-does-deepspeed-zero-stage-1-2-and-3-partition-optimizer-states-gradients-and-parameters.md)
+- [[How does GGUF format enable quantization and CPU/GPU offloading in llama.cpp?]] (`#147`): [How does GGUF format enable quantization and CPU/GPU offloading in llama.cpp?](../fine-tuning-and-adaptation/how-does-gguf-format-enable-quantization-and-cpu-gpu-offloading-in-llama-cpp.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

@@ -60,6 +60,12 @@ class DifferentialAttention(nn.Module):
 - Emphasize that Diff-Transformer (introduced by Microsoft Research) significantly mitigates hallucination and improves long-context needle-in-a-haystack retrieval.
 - Explain how Differential Attention reduces activation outliers, paving the way for lower-bit quantization (INT4/FP4).
 
+## Related Concepts
+
+- [[How does contextual compression reduce context window token usage during RAG?]] (`#128`): [How does contextual compression reduce context window token usage during RAG?](../rag-and-vector-databases/how-does-contextual-compression-reduce-context-window-token-usage-during-rag.md)
+- [[How to measure model hallucination rate using NLI (Natural Language Inference) entailment models?]] (`#176`): [How to measure model hallucination rate using NLI (Natural Language Inference) entailment models?](../evaluation-and-testing/how-to-measure-model-hallucination-rate-using-nli-natural-language-inference-entailment-models.md)
+- [[How to build an automated RAG evaluation harness measuring Context Precision and Recall?]] (`#178`): [How to build an automated RAG evaluation harness measuring Context Precision and Recall?](../evaluation-and-testing/how-to-build-an-automated-rag-evaluation-harness-measuring-context-precision-and-recall.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)

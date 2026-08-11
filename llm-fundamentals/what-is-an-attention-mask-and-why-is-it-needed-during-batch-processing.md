@@ -57,6 +57,12 @@ print("Attention Probabilities for Padded Batch:\n", probs)
 - Highlight flash attention optimizations (FlashAttention 2/3) that eliminate padding tokens altogether using varlen unpadded memory layouts.
 - Distinguish between padding attention masks and causal autoregressive masks.
 
+## Related Concepts
+
+- [[What is gradient accumulation and how does it simulate larger batch sizes on small GPUs?]] (`#143`): [What is gradient accumulation and how does it simulate larger batch sizes on small GPUs?](../fine-tuning-and-adaptation/what-is-gradient-accumulation-and-how-does-it-simulate-larger-batch-sizes-on-small-gpus.md)
+- [[How does Chunked Prefill prevent decoding latency spikes during concurrent batch processing?]] (`#156`): [How does Chunked Prefill prevent decoding latency spikes during concurrent batch processing?](../ai-system-design/how-does-chunked-prefill-prevent-decoding-latency-spikes-during-concurrent-batch-processing.md)
+- [[What is linear attention and how does it attempt to solve quadratic complexity?]] (`#107`): [What is linear attention and how does it attempt to solve quadratic complexity?](../llm-fundamentals/what-is-linear-attention-and-how-does-it-attempt-to-solve-quadratic-complexity.md)
+
 ---
 
 [⬅ Back to LLM Fundamentals](./README.md) · [All topics](../README.md)
