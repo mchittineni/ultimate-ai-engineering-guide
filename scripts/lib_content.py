@@ -138,36 +138,18 @@ def load_topics(root: Path = REPO_ROOT) -> list[Topic]:
                 directory, read_text_safe(readme) if readme.exists() else None
             ),
         )
-        md_files = []
-        try:
-            md_files = list(sorted(entry.glob("*.md")))
-        except Exception:
-            pass
-        if not md_files or directory == "llm-fundamentals":
-            readme_text_str = ""
-            if readme.exists():
-                try:
-                    with open(readme, "r", encoding="utf-8") as f:
-                        readme_text_str = f.read()
-                except Exception:
-                    pass
-            import re
-            links = re.findall(r"\[[^\]]*\]\(\./([a-z0-9-]+\.md)\)", readme_text_str)
-            md_files = [entry / link for link in links]
+        # The directory listing is the single source of truth. Deriving the
+        # question set from README links instead would be circular -- the README
+        # is generated from these questions -- and would silently drop any file
+        # that had not yet been linked.
+        md_files = sorted(entry.glob("*.md"))
         for md in md_files:
             if md.name == "README.md":
                 continue
             file_match = QUESTION_FILE_RE.match(md.name)
             if not file_match:
                 continue
-            raw_text = read_text_safe(md)
-            if not raw_text:
-                try:
-                    with open(md, "r", encoding="utf-8") as f:
-                        raw_text = f.read()
-                except Exception:
-                    raw_text = ""
-            meta, body = parse_frontmatter(raw_text)
+            meta, body = parse_frontmatter(read_text_safe(md))
             topic.questions.append(
                 Question(
                     path=md,

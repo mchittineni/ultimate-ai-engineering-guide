@@ -53,6 +53,9 @@ def strip_code_blocks(text: str) -> str:
 def slugify(title: str) -> str:
     slug = title.lower()
     slug = slug.replace("&", " and ")
+    # Drop apostrophes rather than treating them as separators, so "can't"
+    # slugifies to "cant" instead of "can-t".
+    slug = re.sub(r"['’]", "", slug)
     slug = re.sub(r"[^a-z0-9]+", "-", slug)
     return slug.strip("-")
 
@@ -156,7 +159,8 @@ def check_indexes(topics, errors: list[str]) -> None:
 def check_orphan_files(errors: list[str]) -> None:
     """Catch topic directories that exist on disk but are not registered, and bad filenames."""
     registered = set(topic_meta())
-    skip = {"scripts", ".git", ".github", "node_modules"}
+    # `docs/` is the published GitHub Pages site (the 3D knowledge graph), not a topic.
+    skip = {"scripts", ".git", ".github", "node_modules", "docs"}
     for entry in sorted(p for p in REPO_ROOT.iterdir() if p.is_dir()):
         if entry.name in skip or entry.name.startswith("."):
             continue

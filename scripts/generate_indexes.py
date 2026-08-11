@@ -183,21 +183,24 @@ def main() -> int:
         if normalize_markdown(rendered) != normalize_markdown(current):
             drifted.append(str(target.relative_to(REPO_ROOT)))
             if not args.check:
-                try:
-                    target.write_text(rendered, encoding="utf-8")
-                except OSError:
-                    pass
+                # Deliberately not caught: a swallowed write error would let this
+                # report "Updated N index file(s)" and exit 0 having written
+                # nothing, so CI would pass on indexes that never changed.
+                target.write_text(rendered, encoding="utf-8")
 
     root_path = REPO_ROOT / "README.md"
     root = read_text_safe(root_path)
     updated = replace_block(root, "TOC", render_root_toc(topics))
     updated = replace_block(updated, "STATS", render_stats(topics))
 
-    # Update top subheader and badges
+    # Update subheader and badges. Scan every line rather than a fixed prefix:
+    # a window like `updated_lines[:15]` silently stops updating these the moment
+    # someone inserts a paragraph above them, leaving stale counts on the page
+    # with no error anywhere.
     questions = all_questions(topics)
     counts = difficulty_counts(questions)
     updated_lines = updated.splitlines()
-    for i, line in enumerate(updated_lines[:15]):
+    for i, line in enumerate(updated_lines):
         if "questions across" in line and "answered to the depth" in line:
             updated_lines[i] = f"**{len(questions)} questions across {len(topics)} topics - answered to the depth an interviewer actually expects.**"
         elif "img.shields.io/badge/questions-" in line:
@@ -209,10 +212,7 @@ def main() -> int:
     if normalize_markdown(updated) != normalize_markdown(root):
         drifted.append("README.md")
         if not args.check:
-            try:
-                root_path.write_text(updated, encoding="utf-8")
-            except OSError:
-                pass
+            root_path.write_text(updated, encoding="utf-8")
 
     if args.check:
         if drifted:

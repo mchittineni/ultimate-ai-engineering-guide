@@ -8,6 +8,7 @@ different topics based on shared concepts, tags, and key terms, and appends a st
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -15,6 +16,9 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 from lib_content import REPO_ROOT, all_questions, load_topics, parse_frontmatter
+
+# A `---` alone on its line, used as the footer rule at the end of a question file.
+FOOTER_RULE_RE = re.compile(r"^---[ \t]*$", re.M)
 
 # Semantic cross-topic concept mappings (by question ID pairs or target question IDs per category)
 CROSS_LINK_MAP = {
@@ -136,7 +140,14 @@ CROSS_LINK_MAP = {
     197: [173, 180, 191], # Live Coding Debug -> Assertion Evals, Red Teaming, SDK vs Frameworks
     198: [166, 192, 193], # Production Rigor -> CI/CD Evals, AI Portfolio, Core Roles
     199: [123, 127, 159], # Multi-Tenant RAG System -> Metadata Filter, RRF, PagedAttention
-    200: [119, 136, 139]  # Staff Multi-Agent System -> Graph of Thoughts, Plan & Solve, DAG Orchestrator
+    200: [119, 136, 139], # Staff Multi-Agent System -> Graph of Thoughts, Plan & Solve, DAG Orchestrator
+
+    # AI Safety and Governance (model-level and regulatory risk)
+    201: [91, 185, 202],  # Model Inversion -> System Prompt Exfiltration, Data Lineage, Data Poisoning
+    202: [201, 203, 185], # Data Poisoning -> Model Inversion, Model Supply Chain, Data Lineage
+    203: [202, 185, 140], # Model Supply Chain -> Data Poisoning, Data Lineage, Sandbox Security
+    204: [205, 183, 185], # EU AI Act Tiers -> NIST AI RMF, Copyright, Data Lineage
+    205: [204, 93, 201],  # NIST AI RMF -> EU AI Act Tiers, Hallucination, Model Inversion
 }
 
 
@@ -173,14 +184,19 @@ def main():
         if "## Related Concepts" in content or "## Related Questions" in content:
             continue
             
-        # Insert before footer link
-        footer_marker = "---"
-        if footer_marker in content:
-            parts = content.rsplit(footer_marker, 1)
-            related_section = "## Related Concepts\n\n" + "\n".join(wikilink_items) + "\n\n"
-            new_content = parts[0] + related_section + footer_marker + parts[1]
+        # Insert before the footer rule. Match a `---` that is alone on its line
+        # AFTER the frontmatter block: a bare `content.rsplit("---")` would land
+        # on the frontmatter's closing delimiter in any file lacking a footer,
+        # injecting the section into the header instead of the end.
+        _, body = parse_frontmatter(content)
+        footer = FOOTER_RULE_RE.search(body)
+        related_section = "## Related Concepts\n\n" + "\n".join(wikilink_items) + "\n"
+        if footer:
+            offset = len(content) - len(body)
+            cut = offset + footer.start()
+            new_content = content[:cut] + related_section + "\n" + content[cut:]
         else:
-            new_content = content + "\n\n## Related Concepts\n\n" + "\n".join(wikilink_items) + "\n"
+            new_content = content.rstrip() + "\n\n" + related_section
             
         q.path.write_text(new_content, encoding="utf-8")
         modified_count += 1
