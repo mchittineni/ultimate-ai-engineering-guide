@@ -15,6 +15,8 @@ concurrency:
 env:
   PYTHON_VERSION: "3.13"
   NODE_VERSION: "24"
+  PRETTIER_VERSION: "3.9.6"
+  MARKDOWNLINT_VERSION: "0.23.2"
 
 jobs:
   validate:
@@ -38,6 +40,13 @@ jobs:
       - name: Fail if indexes are stale
         run: python3 scripts/generate_indexes.py --check
 
+      # The published graph is generated from the questions. If a PR edits
+      # content without rebuilding it, the site silently serves stale data.
+      - name: Fail if the knowledge graph is stale
+        run: |
+          python3 scripts/build_knowledge_graph.py
+          git diff --exit-code --stat docs/index.html
+
   lint:
     name: Lint and format Markdown
     runs-on: ubuntu-latest
@@ -51,11 +60,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Pinned exactly. A floating major means a patch release of either tool can
+      # change formatting rules and fail CI on a branch that touched nothing --
+      # the failure then looks like the contributor's fault.
       - name: Check formatting with Prettier
-        run: npx --yes prettier@3 --check "**/*.md"
+        run: npx --yes prettier@${{ env.PRETTIER_VERSION }} --check "**/*.md"
 
       - name: Lint with markdownlint
-        run: npx --yes markdownlint-cli2 "**/*.md"
+        run: npx --yes markdownlint-cli2@${{ env.MARKDOWNLINT_VERSION }} "**/*.md"
 
   pr-success-comment:
     if: github.event_name == 'pull_request'
