@@ -17,7 +17,7 @@ tags:
 
 Stateless APIs forget past actions between turns. Agent frameworks (like LangGraph) maintain explicit state graphs.
 
-```
+```text
 State (Step N): {messages: [...], user_id: "u123", current_step: "data_fetching"}
                           │
                           ▼

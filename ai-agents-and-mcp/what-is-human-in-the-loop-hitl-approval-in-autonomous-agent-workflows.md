@@ -17,7 +17,7 @@ tags:
 
 Fully autonomous agents running un-monitored in production create severe operational and financial risks.
 
-```
+```text
 Agent Execution ──► Reaches High-Risk Node `delete_user_account()`
                           │
                           ▼
@@ -41,11 +41,11 @@ Python concept illustrating human approval interruption:
 ```python
 def execute_agent_step(action_name: str, args: dict) -> str:
     SENSITIVE_ACTIONS = {"delete_database", "send_external_email", "charge_credit_card"}
-    
+
     if action_name in SENSITIVE_ACTIONS:
         # Pause state and wait for human approval token
         return f"HITL_PAUSE: Action '{action_name}' requires human approval. Pending args: {args}"
-    
+
     return f"Executed action '{action_name}' successfully."
 
 print(execute_agent_step("send_external_email", {"to": "user@acme.com", "body": "Invoice attached"}))

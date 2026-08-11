@@ -17,7 +17,7 @@ tags:
 
 Standard ReAct loops operate greedily token-by-token: the agent decides its next action without a holistic view of the overall task workflow.
 
-```
+```text
 ReAct (Greedy Step-by-Step):  Step 1 Action ──► Step 2 Action ──► Re-eval (Risk of deadlocks)
 
 Plan-and-Solve (Two-Phase):
@@ -27,7 +27,7 @@ Phase 2: [Executor LLM] ──► Execute Step 1 ──► Execute Step 2 ──
 
 ### Key Framework Advantages
 
-1. **Global Optimization:** The planner outlines dependencies (e.g. *"Step 3 requires output from Step 1 and Step 2"*) prior to spending API tokens on tool calls.
+1. **Global Optimization:** The planner outlines dependencies (e.g. _"Step 3 requires output from Step 1 and Step 2"_) prior to spending API tokens on tool calls.
 2. **Dynamic Replanning:** If Step 2 tool execution returns an unexpected error, a replanner module adjusts remaining sub-goals.
 
 ## Example
@@ -39,13 +39,13 @@ def plan_and_solve_pipeline(user_goal: str, planner_fn, executor_fn):
     # Phase 1: Generate explicit execution plan
     plan_prompt = f"Decompose this goal into numbered sub-goals: '{user_goal}'"
     plan_steps = planner_fn(plan_prompt) # e.g. ["1. Fetch data", "2. Calculate totals", "3. Format markdown"]
-    
+
     # Phase 2: Execute plan sub-goals sequentially
     execution_context = {}
     for step in plan_steps:
         result = executor_fn(step, execution_context)
         execution_context[step] = result
-        
+
     return execution_context
 ```
 

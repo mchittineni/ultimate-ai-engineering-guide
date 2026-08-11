@@ -17,7 +17,7 @@ tags:
 
 Without a structured system prompt, an LLM treats tool schemas as passive JSON definitions rather than active executable capabilities.
 
-```
+```text
 [Agent System Prompt]
 - Role: SQL Database Operations Specialist
 - Goal: Answer user business queries by executing read-only SQL queries.

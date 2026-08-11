@@ -17,7 +17,7 @@ tags:
 
 Agents often need to execute multiple tool calls in parallel (e.g. searching 5 external documentation sites simultaneously).
 
-```
+```text
 Synchronous (Blocking):
 Tool 1 (2s) ──► Tool 2 (2s) ──► Tool 3 (2s) = Total Latency: 6 seconds
 
@@ -29,10 +29,10 @@ Tool 3 (2s) ──┘
 
 ### Key Differences
 
-| Dimension | Synchronous Tool Execution | Asynchronous Tool Execution |
-| --- | --- | --- |
-| **Execution Flow** | Sequential (One tool at a time) | Parallel concurrent event loop (`asyncio`) |
-| **Resource Usage** | Single-threaded blocking wait | High-throughput non-blocking I/O |
+| Dimension          | Synchronous Tool Execution         | Asynchronous Tool Execution                 |
+| ------------------ | ---------------------------------- | ------------------------------------------- |
+| **Execution Flow** | Sequential (One tool at a time)    | Parallel concurrent event loop (`asyncio`)  |
+| **Resource Usage** | Single-threaded blocking wait      | High-throughput non-blocking I/O            |
 | **Ideal Use Case** | Strict sequential dependency steps | Independent API queries, multi-web scraping |
 
 ## Example

@@ -17,7 +17,7 @@ tags:
 
 Long-running tool tasks (e.g. running an intensive SQL migration or executing a multi-minute build pipeline) cause HTTP timeouts or poor user experience if forced to run synchronously.
 
-```
+```text
 MCP Client App ──► JSON-RPC Request `tools/call` (with `progressToken: 42`) ──► MCP Server
                                                                                   │
 MCP Client App ◄── Notification `notifications/progress` (progress: 25%) ──────────┤

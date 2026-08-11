@@ -17,7 +17,7 @@ tags:
 
 Single-shot RAG fails when initial web search results return generic marketing text or fragmented snippets.
 
-```
+```text
 [Initial Query "NVIDIA Q3 revenue"] ──► Web Search ──► Returns Generic Marketing Snippets
                                                              │
                                                              ▼
@@ -42,13 +42,13 @@ Python concept illustrating agent query refinement logic:
 def agentic_search_step(current_results: list[dict], search_tool, query_refiner_fn) -> str:
     # Check if current snippets contain target metric
     has_answer = any("revenue" in r["snippet"].lower() for r in current_results)
-    
+
     if not has_answer:
         # Refine search query with specialized keywords
         refined_query = query_refiner_fn("NVIDIA financial Q3 SEC filing 10-Q")
         new_results = search_tool(refined_query)
         return f"Refined search issued: '{refined_query}'. Found {len(new_results)} new matches."
-    
+
     return "Target information located in current snippets."
 ```
 

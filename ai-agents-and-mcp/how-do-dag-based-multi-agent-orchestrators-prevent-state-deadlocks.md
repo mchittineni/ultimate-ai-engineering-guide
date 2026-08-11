@@ -17,7 +17,7 @@ tags:
 
 In complex multi-agent architectures (e.g. Researcher Agent $\leftrightarrow$ Reviewer Agent), agents can get stuck in infinite review-rejection deadlocks.
 
-```
+```text
 Cyclic Deadlock Vector:
 [Researcher Agent] ──► Submits Draft ──► [Reviewer Agent] ──► Rejects & Requests Edits ──┐
         ▲                                                                                │
@@ -44,7 +44,7 @@ Python state reducer pattern in a multi-agent graph node:
 ```python
 def reviewer_agent_node(state: dict) -> dict:
     review_count = state.get("review_count", 0) + 1
-    
+
     if review_count >= 3:
         # Prevent infinite loop: force state transition to final approval
         return {
@@ -52,7 +52,7 @@ def reviewer_agent_node(state: dict) -> dict:
             "review_count": review_count,
             "notes": "Max review iterations reached. Escalating to user."
         }
-        
+
     # Standard review logic
     return {"status": "NEEDS_REVISION", "review_count": review_count}
 ```

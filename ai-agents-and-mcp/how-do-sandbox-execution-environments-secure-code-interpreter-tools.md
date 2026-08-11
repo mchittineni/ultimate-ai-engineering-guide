@@ -17,7 +17,7 @@ tags:
 
 Code Interpreter tools allow AI agents to write and execute arbitrary Python or Bash code. Executing LLM-generated code directly on host servers risks remote code execution (RCE) attacks, data wipes (`rm -rf /`), and network intrusion.
 
-```
+```text
 Agent Generates Python Code ──► [E2B / gVisor Micro-VM Sandbox] ──► Isolated Execution
                                          │
                  ┌───────────────────────┴───────────────────────┐

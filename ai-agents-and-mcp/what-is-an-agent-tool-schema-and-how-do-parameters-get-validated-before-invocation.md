@@ -17,7 +17,7 @@ tags:
 
 LLMs generate tool calls as raw JSON strings. Without strict schema validation, invalid parameter types (e.g. string passed instead of int) cause runtime crashes.
 
-```
+```text
 LLM Function Call ──► JSON Arguments ──► [Pydantic Validator] ──► Execute Tool Python Function
                                                  │
                                                  ▼ (If Validation Fails)
@@ -26,7 +26,7 @@ LLM Function Call ──► JSON Arguments ──► [Pydantic Validator] ──
 
 ### Core Elements of Tool Schemas
 
-1. **Description String:** Natural language explanation instructing the LLM *when* and *why* to choose the tool.
+1. **Description String:** Natural language explanation instructing the LLM _when_ and _why_ to choose the tool.
 2. **Property Schema:** JSON Schema data types (`string`, `integer`, `boolean`, `array`, `enum`).
 3. **Required List:** Array of mandatory parameter names.
 
