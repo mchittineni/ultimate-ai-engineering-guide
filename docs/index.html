@@ -21,6 +21,7 @@
     })();
   </script>
 
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <script src="https://unpkg.com/3d-force-graph@1.73.3/dist/3d-force-graph.min.js" integrity="sha384-SIcVySj+Cd1g+cwoLNCdr/osXU15HLXCxfaSzFNkZICYeKS7I2YxhyggCijT8JHA" crossorigin="anonymous"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
@@ -622,6 +623,177 @@
         transform: none;
       }
     }
+
+    /* ------------------------------------------------------------------
+       Filters, metadata panel, and connection list.
+       Colours are tokens only -- both themes follow the switcher for free.
+       ------------------------------------------------------------------ */
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .filter-group-label {
+      width: 100%;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 2px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      font: inherit;
+      font-size: 11px;
+      line-height: 1.4;
+      color: var(--text-legend);
+      background: transparent;
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+    }
+
+    .chip:hover { background: var(--ghost-hover-bg); }
+
+    .chip:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Unselected reads as muted, not hidden: the set stays legible. */
+    .chip[aria-pressed="false"] { opacity: 0.45; }
+
+    .chip[aria-pressed="true"] {
+      background: var(--accent-soft-bg);
+      border-color: var(--accent-soft-border);
+      color: var(--text-strong);
+    }
+
+    .chip .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex: none;
+    }
+
+    .chip .chip-count {
+      font-variant-numeric: tabular-nums;
+      color: var(--text-dim);
+    }
+
+    #filter-reset {
+      margin-left: auto;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      color: var(--accent-fg);
+      cursor: pointer;
+      padding: 4px 2px;
+    }
+
+    #filter-reset:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    #match-count {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-meta-list {
+      margin: 8px 0 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 3px 10px;
+      font-size: 11.5px;
+    }
+
+    .card-meta-list dt {
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 10px;
+      align-self: center;
+    }
+
+    .card-meta-list dd {
+      margin: 0;
+      color: var(--text-body);
+    }
+
+    .card-connections {
+      margin-top: 10px;
+      border-top: 1px solid var(--divider);
+      padding-top: 8px;
+    }
+
+    .card-connections h4 {
+      margin: 0 0 5px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .card-connections ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 132px;
+      overflow-y: auto;
+    }
+
+    .card-connections button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-size: 11.5px;
+      line-height: 1.35;
+      color: var(--accent-fg);
+      background: none;
+      border: none;
+      border-radius: 4px;
+      padding: 3px 4px;
+      cursor: pointer;
+    }
+
+    .card-connections button:hover { background: var(--ghost-hover-bg); }
+
+    .card-connections button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 5px;
+      font-size: 10px;
+      font-family: inherit;
+      color: var(--text-dim);
+      background: var(--result-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+    }
+
+    /* Respect the OS setting: the camera flights and particle streams are the
+       motion-heavy parts, so they are cut rather than merely shortened. */
+    @media (prefers-reduced-motion: reduce) {
+      .chip { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -649,17 +821,22 @@
       <ul id="search-results-list"></ul>
     </div>
 
-    <div class="legend">
-      <div class="legend-item"><span class="dot" style="background:#06b6d4"></span> Topic Hub</div>
-      <div class="legend-item"><span class="dot" style="background:#10b981"></span> Beginner</div>
-      <div class="legend-item"><span class="dot" style="background:#f59e0b"></span> Intermediate</div>
-      <div class="legend-item"><span class="dot" style="background:#ef4444"></span> Advanced</div>
+    <div class="filter-group" id="section-filters" role="group" aria-label="Filter by section">
+      <span class="filter-group-label">Sections</span>
     </div>
+
+    <div class="filter-group" id="difficulty-filters" role="group" aria-label="Filter by difficulty">
+      <span class="filter-group-label">Difficulty</span>
+      <button type="button" id="filter-reset">Reset</button>
+    </div>
+
+    <p id="match-count" role="status" aria-live="polite"></p>
 
     <div class="stats-bar">
       <span>NODES: <strong id="node-count">0</strong></span>
       <span>EDGES: <strong id="edge-count">0</strong></span>
-      <span>TOPICS: <strong>40</strong></span>
+      <span>TOPICS: <strong id="topic-count">0</strong></span>
+      <span class="kbd-hint"><span class="kbd">/</span> search · <span class="kbd">Esc</span> clear</span>
     </div>
   </div>
 
@@ -670,7 +847,11 @@
         <span id="card-difficulty" class="card-tag" data-level="beginner">BEGINNER</span>
       </div>
       <h3 id="card-title">Node Info</h3>
-      <p id="card-desc"></p>
+      <dl class="card-meta-list" id="card-meta-list"></dl>
+      <div class="card-connections" id="card-connections" hidden>
+        <h4 id="card-connections-heading">Connected questions</h4>
+        <ul id="card-connections-list" aria-labelledby="card-connections-heading"></ul>
+      </div>
       <div class="card-actions">
         <a id="card-link" href="#" target="_blank" rel="noopener">View Markdown Source ↗</a>
         <button type="button" class="close-btn" id="card-dismiss">Dismiss</button>
@@ -7001,15 +7182,101 @@
   ]
 };
 
+    const QUESTION_NODES = gData.nodes.filter(n => n.type === 'question');
+    const TOPIC_NODES = gData.nodes.filter(n => n.type === 'topic');
+
     document.getElementById('node-count').innerText = gData.nodes.length;
     document.getElementById('edge-count').innerText = gData.links.length;
+    document.getElementById('topic-count').innerText = TOPIC_NODES.length;
+
+    const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Adjacency, built once. Powers the "connected questions" list in the
+    // detail panel -- the cross-links are the point of the graph, so they
+    // belong in the panel rather than only as edges you have to trace by eye.
+    const NODE_BY_ID = new Map(gData.nodes.map(n => [n.id, n]));
+    const NEIGHBOURS = new Map(gData.nodes.map(n => [n.id, new Set()]));
+    for (const link of gData.links) {
+      const src = typeof link.source === 'object' ? link.source.id : link.source;
+      const tgt = typeof link.target === 'object' ? link.target.id : link.target;
+      if (link.type !== 'cross-link') continue;
+      NEIGHBOURS.get(src) && NEIGHBOURS.get(src).add(tgt);
+      NEIGHBOURS.get(tgt) && NEIGHBOURS.get(tgt).add(src);
+    }
+
+    // Section and difficulty facets are DERIVED FROM THE DATA, never hardcoded.
+    // A new topic group or difficulty in the repo shows up here on the next
+    // build with no edit to this template -- which is exactly how the old
+    // "TOPICS: 40" and the DevOps colour keys silently went stale.
+    const SECTIONS = [...new Set(gData.nodes.map(n => n.section).filter(Boolean))].sort();
+    const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced']
+      .filter(d => QUESTION_NODES.some(n => n.difficulty === d));
+
+    const SECTION_COLOR = new Map();
+    for (const t of TOPIC_NODES) {
+      if (t.section && !SECTION_COLOR.has(t.section)) SECTION_COLOR.set(t.section, t.color);
+    }
+    const DIFFICULTY_COLOR = new Map();
+    for (const q of QUESTION_NODES) {
+      if (q.difficulty && !DIFFICULTY_COLOR.has(q.difficulty)) DIFFICULTY_COLOR.set(q.difficulty, q.color);
+    }
+
+    const activeSections = new Set(SECTIONS);
+    const activeDifficulties = new Set(DIFFICULTIES);
+
+    function buildChip(label, count, color, isOn, onToggle) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chip';
+      btn.setAttribute('aria-pressed', String(isOn));
+      if (color) {
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = color;
+        btn.appendChild(dot);
+      }
+      btn.appendChild(document.createTextNode(label));
+      const tally = document.createElement('span');
+      tally.className = 'chip-count';
+      tally.textContent = String(count);
+      btn.appendChild(tally);
+      btn.addEventListener('click', () => {
+        const next = btn.getAttribute('aria-pressed') !== 'true';
+        btn.setAttribute('aria-pressed', String(next));
+        onToggle(next);
+        applyFilters();
+      });
+      return btn;
+    }
+
+    const sectionRail = document.getElementById('section-filters');
+    for (const section of SECTIONS) {
+      const count = QUESTION_NODES.filter(n => n.section === section).length;
+      sectionRail.appendChild(buildChip(section, count, SECTION_COLOR.get(section), true, on => {
+        on ? activeSections.add(section) : activeSections.delete(section);
+      }));
+    }
+
+    const difficultyRail = document.getElementById('difficulty-filters');
+    const resetBtn = document.getElementById('filter-reset');
+    for (const level of DIFFICULTIES) {
+      const count = QUESTION_NODES.filter(n => n.difficulty === level).length;
+      difficultyRail.insertBefore(
+        buildChip(level, count, DIFFICULTY_COLOR.get(level), true, on => {
+          on ? activeDifficulties.add(level) : activeDifficulties.delete(level);
+        }),
+        resetBtn
+      );
+    }
 
     const card = document.getElementById('info-card');
     const cardType = document.getElementById('card-type');
     const cardDifficulty = document.getElementById('card-difficulty');
     const cardTitle = document.getElementById('card-title');
-    const cardDesc = document.getElementById('card-desc');
     const cardLink = document.getElementById('card-link');
+    const cardMetaList = document.getElementById('card-meta-list');
+    const cardConnections = document.getElementById('card-connections');
+    const cardConnectionsList = document.getElementById('card-connections-list');
     const searchResults = document.getElementById('search-results');
     const searchResultsList = document.getElementById('search-results-list');
 
@@ -7022,7 +7289,7 @@
       Graph.cameraPosition(
         { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
         node,
-        2000
+        REDUCED_MOTION ? 0 : 2000
       );
 
       // Tag colours come from theme tokens keyed off these data attributes,
@@ -7040,11 +7307,55 @@
         cardDifficulty.dataset.level = levels[node.difficulty] || 'general';
       }
 
-      cardTitle.innerText = node.label;
-      cardDesc.innerText = `Domain: ${node.section || node.category || 'AI Engineering'}\nCategory: ${node.category || 'Topic Index'}\nNode Type: ${node.type}`;
+      cardTitle.innerText = node.title || node.label;
+
+      // Structured rows beat a newline-joined blob: screen readers get real
+      // term/definition pairs, and long values wrap instead of overflowing.
+      const rows = [
+        ['Section', node.section],
+        ['Topic', node.category],
+        ['Difficulty', node.type === 'question' ? node.difficulty : null],
+        ['Tags', Array.isArray(node.tags)
+          ? node.tags.filter(t => t !== 'ai-engineering' && t !== 'interview-questions').join(', ')
+          : null]
+      ].filter(([, value]) => value);
+
+      cardMetaList.replaceChildren();
+      for (const [term, value] of rows) {
+        const dt = document.createElement('dt');
+        dt.textContent = term;
+        const dd = document.createElement('dd');
+        dd.textContent = value;
+        cardMetaList.append(dt, dd);
+      }
+
+      const neighbours = [...(NEIGHBOURS.get(node.id) || [])]
+        .map(id => NODE_BY_ID.get(id))
+        .filter(Boolean)
+        .sort((a, b) => (a.title || a.label).localeCompare(b.title || b.label));
+
+      cardConnectionsList.replaceChildren();
+      if (neighbours.length) {
+        for (const neighbour of neighbours) {
+          const li = document.createElement('li');
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = neighbour.title || neighbour.label;
+          btn.addEventListener('click', () => handleNodeActivation(neighbour));
+          li.appendChild(btn);
+          cardConnectionsList.appendChild(li);
+        }
+        cardConnections.hidden = false;
+      } else {
+        cardConnections.hidden = true;
+      }
+
       cardLink.href = `https://github.com/mchittineni/ultimate-ai-engineering-guide/blob/main/${node.url.replace('./', '')}`;
       card.style.display = 'block';
       card.focus();
+      if (node.type === 'question') {
+        history.replaceState(null, '', `#${node.id.replace(':', '-')}`);
+      }
     }
 
     // The WebGL scene cannot read CSS variables, so the graph keeps its own
@@ -7188,29 +7499,76 @@
     // the highlight/dim colours instead of stranding the old palette.
     let activeQuery = '';
 
+    // A node is in scope when it clears BOTH facets and the text query.
+    // Topic hubs follow their section only -- they have no difficulty.
+    function nodeInScope(node) {
+      if (node.section && !activeSections.has(node.section)) return false;
+      if (node.type === 'question' && node.difficulty && !activeDifficulties.has(node.difficulty)) return false;
+      if (activeQuery && !nodeMatchesQuery(node, activeQuery)) return false;
+      return true;
+    }
+
+    const facetsWideOpen = () =>
+      activeSections.size === SECTIONS.length && activeDifficulties.size === DIFFICULTIES.length;
+
     function paintNodes() {
-      if (!activeQuery) {
+      if (!activeQuery && facetsWideOpen()) {
         Graph.nodeColor(node => node.color);
+        Graph.linkColor(link => link.color || graphTheme.link);
         return;
       }
-      Graph.nodeColor(node => nodeMatchesQuery(node, activeQuery) ? graphTheme.hit : graphTheme.dim);
+      // Out-of-scope nodes are dimmed rather than removed, so the shape of the
+      // whole vault stays visible and the selection reads as a subset of it.
+      Graph.nodeColor(node => {
+        if (!nodeInScope(node)) return graphTheme.dim;
+        return activeQuery ? graphTheme.hit : node.color;
+      });
+      Graph.linkColor(link => {
+        const src = typeof link.source === 'object' ? link.source : NODE_BY_ID.get(link.source);
+        const tgt = typeof link.target === 'object' ? link.target : NODE_BY_ID.get(link.target);
+        const lit = src && tgt && nodeInScope(src) && nodeInScope(tgt);
+        return lit ? (link.color || graphTheme.link) : graphTheme.dim;
+      });
     }
+
+    const matchCount = document.getElementById('match-count');
+
+    function applyFilters() {
+      paintNodes();
+      const shown = QUESTION_NODES.filter(nodeInScope).length;
+      matchCount.textContent = (shown === QUESTION_NODES.length && !activeQuery)
+        ? `Showing all ${QUESTION_NODES.length} questions`
+        : `Showing ${shown} of ${QUESTION_NODES.length} questions`;
+    }
+
+    resetBtn.addEventListener('click', () => {
+      SECTIONS.forEach(sec => activeSections.add(sec));
+      DIFFICULTIES.forEach(d => activeDifficulties.add(d));
+      document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'true'));
+      const input = document.getElementById('search-input');
+      input.value = '';
+      activeQuery = '';
+      searchResults.classList.remove('visible');
+      searchResultsList.replaceChildren();
+      applyFilters();
+      input.focus();
+    });
 
     // Live search filter
     document.getElementById('search-input').addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase().trim();
       activeQuery = query;
       if (!query) {
-        paintNodes();
+        applyFilters();
         searchResults.classList.remove('visible');
         searchResultsList.replaceChildren();
         return;
       }
 
       // Filter matching nodes
-      const matchingNodes = gData.nodes.filter(node => nodeMatchesQuery(node, query));
+      const matchingNodes = gData.nodes.filter(nodeInScope);
 
-      paintNodes();
+      applyFilters();
 
       // Populate accessible search results list
       searchResultsList.replaceChildren();
@@ -7236,8 +7594,53 @@
       }
     });
 
+    /* -------------------------- Keyboard -------------------------- */
+    // "/" focuses search and Escape clears -- the two shortcuts advertised in
+    // the stats bar. Guarded so they never hijack typing in a field.
+    document.addEventListener('keydown', (evt) => {
+      const el = document.activeElement;
+      const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+
+      if (evt.key === '/' && !typing) {
+        evt.preventDefault();
+        document.getElementById('search-input').focus();
+        return;
+      }
+
+      if (evt.key === 'Escape') {
+        if (card.style.display === 'block') {
+          card.style.display = 'none';
+          history.replaceState(null, '', location.pathname + location.search);
+          return;
+        }
+        const input = document.getElementById('search-input');
+        if (input.value) {
+          input.value = '';
+          activeQuery = '';
+          searchResults.classList.remove('visible');
+          searchResultsList.replaceChildren();
+          applyFilters();
+        }
+      }
+    });
+
+    document.getElementById('card-dismiss').addEventListener('click', () => {
+      history.replaceState(null, '', location.pathname + location.search);
+    });
+
     // Physics Tuning
     Graph.d3Force('charge').strength(-130);
+
+    // Deep link: /#q-181 opens that question once the layout has settled, so a
+    // specific node can be shared or linked from a talk.
+    (function restoreFromHash() {
+      const raw = location.hash.replace('#', '');
+      if (!raw) return;
+      const node = NODE_BY_ID.get(raw.replace('-', ':'));
+      if (node) setTimeout(() => handleNodeActivation(node), REDUCED_MOTION ? 0 : 900);
+    })();
+
+    applyFilters();
 
     // Sync the switcher's checked state and the scene palette with the mode
     // the pre-paint script already resolved. Not persisted: nothing changed yet.
