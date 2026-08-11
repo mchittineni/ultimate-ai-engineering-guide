@@ -2,7 +2,7 @@
 
 # 🧠 Ultimate AI Engineering Guide
 
-**200 questions across 10 topics - answered to the depth an interviewer actually expects.**
+**205 questions across 10 topics - answered to the depth an interviewer actually expects.**
 
 Role tracks: **AI Engineer** (junior → senior) · **Gen AI Engineer** · **LLM Engineer** · **Agentic AI Engineer** · **Forward Deployed Engineer (FDE)** · **AI Systems Architect** · **Applied AI Engineer** · **LLMOps Engineer** · **AI Platform Engineer**
 
@@ -10,18 +10,31 @@ Every answer gives you a short answer you can say out loud, the detail and trade
 
 [![Validate](https://github.com/mchittineni/ultimate-ai-engineering-guide/actions/workflows/validate-and-format.yml/badge.svg)](https://github.com/mchittineni/ultimate-ai-engineering-guide/actions/workflows/validate-and-format.yml)
 [![Knowledge Graph](https://img.shields.io/badge/interactive-3D%20Knowledge%20Graph-8b5cf6?style=flat&logo=webgl)](https://mchittineni.github.io/ultimate-ai-engineering-guide/)
-![Questions](https://img.shields.io/badge/questions-200-blue)
+![Questions](https://img.shields.io/badge/questions-205-blue)
 ![Topics](https://img.shields.io/badge/topics-10-blueviolet)
-![Difficulty](https://img.shields.io/badge/difficulty-🟢%20100%20·%20🟡%2060%20·%20🔴%2040-lightgrey)
+![Difficulty](https://img.shields.io/badge/difficulty-🟢%20101%20·%20🟡%2062%20·%20🔴%2042-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-🌐 **[Explore the Interactive 3D Knowledge Graph →](https://mchittineni.github.io/ultimate-ai-engineering-guide/)**
-
-[Pick your role](#-pick-your-role) · [Browse topics](#-browse-all-topics) · [All questions](#-all-questions) · [3D Knowledge Graph](#-interactive-3d-knowledge-graph) · [Developer Scripts](#-developer-scripts) · [Contributing](./CONTRIBUTING.md)
+[🌐 3D Knowledge Graph](https://mchittineni.github.io/ultimate-ai-engineering-guide/) · [Pick your role](#-pick-your-role) · [Browse topics](#-browse-all-topics) · [All questions](#-all-questions) · [How answers are structured](#-how-answers-are-structured) · [Contributing](./CONTRIBUTING.md)
 
 ⭐ Star the project if it helps you land the role.
 
 </div>
+
+---
+
+## 🌐 Interactive 3D Knowledge Graph
+
+This repository features an interactive **WebGL 3D Force-Directed Knowledge Graph** published via GitHub Pages.
+
+👉 **[Launch Interactive 3D Knowledge Graph](https://mchittineni.github.io/ultimate-ai-engineering-guide/)**
+
+**Features:**
+
+- 🌌 **3D Space Environment:** Rotate, pan, and zoom through 190 nodes and 350 directional concept edges in WebGL space.
+- ✨ **Animated Particle Links:** Visualizes concept flow across topics with directional light particle effects.
+- 🎯 **3D Focus & Camera Animation:** Click any node to focus the camera directly on the question or topic cluster.
+- 📖 **Slide-out Glassmorphism Info Panel:** Instant access to question metadata and direct links to the raw Markdown files on GitHub.
 
 ---
 
@@ -49,7 +62,7 @@ Grouped by theme, with question counts and difficulty mix. Click a topic to open
 
 <!-- STATS:START -->
 
-**200 questions** across **10 topics** - 🟢 100 Beginner · 🟡 60 Intermediate · 🔴 40 Advanced
+**205 questions** across **10 topics** - 🟢 101 Beginner · 🟡 62 Intermediate · 🔴 42 Advanced
 
 ### 🧱 Foundations & Models
 
@@ -83,7 +96,7 @@ Grouped by theme, with question counts and difficulty mix. Click a topic to open
 
 | Topic | Questions | 🟢 | 🟡 | 🔴 | What it covers |
 | --- | --- | --- | --- | --- | --- |
-| **[AI Safety and Governance](./ai-safety-and-governance/README.md)** | 20 | 10 | 6 | 4 | Data privacy, PII masking, guardrails (NeMo, Llama Guard), alignment tax, copyright, and… |
+| **[AI Safety and Governance](./ai-safety-and-governance/README.md)** | 25 | 11 | 8 | 6 | Data privacy, PII masking, guardrails (NeMo, Llama Guard), alignment tax, copyright, and… |
 | **[Interview Experience](./interview-experience/README.md)** | 20 | 10 | 6 | 4 | Role-specific interview blueprints (AI Engineer, FDE, AI Architect), portfolio project… |
 
 <!-- STATS:END -->
@@ -98,16 +111,35 @@ Click any topic to expand its questions, sorted by difficulty level.
 
 ### 🧱 Foundations & Models
 
-_20 questions_
+_40 questions_
 
 <details>
-<summary><b>LLM Fundamentals</b> · 0 questions · 🟢 0 🟡 0 🔴 0</summary>
+<summary><b>LLM Fundamentals</b> · 20 questions · 🟢 10 🟡 6 🔴 4</summary>
 
 [Open the LLM Fundamentals index →](./llm-fundamentals/README.md)
 
 | No. | Question | Difficulty |
 | --- | --- | --- |
-| - | _No questions yet - contributions welcome._ | - |
+| 1 | [What is KV Cache and how does it speed up inference?](./llm-fundamentals/what-is-kv-cache-and-how-does-it-speed-up-inference.md) | 🟡 Intermediate |
+| 2 | [How does Grouped-Query Attention (GQA) differ from Multi-Head Attention (MHA)?](./llm-fundamentals/how-does-grouped-query-attention-gqa-differ-from-multi-head-attention-mha.md) | 🟡 Intermediate |
+| 12 | [What is the difference between encoder-only, decoder-only, and encoder-decoder LLMs?](./llm-fundamentals/what-is-the-difference-between-encoder-only-decoder-only-and-encoder-decoder-llms.md) | 🟢 Beginner |
+| 13 | [How does Byte-Pair Encoding (BPE) tokenization work?](./llm-fundamentals/how-does-byte-pair-encoding-bpe-tokenization-work.md) | 🟢 Beginner |
+| 14 | [How do Rotary Position Embeddings (RoPE) and RoPE scaling work?](./llm-fundamentals/how-do-rotary-position-embeddings-rope-and-rope-scaling-work.md) | 🔴 Advanced |
+| 51 | [What is Temperature, Top-p, and Top-k sampling?](./llm-fundamentals/what-is-temperature-top-p-and-top-k-sampling.md) | 🟢 Beginner |
+| 52 | [What is the difference between greedy decoding and beam search?](./llm-fundamentals/what-is-the-difference-between-greedy-decoding-and-beam-search.md) | 🟢 Beginner |
+| 53 | [What is a context window and how does it limit LLM processing?](./llm-fundamentals/what-is-a-context-window-and-how-does-it-limit-llm-processing.md) | 🟢 Beginner |
+| 54 | [How does Multi-Query Attention (MQA) differ from Multi-Head Attention?](./llm-fundamentals/how-does-multi-query-attention-mqa-differ-from-multi-head-attention.md) | 🟡 Intermediate |
+| 55 | [How does FlashAttention optimize memory and speed via tiling?](./llm-fundamentals/how-does-flashattention-optimize-memory-and-speed-via-tiling.md) | 🔴 Advanced |
+| 101 | [What is tokenization and why can't LLMs process raw string characters directly?](./llm-fundamentals/what-is-tokenization-and-why-cant-llms-process-raw-string-characters-directly.md) | 🟢 Beginner |
+| 102 | [What is the difference between causal and bidirectional self-attention?](./llm-fundamentals/what-is-the-difference-between-causal-and-bidirectional-self-attention.md) | 🟢 Beginner |
+| 103 | [What is a logit and how is it converted to token probabilities via Softmax?](./llm-fundamentals/what-is-a-logit-and-how-is-it-converted-to-token-probabilities-via-softmax.md) | 🟢 Beginner |
+| 104 | [What is an attention mask and why is it needed during batch processing?](./llm-fundamentals/what-is-an-attention-mask-and-why-is-it-needed-during-batch-processing.md) | 🟢 Beginner |
+| 105 | [What is positional encoding and why do Transformers need it?](./llm-fundamentals/what-is-positional-encoding-and-why-do-transformers-need-it.md) | 🟢 Beginner |
+| 106 | [How do Mixture of Experts (MoE) architectures scale parameter count efficiently?](./llm-fundamentals/how-do-mixture-of-experts-moe-architectures-scale-parameter-count-efficiently.md) | 🟡 Intermediate |
+| 107 | [What is linear attention and how does it attempt to solve quadratic complexity?](./llm-fundamentals/what-is-linear-attention-and-how-does-it-attempt-to-solve-quadratic-complexity.md) | 🟡 Intermediate |
+| 108 | [How does sliding window attention (SWA) reduce memory usage in long-context models?](./llm-fundamentals/how-does-sliding-window-attention-swa-reduce-memory-usage-in-long-context-models.md) | 🟡 Intermediate |
+| 109 | [How do state space models (SSMs) like Mamba compare to Transformer self-attention?](./llm-fundamentals/how-do-state-space-models-ssms-like-mamba-compare-to-transformer-self-attention.md) | 🔴 Advanced |
+| 110 | [How does Differential Attention work to suppress noise and improve long-context focus?](./llm-fundamentals/how-does-differential-attention-work-to-suppress-noise-and-improve-long-context-focus.md) | 🔴 Advanced |
 
 </details>
 
@@ -318,7 +350,7 @@ _40 questions_
 | 86 | [What is context precision vs context recall in RAG?](./evaluation-and-testing/what-is-context-precision-vs-context-recall-in-rag.md) | 🟢 Beginner |
 | 87 | [What is faithfulness vs answer relevance in LLM evals?](./evaluation-and-testing/what-is-faithfulness-vs-answer-relevance-in-llm-evals.md) | 🟢 Beginner |
 | 88 | [What is ground-truth reference data in evaluation harnesses?](./evaluation-and-testing/what-is-ground-truth-reference-data-in-evaluation-harnesses.md) | 🟢 Beginner |
-| 89 | [How do you measure inter-annotator agreement (Cohen's Kappa) with LLM judges?](./evaluation-and-testing/how-do-you-measure-inter-annotator-agreement-cohen-s-kappa-with-llm-judges.md) | 🟡 Intermediate |
+| 89 | [How do you measure inter-annotator agreement (Cohen's Kappa) with LLM judges?](./evaluation-and-testing/how-do-you-measure-inter-annotator-agreement-cohens-kappa-with-llm-judges.md) | 🟡 Intermediate |
 | 90 | [How do you build an automated red teaming harness against jailbreaks?](./evaluation-and-testing/how-do-you-build-an-automated-red-teaming-harness-against-jailbreaks.md) | 🔴 Advanced |
 | 171 | [What is exact match (EM) vs F1 score in extraction and classification evals?](./evaluation-and-testing/what-is-exact-match-em-vs-f1-score-in-extraction-and-classification-evals.md) | 🟢 Beginner |
 | 172 | [What is BLEU and ROUGE scoring and why are they inadequate for modern LLM evaluation?](./evaluation-and-testing/what-is-bleu-and-rouge-scoring-and-why-are-they-inadequate-for-modern-llm-evaluation.md) | 🟢 Beginner |
@@ -335,10 +367,10 @@ _40 questions_
 
 ### 🛡️ Governance & Career Track
 
-_40 questions_
+_45 questions_
 
 <details>
-<summary><b>AI Safety and Governance</b> · 20 questions · 🟢 10 🟡 6 🔴 4</summary>
+<summary><b>AI Safety and Governance</b> · 25 questions · 🟢 11 🟡 8 🔴 6</summary>
 
 [Open the AI Safety and Governance index →](./ai-safety-and-governance/README.md)
 
@@ -355,15 +387,20 @@ _40 questions_
 | 94 | [How do NeMo Guardrails enforce programmable rails using Colang?](./ai-safety-and-governance/how-do-nemo-guardrails-enforce-programmable-rails-using-colang.md) | 🟡 Intermediate |
 | 95 | [How do you enforce strict RBAC and data isolation in enterprise RAG?](./ai-safety-and-governance/how-do-you-enforce-strict-rbac-and-data-isolation-in-enterprise-rag.md) | 🔴 Advanced |
 | 181 | [What is indirect prompt injection and how does it occur when parsing web pages/documents?](./ai-safety-and-governance/what-is-indirect-prompt-injection-and-how-does-it-occur-when-parsing-web-pages-documents.md) | 🟢 Beginner |
-| 182 | [What is PII masking (anonymization) and how do Presidio/Regex filters protect user privacy?](./ai-safety-and-governance/what-is-pii-masking-anonymization-and-how-do-presidio-regex-filters-protect-user-privacy.md) | 🟢 Beginner |
+| 182 | [What is PII masking (pseudonymization) and how do Presidio/Regex filters protect user privacy?](./ai-safety-and-governance/what-is-pii-masking-pseudonymization-and-how-do-presidio-regex-filters-protect-user-privacy.md) | 🟢 Beginner |
 | 183 | [What is copyright infringement risk in RAG and fine-tuning datasets?](./ai-safety-and-governance/what-is-copyright-infringement-risk-in-rag-and-fine-tuning-datasets.md) | 🟢 Beginner |
 | 184 | [What is model jailbreaking and how do safety classifiers block it?](./ai-safety-and-governance/what-is-model-jailbreaking-and-how-do-safety-classifiers-block-it.md) | 🟢 Beginner |
 | 185 | [What is data lineage tracking for RAG documents and enterprise vector stores?](./ai-safety-and-governance/what-is-data-lineage-tracking-for-rag-documents-and-enterprise-vector-stores.md) | 🟢 Beginner |
 | 186 | [How to prevent Data Exfiltration via Markdown image tags and hidden web beacons in LLM outputs?](./ai-safety-and-governance/how-to-prevent-data-exfiltration-via-markdown-image-tags-and-hidden-web-beacons-in-llm-outputs.md) | 🟡 Intermediate |
-| 187 | [How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?](./ai-safety-and-governance/how-does-llama-guard-taxonomy-classify-unsafe-inputs-and-outputs.md) | 🟡 Intermediate |
+| 187 | [How does Llama Guard taxonomy classify unsafe inputs and outputs across safety categories?](./ai-safety-and-governance/how-does-llama-guard-taxonomy-classify-unsafe-inputs-and-outputs-across-safety-categories.md) | 🟡 Intermediate |
 | 188 | [How to enforce Role-Based Access Control (RBAC) filtering in multi-tenant RAG vector search?](./ai-safety-and-governance/how-to-enforce-role-based-access-control-rbac-filtering-in-multi-tenant-rag-vector-search.md) | 🟡 Intermediate |
 | 189 | [How do NeMo Guardrails use Colang state flows to strictly control conversation trajectories?](./ai-safety-and-governance/how-do-nemo-guardrails-use-colang-state-flows-to-strictly-control-conversation-trajectories.md) | 🔴 Advanced |
 | 190 | [How to audit and secure Model Context Protocol (MCP) servers against unauthorized tool invocation?](./ai-safety-and-governance/how-to-audit-and-secure-model-context-protocol-mcp-servers-against-unauthorized-tool-invocation.md) | 🔴 Advanced |
+| 201 | [What is model inversion and membership inference, and how do you defend against them?](./ai-safety-and-governance/what-is-model-inversion-and-membership-inference-and-how-do-you-defend-against-them.md) | 🔴 Advanced |
+| 202 | [What is training data poisoning and how do backdoor triggers survive fine-tuning?](./ai-safety-and-governance/what-is-training-data-poisoning-and-how-do-backdoor-triggers-survive-fine-tuning.md) | 🔴 Advanced |
+| 203 | [What is model supply chain security and why are serialized model weights dangerous?](./ai-safety-and-governance/what-is-model-supply-chain-security-and-why-are-serialized-model-weights-dangerous.md) | 🟡 Intermediate |
+| 204 | [How does the EU AI Act classify AI systems into risk tiers?](./ai-safety-and-governance/how-does-the-eu-ai-act-classify-ai-systems-into-risk-tiers.md) | 🟡 Intermediate |
+| 205 | [What is the NIST AI Risk Management Framework and how do its four functions structure AI governance?](./ai-safety-and-governance/what-is-the-nist-ai-risk-management-framework-and-how-do-its-four-functions-structure-ai-governance.md) | 🟢 Beginner |
 
 </details>
 
@@ -411,30 +448,6 @@ Every question in this repository adheres to a strict four-part structure:
 4. **Interview tips:** What interviewers probe next, common traps, and real-world failure modes.
 
 ---
-
-## 🌐 Interactive 3D Knowledge Graph
-
-This repository features an interactive **WebGL 3D Force-Directed Knowledge Graph** published via GitHub Pages. It maps all 200 questions, 10 topic hubs, and concept `[[wikilinks]]` into a connected network.
-
-- **URL:** [https://mchittineni.github.io/ultimate-ai-engineering-guide/](https://mchittineni.github.io/ultimate-ai-engineering-guide/)
-- **Features:**
-  - 🌌 **3D Space Environment:** Rotate, pan, and zoom through 190 nodes and 350 directional concept edges in WebGL space.
-  - ✨ **Animated Particle Links:** Visualizes concept flow across topics with directional light particle effects.
-  - 🎯 **3D Focus & Camera Animation:** Click any node to focus the camera directly on the question or topic cluster.
-  - 📖 **Slide-out Glassmorphism Info Panel:** Instant access to question metadata and direct links to the raw Markdown files on GitHub.
-
----
-
-## 🛠️ Developer Scripts
-
-We provide Python utilities in the `scripts/` directory to manage content integrity, regenerate indexes, and build the WebGL 3D knowledge graph:
-
-| Script | Command | Purpose |
-| --- | --- | --- |
-| **Validate Content** | `python3 scripts/validate_content.py` | Lints frontmatter metadata, duplicate question IDs, title matching, and Markdown formatting. |
-| **Generate Indexes** | `python3 scripts/generate_indexes.py` | Automatically updates all 10 topic `README.md` files and root `README.md` statistics & TOC tables. |
-| **Inject Wikilinks** | `python3 scripts/inject_wikilinks.py` | Scans question files and injects cross-topic `[[wikilinks]]` and relative Markdown links. |
-| **Build Knowledge Graph** | `python3 scripts/build_knowledge_graph.py` | Builds the interactive WebGL 3D Force Graph and outputs static HTML to `docs/index.html`. |
 
 ### Local Development & Preview Workflow
 
