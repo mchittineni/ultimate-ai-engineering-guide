@@ -17,7 +17,7 @@ tags:
 
 Traditional NLP evaluation relied on surface-level n-gram overlap with reference strings.
 
-```
+```text
 Ground Truth: "The revenue increased significantly in Q3."
 Candidate A:  "Q3 revenue saw substantial growth."  ──► BLEU/ROUGE = Low Score (Poor n-gram match!)
 Candidate B:  "The revenue increased significantly in Q3." ──► BLEU/ROUGE = 1.0 (High score)
@@ -27,7 +27,7 @@ Candidate C:  "The revenue decreased significantly in Q3." ──► BLEU/ROUGE 
 ### Why Traditional N-Gram Metrics Fail LLMs
 
 1. **Paraphrase Blindness:** BLEU/ROUGE penalize high-quality, creative responses that express identical meaning using different vocabulary.
-2. **Semantic Inversion Inability:** Changing a single word (e.g. *"increased"* to *"decreased"*) keeps 95% of n-grams identical, producing high ROUGE scores for factually inverted hallucinations.
+2. **Semantic Inversion Inability:** Changing a single word (e.g. _"increased"_ to _"decreased"_) keeps 95% of n-grams identical, producing high ROUGE scores for factually inverted hallucinations.
 3. **Reasoning Inefficiency:** Cannot evaluate logic, code execution, multi-turn dialogue, or guardrail compliance.
 
 ## Example

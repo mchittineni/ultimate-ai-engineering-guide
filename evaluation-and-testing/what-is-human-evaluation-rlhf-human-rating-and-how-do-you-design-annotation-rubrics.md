@@ -17,7 +17,7 @@ tags:
 
 While automated metrics are fast, human evaluation remains the gold standard ground-truth for subjective quality, safety, and domain correctness.
 
-```
+```text
 Model Generation Output ──► [Human Domain Expert Annotator] ──► Inspects Detailed Rubric
                                                                          │
                                                                          ▼
@@ -29,7 +29,7 @@ Model Generation Output ──► [Human Domain Expert Annotator] ──► Insp
 
 ### Key Principles of Resilient Rubrics
 
-1. **Unambiguous Criteria:** Defining precise score distinctions (e.g. *"Score 3 = Answer is factually correct but includes minor formatting flaws; Score 1 = Factually incorrect"*).
+1. **Unambiguous Criteria:** Defining precise score distinctions (e.g. _"Score 3 = Answer is factually correct but includes minor formatting flaws; Score 1 = Factually incorrect"_).
 2. **Pairwise vs Absolute Scoring:** Pairwise comparison ("Model A vs Model B") yields higher inter-annotator agreement than absolute 1-10 numerical scoring.
 3. **Control Calibration Examples:** Providing annotators with pre-labeled benchmark examples to calibrate scoring tendencies.
 

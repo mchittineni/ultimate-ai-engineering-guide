@@ -29,7 +29,7 @@ $$R_A' = R_A + K \cdot (S_A - E_A)$$
 
 Where $K$ is the update sensitivity factor (standard $K = 32$).
 
-```
+```text
 Model A (Rating 1500) vs Model B (Rating 1500)
   ├── Expected Win Prob: 50% vs 50%
   └── Model A Wins ──► R_A increases to 1516 | R_B drops to 1484
@@ -44,7 +44,7 @@ def update_elo_ratings(r_a: float, r_b: float, outcome: float, k: float = 32.0) 
     # outcome: 1.0 if Model A wins, 0.5 if tie, 0.0 if Model B wins
     e_a = 1.0 / (1.0 + 10.0 ** ((r_b - r_a) / 400.0))
     e_b = 1.0 / (1.0 + 10.0 ** ((r_a - r_b) / 400.0))
-    
+
     new_r_a = r_a + k * (outcome - e_a)
     new_r_b = r_b + k * ((1.0 - outcome) - e_b)
     return round(new_r_a, 1), round(new_r_b, 1)

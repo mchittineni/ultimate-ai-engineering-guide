@@ -17,7 +17,7 @@ tags:
 
 Using LLMs to grade other LLMs introduces systematic cognitive biases:
 
-```
+```text
 Position Bias:  Judge prefers Candidate A simply because it appeared first in the prompt.
 Verbosity Bias: Judge assigns 5/5 to a long rambling 500-word answer over a precise 20-word answer.
 ```
@@ -25,7 +25,7 @@ Verbosity Bias: Judge assigns 5/5 to a long rambling 500-word answer over a prec
 ### Mitigation Strategies
 
 1. **Position Swapping (Bidirectional Eval):** Run evaluation twice, swapping candidates: `Eval 1: (A, B)` and `Eval 2: (B, A)`. Accept win only if candidate wins in both positions.
-2. **Length-Controlled Rubrics:** Instruct the judge explicitly: *"Do not award higher scores for longer responses. Evaluate conciseness and precision."*
+2. **Length-Controlled Rubrics:** Instruct the judge explicitly: _"Do not award higher scores for longer responses. Evaluate conciseness and precision."_
 3. **Reference-Guided Rubrics:** Provide explicit ground-truth reference answers to anchor judge scoring.
 
 ## Example
@@ -38,7 +38,7 @@ def evaluate_pairwise_unbiased(candidate_a: str, candidate_b: str, judge_fn) -> 
     res1 = judge_fn(first=candidate_a, second=candidate_b) # Returns 'first' or 'second'
     # Pass 2: B first, A second
     res2 = judge_fn(first=candidate_b, second=candidate_a) # Returns 'first' or 'second'
-    
+
     if res1 == "first" and res2 == "second":
         return "Model A Wins"
     elif res1 == "second" and res2 == "first":

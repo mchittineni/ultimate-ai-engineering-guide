@@ -19,7 +19,7 @@ LLM-as-a-Judge evaluations using GPT-4o are accurate but expensive for high-volu
 
 NLI cross-encoder models evaluate hallucination deterministically at $100\times$ lower latency and cost.
 
-```
+```text
 Premise (Retrieved Context): "Company revenue grew 15% in Q3 to $5M."
 Hypothesis (LLM Output):    "Company revenue was $5M in Q3."
                                         │

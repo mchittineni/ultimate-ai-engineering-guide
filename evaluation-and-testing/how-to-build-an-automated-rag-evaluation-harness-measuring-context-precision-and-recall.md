@@ -17,7 +17,7 @@ tags:
 
 Evaluating RAG requires isolating retrieval performance from generation quality.
 
-```
+```text
                   ┌──► 1. Context Precision ──► Are top-ranked retrieved chunks relevant?
 Retrieval Phase ──┤
                   └──► 2. Context Recall    ──► Were all ground-truth facts retrieved?

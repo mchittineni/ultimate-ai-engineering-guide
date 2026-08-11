@@ -17,7 +17,7 @@ tags:
 
 Evaluating structured entity extraction or short-answer Q&A requires metrics that handle minor string variations.
 
-```
+```text
 Ground Truth Answer: "San Francisco, California"
 Generated Output:   "San Francisco, CA"
 
@@ -29,13 +29,13 @@ Token-level F1:    0.67 (Partial credit for matching "San" and "Francisco")
 
 1. **Exact Match (EM):**
 
-$$\text{EM} = \begin{cases} 1.0 & \text{if } \text{normalize}(y_{pred}) == \text{normalize}(y_{true}) \\ 0.0 & \text{otherwise} \end{cases}$$
+   $$\text{EM} = \begin{cases} 1.0 & \text{if } \text{normalize}(y_{pred}) == \text{normalize}(y_{true}) \\ 0.0 & \text{otherwise} \end{cases}$$
 
 2. **Token-Level F1 Score:**
 
-$$\text{Precision} = \frac{|T_{pred} \cap T_{true}|}{|T_{pred}|}, \quad \text{Recall} = \frac{|T_{pred} \cap T_{true}|}{|T_{true}|}$$
+   $$\text{Precision} = \frac{|T_{pred} \cap T_{true}|}{|T_{pred}|}, \quad \text{Recall} = \frac{|T_{pred} \cap T_{true}|}{|T_{true}|}$$
 
-$$F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
+   $$F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
 
 ## Example
 
@@ -45,15 +45,15 @@ Python implementation of EM and token-level F1 score:
 def calculate_em_and_f1(prediction: str, ground_truth: str) -> tuple[float, float]:
     pred_tokens = prediction.lower().split()
     gt_tokens = ground_truth.lower().split()
-    
+
     # Exact Match
     em = 1.0 if prediction.strip().lower() == ground_truth.strip().lower() else 0.0
-    
+
     # Token-level F1
     common = set(pred_tokens) & set(gt_tokens)
     if not common:
         return em, 0.0
-        
+
     precision = len(common) / len(pred_tokens)
     recall = len(common) / len(gt_tokens)
     f1 = 2 * (precision * recall) / (precision + recall)

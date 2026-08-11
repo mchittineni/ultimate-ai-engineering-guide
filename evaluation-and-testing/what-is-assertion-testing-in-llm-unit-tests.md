@@ -19,7 +19,7 @@ Relying entirely on expensive LLM-as-a-Judge evaluations for basic format checks
 
 Assertion testing uses fast, deterministic Python assertions as the first line of defense:
 
-```
+```text
 LLM Generated Output
          │
          ▼
@@ -47,13 +47,13 @@ import pytest
 def test_llm_json_output_schema():
     # Simulated LLM output text
     llm_output = '{"user_id": 123, "status": "active"}'
-    
+
     # 1. Assert valid JSON parsing
     try:
         data = json.loads(llm_output)
     except json.JSONDecodeError:
         pytest.fail("LLM output is not valid JSON")
-        
+
     # 2. Assert required keys exist
     assert "user_id" in data, "Missing required key 'user_id'"
     assert "status" in data, "Missing required key 'status'"

@@ -19,7 +19,7 @@ Building evaluation datasets manually requires hundreds of human annotation hour
 
 Synthetic dataset generation bootstraps evaluation suites in hours:
 
-```
+```text
 Raw Unstructured Documents (PDFs, Docs)
                  │
                  ▼
@@ -48,7 +48,7 @@ Passage:
 
 OUTPUT JSON FORMAT:
 {{"question": "...", "reference_answer": "..."}}"""
-    
+
     response_json = llm_fn(prompt)
     return response_json
 ```
