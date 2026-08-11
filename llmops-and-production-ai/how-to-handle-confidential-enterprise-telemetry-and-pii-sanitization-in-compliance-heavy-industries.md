@@ -74,7 +74,7 @@ print("Restored Output:", redactor.restore(f"Response sent to {clean_prompt}"))
 ## Related Concepts
 
 - [[What is structured logging for LLM prompts, completions, and token metrics?]] (`#161`): [What is structured logging for LLM prompts, completions, and token metrics?](../llmops-and-production-ai/what-is-structured-logging-for-llm-prompts-completions-and-token-metrics.md)
-- [[What is PII masking (anonymization) and how do Presidio/Regex filters protect user privacy?]] (`#182`): [What is PII masking (anonymization) and how do Presidio/Regex filters protect user privacy?](../ai-safety-and-governance/what-is-pii-masking-anonymization-and-how-do-presidio-regex-filters-protect-user-privacy.md)
+- [[What is PII masking (pseudonymization) and how do Presidio/Regex filters protect user privacy?]] (`#182`): [What is PII masking (pseudonymization) and how do Presidio/Regex filters protect user privacy?](../ai-safety-and-governance/what-is-pii-masking-pseudonymization-and-how-do-presidio-regex-filters-protect-user-privacy.md)
 - [[How to enforce Role-Based Access Control (RBAC) filtering in multi-tenant RAG vector search?]] (`#188`): [How to enforce Role-Based Access Control (RBAC) filtering in multi-tenant RAG vector search?](../ai-safety-and-governance/how-to-enforce-role-based-access-control-rbac-filtering-in-multi-tenant-rag-vector-search.md)
 
 ---
