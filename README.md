@@ -14,6 +14,10 @@ Every answer gives you a short answer you can say out loud, the detail and trade
 ![Topics](https://img.shields.io/badge/topics-10-blueviolet)
 ![Difficulty](https://img.shields.io/badge/difficulty-🟢%20101%20·%20🟡%2062%20·%20🔴%2042-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/mchittineni)
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-24292F?style=for-the-badge&logo=githubsponsors&logoColor=EA4AAA)](https://github.com/sponsors/mchittineni)
 
 [🌐 3D Knowledge Graph](https://mchittineni.github.io/ultimate-ai-engineering-guide/) · [Pick your role](#-pick-your-role) · [Browse topics](#-browse-all-topics) · [All questions](#-all-questions) · [How answers are structured](#-how-answers-are-structured) · [Contributing](./CONTRIBUTING.md)
 
